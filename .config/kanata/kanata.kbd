@@ -35,15 +35,20 @@
   ;; --- Vim layers ---
   ;; toggling different layers for Vim motions
   L_ret_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
-  L_spc_leader_tog (tap-hold-release $tap_timeout $hold_timeout spc (layer-toggle leader))
+  L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
   L_win_tog (tap-hold-release $tap_timeout $hold_timeout w (layer-toggle window))
+
+  ;; Homerow mods tog
   L_f_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle ctrl_homerow))
   L_j_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout j (layer-toggle ctrl_homerow))
   L_d_alt_tog (tap-hold-release $tap_timeout $hold_timeout d (layer-toggle alt_homerow))
+  L_k_alt_tog (tap-hold-release $tap_timeout $hold_timeout k (layer-toggle alt_homerow))
+
+  ;; Modes tog from normal mode layer
   L_f_norm_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle normal_mode_ctrl_layer))
   L_g_norm_g_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle normal_mode_g_layer))
 
-  ;; shift modes tog
+  ;; Shift modes tog from normal mode layer
   L_lsft_norm_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle normal_mode_shift_layer))
   L_rsft_norm_shift_tog (tap-hold-release $tap_timeout $hold_timeout rsft (layer-toggle normal_mode_shift_layer))
   L_lsft_norm_d_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle normal_mode_d_shift_layer))
@@ -108,7 +113,6 @@
   (c v) @a_terminal 25 first-release ()
   (f g) @a_firefox 50 first-release ()
   (v b) @a_chrome 50 first-release ()
-  (r e) @a_slack 25 first-release ()
 
   ;; key chords
   (x c) esc 50 first-release () ;; escape easier to reach
@@ -149,6 +153,7 @@
   d (multi @L_main @a_dbclient)
   x (multi @L_main @a_editor2)
   p (multi @L_main @a_clipboard)
+  g (multi @L_main @a_postman)
   spc (multi @L_main @a_launcher)
   / (multi @L_main @a_terminal)
   q (multi @L_main A-tab)       ;; go to previous window (alt-tab)
