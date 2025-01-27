@@ -149,6 +149,7 @@
   f (multi @L_main @a_firefox)
   t (multi @L_main @a_terminal)
   b (multi @L_main @a_email)
+  v (multi @L_main @a_editor)
   e (multi @L_main @a_filemanager)
   d (multi @L_main @a_dbclient)
   x (multi @L_main @a_editor2)
