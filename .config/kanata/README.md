@@ -52,7 +52,7 @@ other layers (same as Vim):
 - `<leader>w` - enter window layer
 - `<leader>n` - enter normal mode layer
 - `<leader>f` - open/focus Firefox
-- `<leader>t` - open/focus Terminal
+- `<leader>c` - open/focus Chrome
 - `<leader>q` - go to previous window
 - `<leader>r` - open launcher (like [rofi](https://github.com/lbonn/rofi) or [KRunner](https://userbase.kde.org/Plasma/Krunner))
 - `<leader>p` - open clipboard history and go to normal mode so you can navigate using `hjkl` and paste using `p` (uses KDE clipboard by default)
@@ -121,7 +121,7 @@ You can map any layer to any key this way.
 ### Input Chords
 
 For some most frequent apps/actions it might be faster to just press `key1+key2` than going to a layer.
-For these I use [Input chords](https://github.com/jtroo/kanata/blob/v1.7.0/docs/config.adoc#input-chords--combos-v2). This allows executing actions by pressing any two (or more) keys at the same time.
+For these you can use [Input chords](https://github.com/jtroo/kanata/blob/v1.7.0/docs/config.adoc#input-chords--combos-v2). This allows executing actions by pressing any two (or more) keys at the same time.
 For example you can press `1+2`, `1+2+3`, or `a+b`, etc. I use it to switch between specific windows or layers:
 
 - `d+f` focuses my terminal that runs Neovim

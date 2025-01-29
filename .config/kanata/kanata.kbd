@@ -105,7 +105,8 @@
 (defchordsv2-experimental
   ;; layer chords
   (j k) @L_leader 50 first-release ()
-  (s d f) @L_leader 50 first-release ()
+  ;; (d f) @L_leader 50 first-release ()
+  ;; (s d f) @L_leader 50 first-release ()
   (n m) @L_norm 50 first-release ()
 
   ;; app chords
@@ -116,6 +117,7 @@
 
   ;; key chords
   (x c) esc 50 first-release () ;; escape easier to reach
+  ;; (d f) (multi lalt lctl) 50 first-release () ;; ctrl + alt on home row
 )
 
 (deflayermap (main)
@@ -147,14 +149,14 @@
   s (multi @L_main @a_slack)
   c (multi @L_main @a_chrome)
   f (multi @L_main @a_firefox)
-  t (multi @L_main @a_terminal)
+  d (multi @L_main @a_terminal)
   b (multi @L_main @a_email)
   v (multi @L_main @a_editor)
   e (multi @L_main @a_filemanager)
-  d (multi @L_main @a_dbclient)
+  g (multi @L_main @a_dbclient)
   x (multi @L_main @a_editor2)
   p (multi @L_main @a_clipboard)
-  g (multi @L_main @a_postman)
+  t (multi @L_main @a_postman)
   spc (multi @L_main @a_launcher)
   / (multi @L_main @a_terminal)
   q (multi @L_main A-tab)       ;; go to previous window (alt-tab)
@@ -191,6 +193,7 @@
   n C-f3 ;; next search default key in some apps
   x (macro right bspc) ;; delete a letter under cursor
   / (multi @L_main C-f)  ;; find
+  bspc bspc
 
   ;; layers
   ;; spc @L_leader
@@ -205,11 +208,12 @@
   c @L_c
   v @L_v
   y @L_y
-  ___ XX
 
   ;; keys from shift layer without the need to press shift (shift layer still works though)
   4 end   ;; go to the end of the line, same as $ in vim
   6 home  ;; go to the beginning of the line, same as ^ in vim
+
+  ___ XX
 )
 
 ;; ctrl mode accessed from normal mode
@@ -251,10 +255,14 @@
   esc @L_norm
   ' @L_norm
   i @L_d_i
-  d (multi @L_norm (macro home S-end C-c del del))  ;; delete line, same as "dd" in vim
-  0 (multi @L_norm (macro S-home C-c del))          ;; delete to the position 0 of the line (same as vim)
-  4 (multi @L_norm (macro S-end C-c del))           ;; delete to the end of the line, same as d$ in vim
-  6 (multi @L_norm (macro S-home C-c del))          ;; delete to the beginning of the line, same as d^ in vim
+  d (multi @L_norm (macro home S-end C-c del del))          ;; delete line, same as "dd" in vim
+  0 (multi @L_norm (macro S-home C-c del))                  ;; delete to the position 0 of the line (same as vim)
+  4 (multi @L_norm (macro S-end C-c del))                   ;; delete to the end of the line, same as d$ in vim
+  6 (multi @L_norm (macro S-home C-c del))                  ;; delete to the beginning of the line, same as d^ in vim
+  j (multi @L_norm (macro down home S-end C-c del bspc))    ;; delete line down
+  k (multi @L_norm (macro up home S-end C-c del bspc down)) ;; delete line up
+  l (multi @L_norm del)                                     ;; delete to the right
+  h (multi @L_norm bspc)                                    ;; delete to the left
   lsft @L_lsft_norm_d_shift_tog
   rsft @L_rsft_norm_d_shift_tog
   ___ XX
