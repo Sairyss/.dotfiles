@@ -36,3 +36,46 @@ IgnorePackage print-manager          # A tool for managing print jobs and printe
 IgnorePackage sddm-kcm               # KDE Config Module for SDDM
 IgnorePackage spectacle              # KDE screenshot capture utility
 IgnorePackage xsettingsd             # Provides settings to X11 applications via the XSETTINGS specification
+
+# EndeavourOS
+IgnorePackage amd-ucode
+IgnorePackage argon2
+IgnorePackage dialog
+IgnorePackage eos-breeze-sddm
+IgnorePackage ffmpegthumbs
+IgnorePackage fwupd
+IgnorePackage geoclue
+IgnorePackage gptfdisk
+IgnorePackage kdegraphics-thumbnailers
+IgnorePackage kdenetwork-filesharing
+IgnorePackage kgamma
+IgnorePackage kimageformats
+IgnorePackage kio-admin
+IgnorePackage kwayland-integration
+IgnorePackage libappindicator-gtk3
+IgnorePackage libgusb
+IgnorePackage libomxil-bellagio
+IgnorePackage linux-firmware-marvell
+IgnorePackage maliit-keyboard
+IgnorePackage mkinitcpio-nfs-utils
+IgnorePackage nbd
+IgnorePackage ndisc6
+IgnorePackage nvidia-hook
+IgnorePackage nvidia-inst
+IgnorePackage plasma-browser-integration
+IgnorePackage plasma-firewall
+IgnorePackage plocate
+IgnorePackage pptpclient
+IgnorePackage python-future
+IgnorePackage python-pytest
+IgnorePackage python-requests
+IgnorePackage reiserfsprogs
+IgnorePackage rp-pppoe
+IgnorePackage whois
+IgnorePackage wireless-regdb
+IgnorePackage xf86-video-amdgpu
+IgnorePackage xf86-video-ati
+IgnorePackage xf86-video-qxl
+IgnorePackage xwaylandvideobridge
+IgnorePackage python-future
+IgnorePackage reiserfsprogs

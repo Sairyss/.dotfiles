@@ -1,4 +1,5 @@
 AddPackage alacritty               # A cross-platform, GPU-accelerated terminal emulator
+AddPackage kitty                   # Kitty Terminal
 AddPackage atuin                   # Magical shell history
 AddPackage bat                     # Cat clone with syntax highlighting and git integration
 AddPackage broot                   # Fuzzy Search + tree + cd
@@ -12,7 +13,7 @@ AddPackage docker-compose          # Fast, isolated development environments usi
 AddPackage emacs                   # The extensible, customizable, self-documenting real-time display editor
 AddPackage erdtree                 # A multi-threaded filesystem and disk-usage analysis tool
 AddPackage eza                     # A modern replacement for ls (community fork of exa)
-AddPackage fasd                    # Command-line productivity booster, offers quick access to files and directories
+AddPackage zoxide                  # Command-line productivity booster, offers quick access to files and directories
 AddPackage fd                      # Simple, fast and user-friendly alternative to find
 AddPackage firefox                 # Standalone web browser from mozilla.org
 AddPackage firejail                # Linux namespaces sandbox program
@@ -43,6 +44,7 @@ AddPackage ranger                  # Simple, vim-like file manager
 AddPackage ripgrep                 # A search tool that combines the usability of ag with the raw speed of grep
 AddPackage rofi                    # A window switcher, application launcher and dmenu replacement
 AddPackage sed                     # GNU stream editor
+AddPackage starship                # The cross-shell prompt for astronauts
 AddPackage steam                   # Valve's digital software delivery system
 AddPackage stow                    # Symlink farm manager
 AddPackage telegram-desktop        # Official Telegram Desktop client
@@ -77,13 +79,12 @@ AddPackage --foreign google-chrome                # The popular and trusted web 
 AddPackage --foreign headset-charge-indicator-git # Simple app-indicator for GNOME desktops to display the battery charge of some wireless headsets
 AddPackage --foreign headsetcontrol               # Sidetone and Battery status for Logitech G930, G533, G633, G933 SteelSeries Arctis 7/PRO 2019 and Corsair VOID (Pro) in Linux and MacOSX
 AddPackage --foreign jid-bin                      # Json incremental digger
+AddPackage --foreign kanata                       # Bring the customizability of a QMK board to any keyboard near you
 AddPackage --foreign lazydocker                   # A simple terminal UI for docker and docker-compose, written in Go with the gocui library.
 AddPackage --foreign mprocs                       # Run multiple commands in parallel
 AddPackage --foreign opensnitch-ebpf-module       # eBPF process monitor module for opensnitch
 AddPackage --foreign plex-media-server            # The back-end media server component of Plex.
 AddPackage --foreign postman-bin                  # Build, test, and document your APIs faster
-AddPackage --foreign prowlarr                     # Usenet and torrent aggregator, similar to nzbhydra2 and jackett.
-AddPackage --foreign sonarr                       # TV download automation for usenet and torrents.
 AddPackage --foreign scm_breeze-git               # SCM Breeze is a set of shell scripts (for bash and zsh) that enhance your interaction with git.
 AddPackage --foreign slack-desktop                # Slack Desktop (Beta) for Linux
 AddPackage --foreign sqls                         # Language Server Protocol implementation for SQL
