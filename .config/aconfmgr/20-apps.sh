@@ -1,5 +1,4 @@
 AddPackage alacritty               # A cross-platform, GPU-accelerated terminal emulator
-AddPackage kitty                   # Kitty Terminal
 AddPackage atuin                   # Magical shell history
 AddPackage bat                     # Cat clone with syntax highlighting and git integration
 AddPackage broot                   # Fuzzy Search + tree + cd
@@ -28,6 +27,7 @@ AddPackage jellyfin-server         # Jellyfin server backend
 AddPackage jq                      # Command-line JSON processor
 AddPackage qbittorrent             # An advanced BitTorrent client programmed in C++, based on Qt toolkit and libtorrent-rasterbar
 AddPackage keepassxc               # Cross-platform community-driven port of Keepass password manager
+AddPackage kitty                   # Kitty Terminal
 AddPackage kiwix-desktop           # Offline reader for Web content, especially intended to make Wikipedia available offline
 AddPackage lazygit                 # Simple terminal UI for git commands
 AddPackage lutris                  # Open Gaming Platform
@@ -67,6 +67,7 @@ AddPackage xdotool                 # Command-line X11 automation tool
 AddPackage yank                    # Copy terminal output to clipboard
 AddPackage yarn                    # Fast, reliable, and secure dependency management
 AddPackage yay                     # Yet another yogurt. Pacman wrapper and AUR helper written in go. Pre-compiled.
+AddPackage yazi                    # Blazing fast terminal file manager written in Rust, based on async I/O
 AddPackage zellij                  # A terminal multiplexer
 AddPackage zk                      # A command-line tool helping you to maintain a Zettelkasten or personal wiki
 AddPackage zsh                     # A very advanced and programmable command interpreter (shell) for UNIX
