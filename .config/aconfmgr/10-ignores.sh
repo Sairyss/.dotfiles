@@ -1,3 +1,4 @@
+IgnorePath '/' # ignore all for now to avoid some issues
 IgnorePath '/boot/*'
 IgnorePath '/var/tmp/*'
 IgnorePath '/tmp/*'
