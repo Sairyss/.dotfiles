@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Exec=/home/user/.local/bin/kanata-tray-linux
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Kanata Tray
+Comment=Autostart Kanata Tray application
