@@ -37,7 +37,7 @@ return {
       { "<leader>fR", "<cmd>FzfLua oldfiles<cr>", desc = "Recent" },
       { "<leader>fr", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
       { "<C-M-o>", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
-      { "<C-p>", LazyVim.pick("files"), desc = "Find Files (Root Dir)" },
+      { "<C-p>", LazyVim.pick("files", { cwd = vim.uv.cwd() }), desc = "Find Files (cwd)" },
       { "<C-M-p>", "<cmd>FzfLua git_status<CR>", desc = "Status" },
       { "<C-M-/>", "<cmd>FzfLua resume<cr>", desc = "Resume" },
     },
@@ -171,6 +171,17 @@ return {
         end,
         mode = { "n", "v" },
         desc = "Search and Replace",
+      },
+    },
+  },
+  {
+    "folke/snacks.nvim",
+    ---@type snacks.Config
+    opts = {
+      zen = {
+        toggles = {
+          dim = false,
+        },
       },
     },
   },

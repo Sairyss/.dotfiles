@@ -1,5 +1,24 @@
-[plugin]
-deps = [{ use = "dedukun/bookmarks", rev = "202e450" }, { use = "yazi-rs/plugins:git", rev = "600614a" }, { use = "Reledia/glow", rev = "5ce76dc" }, { use = "boydaihungst/mediainfo", rev = "ddfd5ec" }]
+[[plugin.deps]]
+use = "dedukun/bookmarks"
+rev = "202e450"
+hash = "9e2f6f7381542d3adb3080b394b431b4"
 
-[flavor]
-deps = [{ use = "yazi-rs/flavors:catppuccin-mocha", rev = "fc8eeaa" }]
+[[plugin.deps]]
+use = "yazi-rs/plugins:git"
+rev = "600614a"
+hash = "e9cf1bfc03de7fee0f1d4260da0d1dfd"
+
+[[plugin.deps]]
+use = "Reledia/glow"
+rev = "5ce76dc"
+hash = "52e5f5c602962e7cbf874da28f52ba45"
+
+[[plugin.deps]]
+use = "boydaihungst/mediainfo"
+rev = "ddfd5ec"
+hash = "30f1eb92543be9624503cb79d03dbd19"
+
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-mocha"
+rev = "fc8eeaa"
+hash = "407710c2af9621a8351453e637d6c870"
