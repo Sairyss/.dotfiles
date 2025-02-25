@@ -4,11 +4,6 @@ rev = "202e450"
 hash = "9e2f6f7381542d3adb3080b394b431b4"
 
 [[plugin.deps]]
-use = "yazi-rs/plugins:git"
-rev = "600614a"
-hash = "e9cf1bfc03de7fee0f1d4260da0d1dfd"
-
-[[plugin.deps]]
 use = "Reledia/glow"
 rev = "5ce76dc"
 hash = "52e5f5c602962e7cbf874da28f52ba45"

@@ -1,13 +1,3 @@
-[[plugin.prepend_fetchers]]
-id = "git"
-name = "*"
-run = "git"
-
-[[plugin.prepend_fetchers]]
-id = "git"
-name = "*/"
-run = "git"
-
 [plugin]
 prepend_previewers = [
   { name = "*.md", run = "glow" },
@@ -17,6 +7,6 @@ prepend_previewers = [
 
 [opener]
 edit = [
-  { run = '/home/linuxbrew/.linuxbrew/bin/nvim "$@"', block = true, for = "unix" },
+  { run = '/usr/bin/nvim "$@"', block = true, for = "unix" },
   { run = "%EDITOR% %*", block = true, for = "windows" },
 ]
