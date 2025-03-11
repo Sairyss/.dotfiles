@@ -1,0 +1,143 @@
+// Zed keymap
+//
+// For information on binding keys, see the Zed
+// documentation: https://zed.dev/docs/key-bindings
+//
+// To see the default key bindings run `zed: open default keymap`
+// from the command palette.
+[
+  // Moving between panes with ctrl+{h,j,k,l}
+  {
+    "context": "Editor",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown"
+    }
+  },
+  {
+    "context": "Dock",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown"
+    }
+  },
+  // LazyVim keybindings
+  {
+    "context": "Editor && vim_mode == normal",
+    "bindings": {
+      // --- leader key ---
+      // Code actions
+      "space c r": "editor::Rename",
+      "space c a": "editor::ToggleCodeActions",
+      // Find
+      "space f f": "file_finder::Toggle",
+      "space f g": "pane::DeploySearch",
+      // Misc
+      "space e": "workspace::ToggleLeftDock",
+      "space space": "file_finder::Toggle",
+      "space |": "pane::SplitRight",
+      "space w d": "pane::CloseActiveItem",
+      "space b d": "pane::CloseActiveItem",
+      "space ,": "tab_switcher::Toggle",
+      "space /": "workspace::NewSearch",
+      // Git
+      "space g g": ["task::Spawn", { "task_name": "Lazygit" }],
+      "space g h r": "git::Restore",
+      "space g h R": "git::RestoreFile",
+
+      "shift-b": "vim::SelectLargerSyntaxNode",
+      "shift-l": "pane::ActivateNextItem",
+      "shift-h": "pane::ActivatePreviousItem",
+      "ctrl-/": "workspace::ToggleBottomDock",
+
+      // Go to
+      "g r": "editor::FindAllReferences",
+
+      // Repeat find
+      "alt-;": "vim::RepeatFind",
+      "; ;": "vim::RepeatFind",
+      ", ,": "vim::RepeatFindReversed",
+      "alt-,": "vim::RepeatFindReversed",
+
+      // Go to
+      "] e": "editor::GoToDiagnostic",
+      "; e": "editor::GoToDiagnostic",
+      "[ e": "editor::GoToPreviousDiagnostic",
+      ", e": "editor::GoToPreviousDiagnostic",
+      "] d": "editor::GoToDiagnostic",
+      "; d": "editor::GoToDiagnostic",
+      "[ d": "editor::GoToPreviousDiagnostic",
+      ", d": "editor::GoToPreviousDiagnostic",
+      "] h": "editor::GoToHunk",
+      "; h": "editor::GoToHunk",
+      "[ h": "editor::GoToPreviousHunk",
+      ", h": "editor::GoToPreviousHunk"
+
+      // "d i w": ["workspace::SendKeystrokes", "b v e d"],
+      // "d i e": ["workspace::SendKeystrokes", "alt-b v alt-e d"]
+      // "c i e": ["workspace::SendKeystrokes", "alt-b v alt-e c"]
+    }
+  },
+  {
+    "context": "Terminal",
+    "bindings": {
+      "ctrl-/": "workspace::ToggleBottomDock"
+    }
+  },
+  {
+    "context": "ProjectPanel",
+    "bindings": {
+      "space e": "workspace::ToggleLeftDock",
+      "space /": "workspace::NewSearch",
+      "ctrl-/": "workspace::ToggleBottomDock",
+      "a": "project_panel::NewFile",
+      "A": "project_panel::NewDirectory",
+      "r": "project_panel::Rename",
+      "d": "project_panel::Delete",
+      "c": "project_panel::Duplicate",
+      "f": "project_panel::NewDirectory",
+      "Y": "workspace::CopyPath",
+      "y": "workspace::CopyRelativePath"
+    }
+  },
+  // Vim bindings
+  {
+    "context": "Editor && vim_mode == insert",
+    "bindings": {
+      "alt-h": "vim::Left",
+      "alt-l": "vim::Right",
+      "alt-j": "vim::Down",
+      "alt-k": "vim::Up"
+    }
+  },
+  {
+    "context": "Editor && vim_mode == visual",
+    "bindings": {
+      "alt-j": "editor::MoveLineDown",
+      "alt-k": "editor::MoveLineUp",
+      "shift-b": "vim::SelectLargerSyntaxNode",
+      "backspace": "vim::SelectSmallerSyntaxNode"
+    }
+  },
+  // Select subwords (camelCase or snake_case)
+  {
+    "context": "VimControl && !menu && vim_mode != operator",
+    "bindings": {
+      "alt-w": "vim::NextSubwordStart",
+      "alt-b": "vim::PreviousSubwordStart",
+      "alt-e": "vim::NextSubwordEnd"
+    }
+  },
+  // Sneak mode (jump to any 2 characters)
+  {
+    "context": "vim_mode == normal || vim_mode == visual",
+    "bindings": {
+      "s": "vim::PushSneak",
+      "shift-s": "vim::PushSneakBackward"
+    }
+  }
+]
