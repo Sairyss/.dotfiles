@@ -132,9 +132,12 @@
   {
     "context": "VimControl && !menu && vim_mode != operator",
     "bindings": {
-      "alt-w": "vim::NextSubwordStart",
-      "alt-b": "vim::PreviousSubwordStart",
-      "alt-e": "vim::NextSubwordEnd"
+      "w": "vim::NextSubwordStart",
+      "b": "vim::PreviousSubwordStart",
+      "e": "vim::NextSubwordEnd",
+      "alt-w": "vim::NextWordStart",
+      "alt-e": "vim::NextWordEnd",
+      "alt-b": "vim::PreviousWordStart"
     }
   },
   // Sneak mode (jump to any 2 characters)
