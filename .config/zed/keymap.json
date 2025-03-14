@@ -36,6 +36,9 @@
       // Find
       "space f f": "file_finder::Toggle",
       "space f g": "pane::DeploySearch",
+      // Search
+      "space s s": ["workspace::SendKeystrokes", "g s"],
+      "space s S": "project_symbols::Toggle",
       // Misc
       "space e": "workspace::ToggleLeftDock",
       "space space": "file_finder::Toggle",
@@ -45,7 +48,9 @@
       "space ,": "tab_switcher::Toggle",
       "space /": "workspace::NewSearch",
       // Git
-      "space g g": ["task::Spawn", { "task_name": "Lazygit" }],
+      "space g g": ["task::Spawn", { "task_name": "lazygit" }],
+      "space g f": ["task::Spawn", { "task_name": "lazygit_file_history" }],
+      "space g h p": "editor::ToggleSelectedDiffHunks",
       "space g h r": "git::Restore",
       "space g h R": "git::RestoreFile",
 
@@ -89,7 +94,7 @@
     }
   },
   {
-    "context": "ProjectPanel",
+    "context": "ProjectPanel && not_editing",
     "bindings": {
       "space e": "workspace::ToggleLeftDock",
       "space /": "workspace::NewSearch",
@@ -138,6 +143,12 @@
     "bindings": {
       "s": "vim::PushSneak",
       "shift-s": "vim::PushSneakBackward"
+    }
+  },
+  {
+    "context": "TabSwitcher",
+    "bindings": {
+      "x": "tab_switcher::CloseSelectedItem"
     }
   }
 ]
