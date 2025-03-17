@@ -94,7 +94,7 @@ return {
     "neovim/nvim-lspconfig",
     opts = function()
       local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      -- add a keymap
+      -- add a keymap to trigger code action with similar key to VSCode
       keys[#keys + 1] = { "<C-.>", vim.lsp.buf.code_action }
       keys[#keys + 1] = { "<C-M-.>", LazyVim.lsp.action.source }
     end,
@@ -128,7 +128,7 @@ return {
     opts = {
       modes = {
         char = {
-          -- remap ; and , to M-; and M-, to free those keys for other purposes
+          -- remap ";" and "," to free those keys for other purposes
           keys = { "f", "F", "t", "T", [";"] = "<M-;>", [","] = "<M-,>" },
         },
       },
@@ -201,6 +201,7 @@ return {
           c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }), -- class
           t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" }, -- tags
           d = { "%f[%d]%d+" }, -- digits
+          -- override the default textobjects to work better with UPPER_SNAKE_CASE and so on
           e = {
             -- Lua 5.1 character classes and the undocumented frontier pattern:
             -- https://www.lua.org/manual/5.1/manual.html#5.4.1

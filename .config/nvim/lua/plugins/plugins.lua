@@ -223,7 +223,6 @@ return {
         desc = "Resume the last yazi session",
       },
     },
-    ---@type YaziConfig
     opts = {
       -- if you want to open yazi instead of netrw, see below for more info
       open_for_directories = false,
@@ -415,17 +414,13 @@ return {
     end,
   },
   {
-    "meznaric/key-analyzer.nvim",
-    opts = {},
-  },
-  {
     "Bekaboo/dropbar.nvim",
     -- optional, but required for fuzzy finder support
     -- dependencies = {
     -- "nvim-telescope/telescope-fzf-native.nvim",
     -- build = "make",
     -- },
-    enabled = false,
+    enabled = true,
     config = function()
       local dropbar_api = require("dropbar.api")
       vim.keymap.set("n", "<Leader>;", dropbar_api.pick, { desc = "Pick symbols in winbar" })
@@ -476,6 +471,21 @@ return {
     -- Optional dependencies
     dependencies = { { "echasnovski/mini.icons", opts = {} } },
     -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
+  },
+  {
+    "petertriho/nvim-scrollbar",
+    config = function()
+      require("scrollbar").setup({
+        handlers = {
+          cursor = true,
+          diagnostic = true,
+          gitsigns = true, -- Requires gitsigns
+          handle = true,
+          search = false, -- Requires hlslens
+          ale = false, -- Requires ALE
+        },
+      })
+    end,
   },
 
   -- Python --
