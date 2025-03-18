@@ -41,12 +41,30 @@ return {
   },
   {
     "neovim/nvim-lspconfig",
-    opts = {
-      inlay_hints = { enabled = false },
-      diagnostics = {
+    opts = function(_, opts)
+      opts.inlay_hints = { enabled = false }
+      opts.diagnostics = {
         virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
-      },
-    },
+      }
+
+      local keys = require("lazyvim.plugins.lsp.keymaps").get()
+      keys[#keys + 1] = {
+        "<F2>",
+        function()
+          local inc_rename = require("inc_rename")
+          return ":" .. inc_rename.config.cmd_name .. " " .. vim.fn.expand("<cword>")
+        end,
+        expr = true,
+        desc = "Rename (inc-rename.nvim)",
+        has = "rename",
+      }
+    end,
+    -- opts = {
+    --   inlay_hints = { enabled = false },
+    --   diagnostics = {
+    --     virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
+    --   },
+    -- },
   },
   {
     "neovim/nvim-lspconfig",
@@ -143,7 +161,20 @@ return {
       },
     },
     keys = {
-      { "<C-p>", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" },
+      {
+        "<leader><space>",
+        function()
+          Snacks.picker.smart()
+        end,
+        desc = "Smart Find Files",
+      },
+      {
+        "<C-p>",
+        function()
+          Snacks.picker.smart()
+        end,
+        desc = "Smart Find Files",
+      },
       {
         "<C-M-p>",
         function()
