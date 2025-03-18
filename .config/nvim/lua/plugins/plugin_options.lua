@@ -1,48 +1,6 @@
 -- Modifications to existing LazyVim plugin options
 return {
   {
-    "ibhagwan/fzf-lua",
-    cmd = "FzfLua",
-    opts = function(_, opts)
-      local config = require("fzf-lua.config")
-
-      config.defaults.keymap.fzf["ctrl-b"] = "half-page-up"
-      config.defaults.keymap.fzf["ctrl-f"] = "half-page-down"
-      config.defaults.keymap.fzf["ctrl-d"] = "preview-page-down"
-      config.defaults.keymap.fzf["ctrl-u"] = "preview-page-up"
-      config.defaults.keymap.builtin["<c-d>"] = "preview-page-down"
-      config.defaults.keymap.builtin["<c-u>"] = "preview-page-up"
-
-      opts.defaults = {
-        -- formatter = "path.dirname_first",
-        formatter = "path.filename_first",
-      }
-      opts.oldfiles = {
-        include_current_session = true,
-      }
-      opts.previewers = {
-        builtin = {
-          syntax_limit_b = 1024 * 100, -- 100KB
-        },
-      }
-      opts.grep = {
-        rg_glob = true, -- enable glob parsing
-        glob_flag = "--iglob", -- case insensitive globs
-        glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
-      }
-    end,
-    keys = {
-      -- { "<leader>/", LazyVim.pick("live_grep_glob"), desc = "Grep (Root Dir)" },
-      { "<leader>/", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
-      { "<leader>fR", "<cmd>FzfLua oldfiles<cr>", desc = "Recent" },
-      { "<leader>fr", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
-      { "<C-M-o>", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
-      { "<C-p>", LazyVim.pick("files", { cwd = vim.uv.cwd() }), desc = "Find Files (cwd)" },
-      { "<C-M-p>", "<cmd>FzfLua git_status<CR>", desc = "Status" },
-      { "<C-M-/>", "<cmd>FzfLua resume<cr>", desc = "Resume" },
-    },
-  },
-  {
     "nvim-treesitter/nvim-treesitter",
     opts = function(_, opts)
       -- add tsx and treesitter
@@ -184,6 +142,23 @@ return {
         },
       },
     },
+    keys = {
+      { "<C-p>", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" },
+      {
+        "<C-M-p>",
+        function()
+          Snacks.picker.git_status()
+        end,
+        desc = "Git Status",
+      },
+      {
+        "<C-M-/>",
+        function()
+          Snacks.picker.resume()
+        end,
+        desc = "Resume",
+      },
+    },
   },
   {
     "echasnovski/mini.ai",
@@ -247,4 +222,49 @@ return {
     --   end)
     -- end,
   },
+
+  ----- old -----
+
+  -- {
+  --   "ibhagwan/fzf-lua",
+  --   cmd = "FzfLua",
+  --   opts = function(_, opts)
+  --     local config = require("fzf-lua.config")
+  --
+  --     config.defaults.keymap.fzf["ctrl-b"] = "half-page-up"
+  --     config.defaults.keymap.fzf["ctrl-f"] = "half-page-down"
+  --     config.defaults.keymap.fzf["ctrl-d"] = "preview-page-down"
+  --     config.defaults.keymap.fzf["ctrl-u"] = "preview-page-up"
+  --     config.defaults.keymap.builtin["<c-d>"] = "preview-page-down"
+  --     config.defaults.keymap.builtin["<c-u>"] = "preview-page-up"
+  --
+  --     opts.defaults = {
+  --       -- formatter = "path.dirname_first",
+  --       formatter = "path.filename_first",
+  --     }
+  --     opts.oldfiles = {
+  --       include_current_session = true,
+  --     }
+  --     opts.previewers = {
+  --       builtin = {
+  --         syntax_limit_b = 1024 * 100, -- 100KB
+  --       },
+  --     }
+  --     opts.grep = {
+  --       rg_glob = true, -- enable glob parsing
+  --       glob_flag = "--iglob", -- case insensitive globs
+  --       glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
+  --     }
+  --   end,
+  --   keys = {
+  --     -- { "<leader>/", LazyVim.pick("live_grep_glob"), desc = "Grep (Root Dir)" },
+  --     { "<leader>/", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
+  --     { "<leader>fR", "<cmd>FzfLua oldfiles<cr>", desc = "Recent" },
+  --     { "<leader>fr", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
+  --     { "<C-M-o>", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
+  --     { "<C-p>", LazyVim.pick("files", { cwd = vim.uv.cwd() }), desc = "Find Files (cwd)" },
+  --     { "<C-M-p>", "<cmd>FzfLua git_status<CR>", desc = "Status" },
+  --     { "<C-M-/>", "<cmd>FzfLua resume<cr>", desc = "Resume" },
+  --   },
+  -- },
 }
