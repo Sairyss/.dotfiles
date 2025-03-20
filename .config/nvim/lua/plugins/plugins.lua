@@ -466,7 +466,7 @@ return {
       default_file_explorer = false,
     },
     keys = {
-      { "<leader>fo", "<cmd>Oil<cr>", desc = "Run Oil" },
+      { "<leader>fo", "<cmd>Oil<cr>", desc = "Oil.nvim" },
     },
     -- Optional dependencies
     dependencies = { { "echasnovski/mini.icons", opts = {} } },
@@ -488,18 +488,13 @@ return {
     end,
   },
   {
-    "Pocco81/auto-save.nvim",
-    config = function()
-      require("auto-save").setup({
-        -- your config goes here
-      })
-    end,
-  },
-  {
-    "arnamak/stay-centered.nvim",
-    lazy = false,
-    opts = {
-      -- skip_filetypes = { "lua", "typescript" },
+    "mbbill/undotree",
+    keys = {
+      {
+        "<leader>fu",
+        "<cmd>UndotreeToggle<cr>",
+        desc = "Undo tree",
+      },
     },
   },
 }

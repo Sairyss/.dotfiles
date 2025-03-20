@@ -19,8 +19,8 @@ keymap("n", "<M-f>", "$", { desc = "Go to the end of line", noremap = false, sil
 keymap("n", "<M-d>", "^", { desc = "Go to the beginning of line", noremap = false, silent = true })
 
 -- Center screen when navigating
--- keymap("n", "<C-d>", "<C-d>zz", { desc = "Center screen when moving down", noremap = true, silent = true })
--- keymap("n", "<C-u>", "<C-u>zz", { desc = "Center screen when moving up", noremap = true, silent = true })
+keymap("n", "<C-d>", "<C-d>zz", { desc = "Center screen when moving down", noremap = true, silent = true })
+keymap("n", "<C-u>", "<C-u>zz", { desc = "Center screen when moving up", noremap = true, silent = true })
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 keymap("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
