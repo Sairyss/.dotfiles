@@ -420,7 +420,7 @@ return {
     -- "nvim-telescope/telescope-fzf-native.nvim",
     -- build = "make",
     -- },
-    enabled = true,
+    enabled = false,
     config = function()
       local dropbar_api = require("dropbar.api")
       vim.keymap.set("n", "<Leader>;", dropbar_api.pick, { desc = "Pick symbols in winbar" })
@@ -471,21 +471,6 @@ return {
     -- Optional dependencies
     dependencies = { { "echasnovski/mini.icons", opts = {} } },
     -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
-  },
-  {
-    "petertriho/nvim-scrollbar",
-    config = function()
-      require("scrollbar").setup({
-        handlers = {
-          cursor = true,
-          diagnostic = true,
-          gitsigns = true, -- Requires gitsigns
-          handle = true,
-          search = false, -- Requires hlslens
-          ale = false, -- Requires ALE
-        },
-      })
-    end,
   },
   {
     "obsidian-nvim/obsidian.nvim",
