@@ -157,7 +157,7 @@ return {
         model = "gpt-4o-2024-05-13",
         proxy = nil, -- [protocol://]host[:port] Use this proxy
         allow_insecure = false, -- Allow insecure server connections
-        timeout = 30000, -- Timeout in milliseconds
+        timeout = 15000, -- Timeout in milliseconds
         temperature = 0,
         max_tokens = 4096,
       },
@@ -379,17 +379,17 @@ return {
 
       {
         "w",
-        "<cmd>lua require('spider').motion('w', { skipInsignificantPunctuation = true, })<CR>",
+        "<cmd>lua require('spider').motion('w', { skipInsignificantPunctuation = false, })<CR>",
         mode = { "n", "o", "x" },
       },
       {
         "e",
-        "<cmd>lua require('spider').motion('e', { skipInsignificantPunctuation = true, })<CR>",
+        "<cmd>lua require('spider').motion('e', { skipInsignificantPunctuation = false, })<CR>",
         mode = { "n", "o", "x" },
       },
       {
         "b",
-        "<cmd>lua require('spider').motion('b', { skipInsignificantPunctuation = true, })<CR>",
+        "<cmd>lua require('spider').motion('b', { skipInsignificantPunctuation = false, })<CR>",
         mode = { "n", "o", "x" },
       },
     },
@@ -493,11 +493,11 @@ return {
       workspaces = {
         {
           name = "cs-notes",
-          path = "/mnt/nvme1n1p3/Code/cs-notes",
+          path = "/mnt/nvme0n1p3/Code/cs-notes/",
         },
       },
       templates = {
-        folder = "/mnt/nvme1n1p3/Code/cs-notes/Templates/",
+        folder = "/mnt/nvme0n1p3/Code/cs-notes/Templates/",
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
       },

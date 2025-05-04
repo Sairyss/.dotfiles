@@ -299,12 +299,12 @@ return {
         sections = {
           --   lualine_a = { "branch" },
           --   lualine_b = {},
-          -- lualine_c = {
-          --   LazyVim.lualine.root_dir(),
-          --   { "diagnostics" },
-          --   { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-          --   { LazyVim.lualine.pretty_path() },
-          -- },
+          lualine_c = {
+            LazyVim.lualine.root_dir(),
+            { "diagnostics" },
+            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
+            { LazyVim.lualine.pretty_path() },
+          },
           --   lualine_x = {},
           --   lualine_y = {
           --     { "progress", separator = " ", padding = { left = 1, right = 0 } },
