@@ -33,4 +33,5 @@ alias ch='cht.sh'
 alias open="xdg-open"
 alias logtmp="$HOME/.dotfiles/.config/.zsh/custom/scripts/logging/run_and_log_to_file.sh"
 alias lnavtmp="$HOME/.dotfiles/.config/.zsh/custom/scripts/logging/lnav_log_temp_file.sh"
-alias dev='logtmp npm run start:dev & lnavtmp && fg' # show logs in lnav
+alias devlnav='logtmp npm run start:dev & lnavtmp && fg' # show logs in lnav
+alias dev='npm run start:dev'
