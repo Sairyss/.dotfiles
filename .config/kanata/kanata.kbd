@@ -36,7 +36,9 @@
   ;; toggling different layers for Vim motions
   L_ret_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
   L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
+  L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
   L_win_tog (tap-hold-release $tap_timeout $hold_timeout w (layer-toggle window))
+  L_lsft_leader_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle leader_mode_shift_layer))
 
   ;; Homerow mods tog
   L_f_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle ctrl_homerow))
@@ -104,7 +106,7 @@
 ;; input chords. pressing key1 + key2 will trigger the action
 (defchordsv2-experimental
   ;; layer chords
-  (j k) @L_leader 50 first-release ()
+  ;; (j k) @L_leader 50 first-release ()
   ;; (d f) @L_leader 50 first-release ()
   ;; (s d f) @L_leader 50 first-release ()
   (n m) @L_norm 50 first-release ()
@@ -123,8 +125,9 @@
 (deflayermap (main)
   ;; Mapping leader toggle to "return" and "space" when key is held (goes back to main mode when key is released)
   ;; (I use a split keyboard so "return" is on my right thumb and "space" on my left thumb so it's convenient to reach)
-  ret @L_ret_leader_tog
-  spc @L_spc_leader_tog
+  ;; ret @L_ret_leader_tog
+  ;; spc @L_spc_leader_tog
+  rmet @L_rmet_leader_tog
 
   ;; -- Home row mods -- 
   ;; left hand
@@ -170,6 +173,18 @@
   , (macro-repeat up)
   m (macro-repeat down)
 
+  ;; some additional keys for my specific keyboard
+  lsft @L_lsft_leader_shift_tog
+  y (multi @L_main =)
+
+  ___ @L_main
+)
+
+;; shift mode accessed from leader mode
+(deflayermap (leader_mode_shift_layer)
+  esc @L_main
+  ' @L_main
+  y (multi @L_main +)
   ___ XX
 )
 
@@ -199,6 +214,7 @@
   ;; spc @L_leader
   ret @L_ret_leader_tog
   spc @L_spc_leader_tog
+  rmet @L_rmet_leader_tog
   lctl @L_f_norm_ctrl_tog
   f @L_f_norm_ctrl_tog          ;; additionally mapping ctrl to "f" (easier to reach from the home row)
   lsft @L_lsft_norm_shift_tog
