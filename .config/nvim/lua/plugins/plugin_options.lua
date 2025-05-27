@@ -38,6 +38,22 @@ return {
         },
       }
     end,
+    -- keys = {
+    --   {
+    --     "<M-;>",
+    --     function()
+    --       local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
+    --       ts_repeat_move.repeat_last_move_next()
+    --     end,
+    --   },
+    --   {
+    --     "<M-,>",
+    --     function()
+    --       local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
+    --       ts_repeat_move.repeat_last_move_previous()
+    --     end,
+    --   },
+    -- },
   },
   {
     "neovim/nvim-lspconfig",
@@ -310,7 +326,7 @@ return {
           --     { "progress", separator = " ", padding = { left = 1, right = 0 } },
           --     { "location", padding = { left = 0, right = 1 } },
           --   },
-          --   lualine_z = {},
+          lualine_z = {},
         },
       },
     },

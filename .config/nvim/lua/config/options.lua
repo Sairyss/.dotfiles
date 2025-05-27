@@ -27,8 +27,8 @@ vim.lsp.set_log_level("off")
 vim.g.matchparen_timeout = 2
 vim.g.matchparen_insert_timeout = 2
 
-vim.opt.syntax = "off"
-vim.o.foldenable = false
-vim.o.spell = false
+-- vim.opt.syntax = "off"
+-- vim.o.foldenable = false
+-- vim.o.spell = false
 
 ----- end performance improvements -----
