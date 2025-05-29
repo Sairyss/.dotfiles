@@ -434,18 +434,6 @@ return {
     end,
   },
   {
-    "https://git.sr.ht/~swaits/zellij-nav.nvim",
-    lazy = true,
-    event = "VeryLazy",
-    keys = {
-      { "<c-h>", "<cmd>silent! ZellijNavigateLeftTab<cr>", { silent = true, desc = "navigate left or tab" } },
-      { "<c-j>", "<cmd>silent! ZellijNavigateDown<cr>", { silent = true, desc = "navigate down" } },
-      { "<c-k>", "<cmd>silent! ZellijNavigateUp<cr>", { silent = true, desc = "navigate up" } },
-      { "<c-l>", "<cmd>silent! ZellijNavigateRightTab<cr>", { silent = true, desc = "navigate right or tab" } },
-    },
-    opts = {},
-  },
-  {
     "stevearc/oil.nvim",
     ---@module 'oil'
     ---@type oil.SetupOpts
@@ -493,6 +481,18 @@ return {
 
   -- old --
 
+  -- {
+  --   "https://git.sr.ht/~swaits/zellij-nav.nvim",
+  --   lazy = true,
+  --   event = "VeryLazy",
+  --   keys = {
+  --     { "<c-h>", "<cmd>silent! ZellijNavigateLeftTab<cr>", { silent = true, desc = "navigate left or tab" } },
+  --     { "<c-j>", "<cmd>silent! ZellijNavigateDown<cr>", { silent = true, desc = "navigate down" } },
+  --     { "<c-k>", "<cmd>silent! ZellijNavigateUp<cr>", { silent = true, desc = "navigate up" } },
+  --     { "<c-l>", "<cmd>silent! ZellijNavigateRightTab<cr>", { silent = true, desc = "navigate right or tab" } },
+  --   },
+  --   opts = {},
+  -- },
   -- {
   --   "otavioschwanck/arrow.nvim",
   --   dependencies = {
