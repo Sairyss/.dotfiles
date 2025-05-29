@@ -21,6 +21,8 @@ return {
         "query",
         "jsonc",
         "yaml",
+        "http",
+        "graphql",
 
         -- Golang
         "go",
@@ -64,6 +66,8 @@ return {
       }
 
       local keys = require("lazyvim.plugins.lsp.keymaps").get()
+      keys[#keys + 1] = { "<C-.>", vim.lsp.buf.code_action }
+      keys[#keys + 1] = { "<C-M-.>", LazyVim.lsp.action.source }
       keys[#keys + 1] = {
         "<F2>",
         function()
@@ -81,15 +85,26 @@ return {
     --     virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
     --   },
     -- },
-  },
-  {
-    "neovim/nvim-lspconfig",
-    opts = function()
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      -- add a keymap to trigger code action with similar key to VSCode
-      keys[#keys + 1] = { "<C-.>", vim.lsp.buf.code_action }
-      keys[#keys + 1] = { "<C-M-.>", LazyVim.lsp.action.source }
-    end,
+
+    -- add kulala-ls support
+    -- config = function()
+    --   local nvim_lsp = require("lspconfig")
+    --   local capabilities = vim.lsp.protocol.make_client_capabilities()
+    --   local servers = {
+    --     "kulala_ls",
+    --   }
+    --   for _, lsp in ipairs(servers) do
+    --     if nvim_lsp[lsp] ~= nil then
+    --       if nvim_lsp[lsp].setup ~= nil then
+    --         nvim_lsp[lsp].setup({
+    --           capabilities = capabilities,
+    --         })
+    --       else
+    --         vim.notify("LSP server " .. lsp .. " does not have a setup function", vim.log.levels.ERROR)
+    --       end
+    --     end
+    --   end
+    -- end,
   },
   {
     "nvim-neo-tree/neo-tree.nvim",
