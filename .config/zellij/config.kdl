@@ -150,6 +150,10 @@ keybinds clear-defaults=true {
         bind "Ctrl Alt j" { MoveFocus "down"; }
         bind "Ctrl Alt k" { MoveFocus "up"; }
         bind "Ctrl Alt l" { MoveFocusOrTab "right"; }
+        bind "Ctrl Alt 1" { GoToTab 1 }
+        bind "Ctrl Alt 2" { GoToTab 2 }
+        bind "Ctrl Alt 3" { GoToTab 3 }
+        bind "Ctrl Alt 4" { GoToTab 4 }
     }
     shared_except "locked" {
         bind "Ctrl g" { SwitchToMode "locked"; }

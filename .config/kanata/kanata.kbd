@@ -177,6 +177,12 @@
   lsft @L_lsft_leader_shift_tog
   y (multi @L_main =)
 
+  ;; switch between zellij tabs
+  1 (multi @L_main (macro C-A-1))
+  2 (multi @L_main (macro C-A-2))
+  3 (multi @L_main (macro C-A-3))
+  4 (multi @L_main (macro C-A-4))
+
   ___ @L_main
 )
 
