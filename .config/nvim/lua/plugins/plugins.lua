@@ -139,14 +139,16 @@ return {
     opts = {
       provider = "copilot",
       auto_suggestions_provider = "copilot",
-      copilot = {
-        endpoint = "https://api.githubcopilot.com",
-        model = "gpt-4o-2024-05-13",
-        proxy = nil, -- [protocol://]host[:port] Use this proxy
-        allow_insecure = false, -- Allow insecure server connections
-        timeout = 15000, -- Timeout in milliseconds
-        temperature = 0,
-        max_tokens = 4096,
+      providers = {
+        copilot = {
+          endpoint = "https://api.githubcopilot.com",
+          model = "gpt-4o-2024-05-13",
+          proxy = nil, -- [protocol://]host[:port] Use this proxy
+          allow_insecure = false, -- Allow insecure server connections
+          -- timeout = 15000, -- Timeout in milliseconds
+          -- temperature = 0,
+          -- max_tokens = 4096,
+        },
       },
     },
     -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
@@ -475,6 +477,27 @@ return {
         folder = "/mnt/nvme0n1p3/Code/cs-notes/Templates/",
         date_format = "%Y-%m-%d",
         time_format = "%H:%M",
+      },
+    },
+    {
+      "leath-dub/snipe.nvim",
+      keys = {
+        {
+          "<leader>,",
+          function()
+            require("snipe").open_buffer_menu()
+          end,
+          desc = "Snipe buffer menu",
+        },
+      },
+      opts = {
+        ui = {
+          position = "center",
+          open_win_override = {
+            border = "rounded",
+          },
+          text_align = "file-first",
+        },
       },
     },
   },

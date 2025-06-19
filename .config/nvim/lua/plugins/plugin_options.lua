@@ -78,6 +78,15 @@ return {
         desc = "Rename (inc-rename.nvim)",
         has = "rename",
       }
+
+      opts.setup = {
+        eslint = function()
+          -- automatically fix linting errors on save
+          vim.cmd([[
+            autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js EslintFixAll
+          ]])
+        end,
+      }
     end,
     -- opts = {
     --   inlay_hints = { enabled = false },
