@@ -17,6 +17,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 
 #### Shell
 
+- [kitty](https://github.com/kovidgoyal/kitty) - terminal emulator
 - [zsh](https://www.zsh.org/) - a Unix shell
 - [oh-my-zsh](https://github.com/robbyrussell/oh-my-zsh) - zsh config with bells and whistles
 - [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) - syntax highlighting for zsh
@@ -59,6 +60,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 
 #### Other terminal tools
 
+- [aichat](https://github.com/sigoden/aichat) - AI in terminal. Supports handy command completion/generation on hotkey press (`alt+e`)
 - [tmux](https://github.com/tmux/tmux) - terminal multiplexer
 - [.tmux](https://github.com/gpakosz/.tmux) - tmux config
 - [zellij](https://github.com/zellij-org/zellij) - modern tmux replacement
@@ -69,7 +71,6 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [jid](https://github.com/simeji/jid) - Json Incremental Digger
 - [hyperfine](https://github.com/sharkdp/hyperfine) - terminal benchmarking tool
 - [mprocs](https://github.com/pvolok/mprocs) - runs multiple commands in parallel and shows output of each command separately
-- [aichat](https://github.com/sigoden/aichat) - AI in terminal. Supports handy command completion/generation on hotkey press (`alt+e`)
 
 ### GUI Tools
 
@@ -82,8 +83,6 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 
 #### For Linux
 
-- [guake](https://github.com/Guake/guake) - terminal emulator
-- [alacritty](https://github.com/alacritty/alacritty) - terminal emulator
 - [Albert](https://github.com/albertlauncher/albert) - launcher fox linux
 - [Opensnitch](https://github.com/evilsocket/opensnitch) - linux application firewall
 - [rofi](https://github.com/davatorium/rofi) - launcher
@@ -98,6 +97,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 
 ### Fonts
 
+- [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
 - [Fira Code](https://github.com/tonsky/FiraCode)
 - [Hack](https://github.com/source-foundry/Hack)
 
@@ -117,6 +117,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [treewalker.nvim](https://github.com/aaronik/treewalker.nvim) - move around code using treesitter nodes
 - [timber.nvim](https://github.com/Goose97/timber.nvim) - insert log statements using hotkeys
 - [tiny-inline-diagnostic.nvim](https://github.com/rachartier/tiny-inline-diagnostic.nvim) - better looking inline diagnostics
+- [kulala](https://github.com/mistweaverco/kulala.nvim) - neovim HTTP client
 
 To see full list of Neovim plugins, check out [plugins.lua](./.config/nvim/lua/plugins/plugins.lua) file.
 
