@@ -69,6 +69,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [jid](https://github.com/simeji/jid) - Json Incremental Digger
 - [hyperfine](https://github.com/sharkdp/hyperfine) - terminal benchmarking tool
 - [mprocs](https://github.com/pvolok/mprocs) - runs multiple commands in parallel and shows output of each command separately
+- [aichat](https://github.com/sigoden/aichat) - AI in terminal. Supports handy command completion/generation on hotkey press (`alt+e`)
 
 ### GUI Tools
 
