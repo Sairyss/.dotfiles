@@ -354,6 +354,14 @@ return {
         },
       },
     },
+    {
+      "mistweaverco/kulala.nvim",
+      ft = "http",
+      keys = {
+        { "<C-M-r>", "<cmd>lua require('kulala').run()<cr>", desc = "Send the request", ft = "http" },
+      },
+      opts = {},
+    },
   },
 
   ----- old -----

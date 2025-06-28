@@ -38,6 +38,13 @@ return {
         ft = "quarto",
         silent = true,
       },
+      {
+        "<C-M-r>",
+        ":QuartoSendAll<CR>",
+        desc = "Quarto execute all",
+        ft = "quarto",
+        silent = true,
+      },
     },
   },
   {
@@ -239,6 +246,14 @@ return {
         ignore_blank_lines = true, -- ignore blank lines when sending visual select lines
       })
     end,
+    keys = {
+      {
+        mode = { "n" },
+        silent = true,
+        "<C-M-r>",
+        '<Cmd>lua require("iron").core.send(vim.api.nvim_buf_get_option(0,"ft"), vim.api.nvim_buf_get_lines(0, 0, -1, false))<Cr>',
+      },
+    },
   },
   { -- directly open ipynb files as quarto docuements
     -- and convert back behind the scenes

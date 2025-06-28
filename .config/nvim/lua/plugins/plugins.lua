@@ -306,47 +306,6 @@ return {
     end,
   },
   {
-    "michaelb/sniprun",
-    branch = "master",
-    build = "sh install.sh",
-    -- do 'sh install.sh 1' if you want to force compile locally
-    -- (instead of fetching a binary from the github release). Requires Rust >= 1.65
-    config = function()
-      require("sniprun").setup({
-        -- your options
-        display = {
-          -- "Classic", --# display results in the command-line  area
-          "VirtualTextOk", --# display ok results as virtual text (multiline is shortened)
-
-          -- "VirtualText",             --# display results as virtual text
-          -- "TempFloatingWindow",      --# display results in a floating window
-          -- "LongTempFloatingWindow",  --# same as above, but only long results. To use with VirtualText[Ok/Err]
-          "Terminal", --# display results in a vertical split
-          -- "TerminalWithCode",        --# display results and code history in a vertical split
-          -- "NvimNotify",              --# display with the nvim-notify plugin
-          -- "Api"                      --# return output to a programming interface
-        },
-        display_options = {
-          terminal_scrollback = vim.o.scrollback, --# change terminal display scrollback lines
-          terminal_line_number = false, --# whether show line number in terminal window
-          terminal_signcolumn = false, --# whether show signcolumn in terminal window
-          terminal_position = "horizontal", --# "vertical" or "horizontal", to open as horizontal split instead of vertical split
-          terminal_width = 45, --# change the terminal display option width (if vertical)
-          terminal_height = 20, --# change the terminal display option height (if horizontal)
-          notification_timeout = 5, --# timeout for nvim_notify output
-        },
-      })
-    end,
-    keys = {
-      {
-        mode = { "n" },
-        silent = true,
-        "<C-M-r>",
-        ":let b:caret=winsaveview()<CR>|:%SnipRun<CR>|:call winrestview(b:caret)<CR>",
-      },
-    },
-  },
-  {
     "chrisgrieser/nvim-spider",
     lazy = true,
     keys = {
@@ -483,8 +442,23 @@ return {
   {
     "leath-dub/snipe.nvim",
     keys = {
+      -- {
+      --   "<leader>,",
+      --   function()
+      --     require("snipe").open_buffer_menu()
+      --   end,
+      --   desc = "Snipe buffer menu",
+      -- },
       {
-        "<leader>,",
+        "<leader>bs",
+        function()
+          require("snipe").open_buffer_menu()
+        end,
+        desc = "Snipe buffer menu",
+      },
+      {
+        "<BS>",
+        mode = { "n" },
         function()
           require("snipe").open_buffer_menu()
         end,
@@ -498,6 +472,44 @@ return {
           border = "rounded",
         },
         text_align = "file-first",
+      },
+      hints = {
+        -- Charaters to use for hints (NOTE: make sure they don't collide with the navigation keymaps)
+        ---@type string
+        dictionary = "asdqwezxcrfvlmpghio",
+      },
+    },
+  },
+  {
+    "nanozuki/tabby.nvim",
+    ---@type TabbyConfig
+    opts = {
+      -- configs...
+    },
+    keys = {
+      {
+        "<leader>1",
+        mode = { "n" },
+        "1gt",
+        desc = "Tab 1",
+      },
+      {
+        "<leader>2",
+        mode = { "n" },
+        "2gt",
+        desc = "Tab 2",
+      },
+      {
+        "<leader>3",
+        mode = { "n" },
+        "3gt",
+        desc = "Tab 3",
+      },
+      {
+        "<leader>4",
+        mode = { "n" },
+        "4gt",
+        desc = "Tab 4",
       },
     },
   },
@@ -527,6 +539,47 @@ return {
   --     show_icons = true,
   --     leader_key = "\\", -- Recommended to be a single key
   --     buffer_leader_key = "M", -- Per Buffer Mappings
+  --   },
+  -- },
+  -- {
+  --   "michaelb/sniprun",
+  --   branch = "master",
+  --   build = "sh install.sh",
+  --   -- do 'sh install.sh 1' if you want to force compile locally
+  --   -- (instead of fetching a binary from the github release). Requires Rust >= 1.65
+  --   config = function()
+  --     require("sniprun").setup({
+  --       -- your options
+  --       display = {
+  --         -- "Classic", --# display results in the command-line  area
+  --         "VirtualTextOk", --# display ok results as virtual text (multiline is shortened)
+  --
+  --         -- "VirtualText",             --# display results as virtual text
+  --         -- "TempFloatingWindow",      --# display results in a floating window
+  --         -- "LongTempFloatingWindow",  --# same as above, but only long results. To use with VirtualText[Ok/Err]
+  --         "Terminal", --# display results in a vertical split
+  --         -- "TerminalWithCode",        --# display results and code history in a vertical split
+  --         -- "NvimNotify",              --# display with the nvim-notify plugin
+  --         -- "Api"                      --# return output to a programming interface
+  --       },
+  --       display_options = {
+  --         terminal_scrollback = vim.o.scrollback, --# change terminal display scrollback lines
+  --         terminal_line_number = false, --# whether show line number in terminal window
+  --         terminal_signcolumn = false, --# whether show signcolumn in terminal window
+  --         terminal_position = "horizontal", --# "vertical" or "horizontal", to open as horizontal split instead of vertical split
+  --         terminal_width = 45, --# change the terminal display option width (if vertical)
+  --         terminal_height = 20, --# change the terminal display option height (if horizontal)
+  --         notification_timeout = 5, --# timeout for nvim_notify output
+  --       },
+  --     })
+  --   end,
+  --   keys = {
+  --     {
+  --       mode = { "n" },
+  --       silent = true,
+  --       "<C-M-r>",
+  --       ":let b:caret=winsaveview()<CR>|:%SnipRun<CR>|:call winrestview(b:caret)<CR>",
+  --     },
   --   },
   -- },
 }
