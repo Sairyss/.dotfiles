@@ -32,3 +32,5 @@ alias yank='yank-cli'
 alias ch='cht.sh'
 alias open="xdg-open"
 alias dev='npm run start:dev'
+alias at='atuin scripts run'
+alias zr='zellij run --floating --width 90% --height 95% --x 5% --y 5%'

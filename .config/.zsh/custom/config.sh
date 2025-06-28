@@ -89,6 +89,7 @@ export PATH="$VOLTA_HOME/bin:$PATH"
 
 # source /usr/share/fzf/key-bindings.zsh
 # source /usr/share/fzf/completion.zsh
+# source <(fzf --zsh)
 
 # Attach to zellij session (if not already running, and only in a desired terminal emulator)
 # USER_TERMINAL_EMULATOR='alacritty'
