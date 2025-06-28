@@ -30,6 +30,9 @@ keymap("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Searc
 keymap("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 keymap("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
+-- Go to normal mode in neovim terminal using just <C-\> instead of <C-\><C-n>
+keymap("t", "<C-\\>", [[<C-\><C-n>]], { expr = false, desc = "Normal mode in terminal" })
+
 ---------- Extensions ----------
 
 if not vim.g.vscode then
