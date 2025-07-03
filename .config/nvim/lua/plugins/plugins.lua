@@ -120,18 +120,6 @@ return {
     end,
   },
   {
-    "tiagovla/scope.nvim",
-    config = function()
-      require("scope").setup({
-        hooks = {
-          pre_tab_enter = function()
-            -- Your custom logic to run before entering a tab
-          end,
-        },
-      })
-    end,
-  },
-  {
     "yetone/avante.nvim",
     event = "VeryLazy",
     lazy = false,
@@ -213,50 +201,6 @@ return {
     },
   },
   {
-    "mikavilpas/yazi.nvim",
-    event = "VeryLazy",
-    keys = {
-      -- 👇 in this section, choose your own keymappings!
-      {
-        "<leader>fy",
-        "<cmd>Yazi<cr>",
-        desc = "Open yazi at the current file",
-      },
-      {
-        -- Open in the current working directory
-        "<leader>fY",
-        "<cmd>Yazi cwd<cr>",
-        desc = "Open yazi in working directory",
-      },
-      {
-        "<c-up>",
-        "<cmd>Yazi toggle<cr>",
-        desc = "Resume the last yazi session",
-      },
-    },
-    opts = {
-      -- if you want to open yazi instead of netrw, see below for more info
-      open_for_directories = false,
-      keymaps = {
-        show_help = "<f1>",
-      },
-    },
-  },
-  {
-    "aaronik/treewalker.nvim",
-    opts = {
-      highlight = true, -- default is false
-    },
-    keys = {
-      { "<M-h>", ":Treewalker Left<CR>zz", silent = true, mode = { "n" } },
-      { "<M-j>", ":Treewalker Down<CR>zz", silent = true, mode = { "n" } },
-      { "<M-k>", ":Treewalker Up<CR>zz", silent = true, mode = { "n" } },
-      { "<M-l>", ":Treewalker Right<CR>zz", silent = true, mode = { "n" } },
-      { "<C-S-j>", "<cmd>Treewalker SwapDown<cr>", silent = true, mode = { "n" } },
-      { "<C-S-k>", "<cmd>Treewalker SwapUp<cr>", silent = true, mode = { "n" } },
-    },
-  },
-  {
     "Goose97/timber.nvim",
     version = "*", -- Use for stability; omit to use `main` branch for the latest features
     event = "VeryLazy",
@@ -328,43 +272,6 @@ return {
     end,
   },
   {
-    "chrisgrieser/nvim-spider",
-    lazy = true,
-    keys = {
-      {
-        "<M-w>",
-        "<cmd>lua require('spider').motion('w', { skipInsignificantPunctuation = true, subwordMovement = false, })<CR>",
-        mode = { "n", "o", "x" },
-      },
-      {
-        "<M-e>",
-        "<cmd>lua require('spider').motion('e', { skipInsignificantPunctuation = true, subwordMovement = false, })<CR>",
-        mode = { "n", "o", "x" },
-      },
-      {
-        "<M-b>",
-        "<cmd>lua require('spider').motion('b', { skipInsignificantPunctuation = true, subwordMovement = false, })<CR>",
-        mode = { "n", "o", "x" },
-      },
-
-      {
-        "w",
-        "<cmd>lua require('spider').motion('w', { skipInsignificantPunctuation = false, })<CR>",
-        mode = { "n", "o", "x" },
-      },
-      {
-        "e",
-        "<cmd>lua require('spider').motion('e', { skipInsignificantPunctuation = false, })<CR>",
-        mode = { "n", "o", "x" },
-      },
-      {
-        "b",
-        "<cmd>lua require('spider').motion('b', { skipInsignificantPunctuation = false, })<CR>",
-        mode = { "n", "o", "x" },
-      },
-    },
-  },
-  {
     "rachartier/tiny-inline-diagnostic.nvim",
     event = "VeryLazy", -- Or `LspAttach`
     priority = 1000, -- needs to be loaded in first
@@ -415,25 +322,6 @@ return {
         use_default_keymaps = false,
       })
     end,
-  },
-  {
-    "stevearc/oil.nvim",
-    ---@module 'oil'
-    ---@type oil.SetupOpts
-    opts = {
-      default_file_explorer = false,
-    },
-    keys = {
-      { "<leader>fo", "<cmd>Oil<cr>", desc = "Oil.nvim" },
-    },
-    -- Optional dependencies
-    dependencies = { { "echasnovski/mini.icons", opts = {} } },
-    -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
-  },
-  {
-    "benomahony/oil-git.nvim",
-    dependencies = { "stevearc/oil.nvim" },
-    -- No opts or config needed! Works automatically
   },
   {
     "obsidian-nvim/obsidian.nvim",
@@ -504,39 +392,6 @@ return {
         -- Charaters to use for hints (NOTE: make sure they don't collide with the navigation keymaps)
         ---@type string
         dictionary = "asdqwezxcrfvlmpghio",
-      },
-    },
-  },
-  {
-    "nanozuki/tabby.nvim",
-    ---@type TabbyConfig
-    opts = {
-      -- configs...
-    },
-    keys = {
-      {
-        "<leader>1",
-        mode = { "n" },
-        "1gt",
-        desc = "Tab 1",
-      },
-      {
-        "<leader>2",
-        mode = { "n" },
-        "2gt",
-        desc = "Tab 2",
-      },
-      {
-        "<leader>3",
-        mode = { "n" },
-        "3gt",
-        desc = "Tab 3",
-      },
-      {
-        "<leader>4",
-        mode = { "n" },
-        "4gt",
-        desc = "Tab 4",
       },
     },
   },

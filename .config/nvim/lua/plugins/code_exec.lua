@@ -1,167 +1,5 @@
--- plugins to simulate jupyter notebook / quarto in neovim
+-- Plugins for code execution: be it REPL, SQL queries, HTTP requests, or notebook-like execution (jupyter, quarto)
 return {
-  {
-    "quarto-dev/quarto-nvim",
-    ft = "quarto",
-    dependencies = {
-      "jmbuhr/otter.nvim",
-      "nvim-treesitter/nvim-treesitter",
-    },
-    opts = {
-      codeRunner = {
-        enabled = true,
-        default_method = "iron", -- "molten", "slime", "iron" or <function>
-        ft_runners = {}, -- filetype to runner, ie. `{ python = "molten" }`.
-        -- Takes precedence over `default_method`
-        never_run = { "yaml", "json" }, -- filetypes which are never sent to a code runner
-      },
-    },
-    keys = {
-      {
-        "<leader>rr",
-        ":QuartoSend<CR>",
-        desc = "Quarto execute cell",
-        ft = "quarto",
-        silent = true,
-      },
-      {
-        "<leader>rR",
-        ":QuartoSendAll<CR>",
-        desc = "Quarto execute all",
-        ft = "quarto",
-        silent = true,
-      },
-      {
-        "<leader>rQ",
-        ":QuartoPreview<CR>",
-        desc = "Quarto preview",
-        ft = "quarto",
-        silent = true,
-      },
-      {
-        "<C-M-r>",
-        ":QuartoSendAll<CR>",
-        desc = "Quarto execute all",
-        ft = "quarto",
-        silent = true,
-      },
-    },
-  },
-  {
-    "linux-cultist/venv-selector.nvim",
-    dependencies = { "neovim/nvim-lspconfig", "nvim-telescope/telescope.nvim", "mfussenegger/nvim-dap-python" },
-    opts = {
-      -- Your options go here
-      -- name = "venv",
-      -- auto_refresh = false
-    },
-    event = "VeryLazy", -- Optional: needed only if you want to type `:VenvSelect` without a keymapping
-    -- keys = {
-    --   -- Keymap to open VenvSelector to pick a venv.
-    --   { "<leader>vs", "<cmd>VenvSelect<cr>" },
-    --   -- Keymap to retrieve the venv from a cache (the one previously used for the same project directory).
-    --   { "<leader>vc", "<cmd>VenvSelectCached<cr>" },
-    -- },
-
-    keys = {
-      {
-        "<leader>re",
-        ":VenvSelect<CR>",
-        ft = { "python", "quarto" },
-        desc = "Env select (venv)",
-        silent = true,
-      },
-    },
-  },
-  {
-    "3rd/image.nvim",
-    opts = {
-      backend = "kitty", -- whatever backend you would like to use
-      max_width = 100,
-      max_height = 12,
-      max_height_window_percentage = math.huge,
-      max_width_window_percentage = math.huge,
-      window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
-      window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
-    },
-  },
-  {
-    "benlubas/molten-nvim",
-    version = "^1.0.0", -- use version <2.0.0 to avoid breaking changes
-    build = ":UpdateRemotePlugins",
-    init = function()
-      -- this is an example, not a default. Please see the readme for more configuration options
-      vim.g.molten_output_win_max_height = 15
-      vim.g.molten_auto_open_output = true
-      vim.g.molten_image_provider = "image.nvim"
-    end,
-    keys = {
-      {
-        "<leader>rmi",
-        function()
-          local quarto_cfg = require("quarto.config").config
-          quarto_cfg.codeRunner.default_method = "molten"
-          vim.cmd([[MoltenInit]])
-        end,
-        desc = "Initialize Molten",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-      {
-        "<leader>rmd",
-        function()
-          local quarto_cfg = require("quarto.config").config
-          quarto_cfg.codeRunner.default_method = "iron" -- switch to iron when molten stops. this allows us to use both
-          vim.cmd([[MoltenDeinit]])
-        end,
-        desc = "Deactivate Molten",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-      {
-        "<leader>rV",
-        ":MoltenEvaluateVisual<CR>",
-        desc = "Molten evaluate visual",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-      {
-        "<leader>rL",
-        ":MoltenEvaluateVisual<CR>",
-        desc = "Molten evaluate line",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-      {
-        "<leader>rmp",
-        ":MoltenImagePopup<CR>",
-        desc = "Molten image popup",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-      {
-        "<leader>rmb",
-        ":MoltenOpenInBrowser<CR>",
-        desc = "Molten open in browser",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-      {
-        "<leader>rmh",
-        ":MoltenHideOutput<CR>",
-        desc = "Molten hide output",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-      {
-        "<leader>rms",
-        ":noautocmd MoltenEnterOutput<CR>",
-        desc = "Molten show/enter output",
-        ft = { "python", "quarto" },
-        silent = true,
-      },
-    },
-  },
   {
     "Vigemus/iron.nvim",
     config = function()
@@ -352,6 +190,168 @@ return {
         end,
       },
       ---------- End code execution hotkeys ----------
+    },
+  },
+  {
+    "quarto-dev/quarto-nvim",
+    ft = "quarto",
+    dependencies = {
+      "jmbuhr/otter.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = {
+      codeRunner = {
+        enabled = true,
+        default_method = "iron", -- "molten", "slime", "iron" or <function>
+        ft_runners = {}, -- filetype to runner, ie. `{ python = "molten" }`.
+        -- Takes precedence over `default_method`
+        never_run = { "yaml", "json" }, -- filetypes which are never sent to a code runner
+      },
+    },
+    keys = {
+      {
+        "<leader>rr",
+        ":QuartoSend<CR>",
+        desc = "Quarto execute cell",
+        ft = "quarto",
+        silent = true,
+      },
+      {
+        "<leader>rR",
+        ":QuartoSendAll<CR>",
+        desc = "Quarto execute all",
+        ft = "quarto",
+        silent = true,
+      },
+      {
+        "<leader>rQ",
+        ":QuartoPreview<CR>",
+        desc = "Quarto preview",
+        ft = "quarto",
+        silent = true,
+      },
+      {
+        "<C-M-r>",
+        ":QuartoSendAll<CR>",
+        desc = "Quarto execute all",
+        ft = "quarto",
+        silent = true,
+      },
+    },
+  },
+  {
+    "linux-cultist/venv-selector.nvim",
+    dependencies = { "neovim/nvim-lspconfig", "nvim-telescope/telescope.nvim", "mfussenegger/nvim-dap-python" },
+    opts = {
+      -- Your options go here
+      -- name = "venv",
+      -- auto_refresh = false
+    },
+    event = "VeryLazy", -- Optional: needed only if you want to type `:VenvSelect` without a keymapping
+    -- keys = {
+    --   -- Keymap to open VenvSelector to pick a venv.
+    --   { "<leader>vs", "<cmd>VenvSelect<cr>" },
+    --   -- Keymap to retrieve the venv from a cache (the one previously used for the same project directory).
+    --   { "<leader>vc", "<cmd>VenvSelectCached<cr>" },
+    -- },
+
+    keys = {
+      {
+        "<leader>re",
+        ":VenvSelect<CR>",
+        ft = { "python", "quarto" },
+        desc = "Env select (venv)",
+        silent = true,
+      },
+    },
+  },
+  {
+    "3rd/image.nvim",
+    opts = {
+      backend = "kitty", -- whatever backend you would like to use
+      max_width = 100,
+      max_height = 12,
+      max_height_window_percentage = math.huge,
+      max_width_window_percentage = math.huge,
+      window_overlap_clear_enabled = true, -- toggles images when windows are overlapped
+      window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
+    },
+  },
+  {
+    "benlubas/molten-nvim",
+    version = "^1.0.0", -- use version <2.0.0 to avoid breaking changes
+    build = ":UpdateRemotePlugins",
+    init = function()
+      -- this is an example, not a default. Please see the readme for more configuration options
+      vim.g.molten_output_win_max_height = 15
+      vim.g.molten_auto_open_output = true
+      vim.g.molten_image_provider = "image.nvim"
+    end,
+    keys = {
+      {
+        "<leader>rmi",
+        function()
+          local quarto_cfg = require("quarto.config").config
+          quarto_cfg.codeRunner.default_method = "molten"
+          vim.cmd([[MoltenInit]])
+        end,
+        desc = "Initialize Molten",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
+      {
+        "<leader>rmd",
+        function()
+          local quarto_cfg = require("quarto.config").config
+          quarto_cfg.codeRunner.default_method = "iron" -- switch to iron when molten stops. this allows us to use both
+          vim.cmd([[MoltenDeinit]])
+        end,
+        desc = "Deactivate Molten",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
+      {
+        "<leader>rV",
+        ":MoltenEvaluateVisual<CR>",
+        desc = "Molten evaluate visual",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
+      {
+        "<leader>rL",
+        ":MoltenEvaluateVisual<CR>",
+        desc = "Molten evaluate line",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
+      {
+        "<leader>rmp",
+        ":MoltenImagePopup<CR>",
+        desc = "Molten image popup",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
+      {
+        "<leader>rmb",
+        ":MoltenOpenInBrowser<CR>",
+        desc = "Molten open in browser",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
+      {
+        "<leader>rmh",
+        ":MoltenHideOutput<CR>",
+        desc = "Molten hide output",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
+      {
+        "<leader>rms",
+        ":noautocmd MoltenEnterOutput<CR>",
+        desc = "Molten show/enter output",
+        ft = { "python", "quarto" },
+        silent = true,
+      },
     },
   },
   { -- directly open ipynb files as quarto docuements
