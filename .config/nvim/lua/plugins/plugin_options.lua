@@ -270,6 +270,45 @@ return {
         end,
         { desc = "Terminal (Root Dir)" },
       },
+      {
+        "<leader>ft",
+        mode = { "n" },
+        function()
+          Snacks.terminal(nil, { cwd = LazyVim.root(), win = { position = "right", width = 0.4 } })
+        end,
+        { desc = "Terminal (Root Dir)" },
+      },
+      -- {
+      --   "<C-M-t>",
+      --   mode = { "n" },
+      --   -- Prompts user for a command that will be executed in snacks terminal
+      --   function()
+      --     -- TODO: make commands execute in the same terminal (and other things) described here https://www.jackfranklin.co.uk/blog/executing-tasks-in-neovim/
+      --
+      --     vim.ui.input({ prompt = "Run terminal command: " }, function(input)
+      --       if not input or input == "" then
+      --         return
+      --       end
+      --       local term = Snacks.terminal.open(nil, {
+      --         auto_insert = false,
+      --         win = {
+      --           split = "right",
+      --           width = 0.4,
+      --           position = "right",
+      --           focusable = true,
+      --           enter = true,
+      --           show = true,
+      --           hide = false,
+      --         },
+      --       })
+      --       local chan = vim.bo[term.buf].channel
+      --       vim.defer_fn(function()
+      --         vim.fn.chansend(chan, { input .. "\r\n" })
+      --       end, 100)
+      --     end)
+      --   end,
+      --   { desc = "Run terminal command" },
+      -- },
     },
   },
   {

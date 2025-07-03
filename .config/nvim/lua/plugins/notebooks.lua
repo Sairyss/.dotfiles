@@ -253,6 +253,105 @@ return {
         "<C-M-r>",
         '<Cmd>lua require("iron").core.send(vim.api.nvim_buf_get_option(0,"ft"), vim.api.nvim_buf_get_lines(0, 0, -1, false))<Cr>',
       },
+
+      ---------- Code execution hotkeys ----------
+      {
+        mode = { "n" },
+        silent = true,
+        ft = { "typescript", "javascript", "rust", "python", "go", "c", "cpp", "quarto", "http", "sql" },
+        "<CR>",
+        function()
+          -- Execute cell/paragraph in repl
+          local iron = require("iron")
+          local filetype = vim.api.nvim_buf_get_option(0, "ft")
+          if filetype == "quarto" then
+            vim.cmd("QuartoSend")
+          else
+            if
+              filetype == "typescript"
+              or filetype == "javascript"
+              or filetype == "rust"
+              or filetype == "python"
+              or filetype == "go"
+              or filetype == "c"
+              or filetype == "cpp"
+            then
+              iron.core.send_paragraph()
+            else
+              if filetype == "http" then
+                local kulala = require("kulala") -- kulala.nvim
+                kulala.run()
+              else
+                if filetype == "sql" then
+                  -- vim.cmd("<PLUG>(DBUI_ExecuteQuery)")
+                  vim.api.nvim_feedkeys(
+                    vim.api.nvim_replace_termcodes("<PLUG>(DBUI_ExecuteQuery)", true, true, true),
+                    "n",
+                    true
+                  )
+                end
+              end
+            end
+          end
+        end,
+      },
+
+      {
+        mode = { "n" },
+        silent = true,
+        ft = { "typescript", "javascript", "rust", "python", "go", "c", "cpp", "quarto" },
+        "<C-CR>",
+        function()
+          -- If terminal is visible, go to it and execute the last command. Useful for frequently runned commands like tests or scripts.
+          -- If no open terminal found, execute current buffer code in repl (iron.nvim).
+          local iron = require("iron")
+          local term = Snacks.terminal.list()
+          if term[1] ~= nil and term[1]:valid() then
+            term[1]:focus()
+
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Up><CR>", true, false, true), "n", true)
+            vim.defer_fn(function()
+              vim.cmd("wincmd p")
+            end, 50)
+          else
+            local filetype = vim.api.nvim_buf_get_option(0, "ft")
+            if filetype == "quarto" then
+              vim.cmd("QuartoSendAll")
+            else
+              if
+                filetype == "typescript"
+                or filetype == "javascript"
+                or filetype == "rust"
+                or filetype == "python"
+                or filetype == "go"
+                or filetype == "c"
+                or filetype == "cpp"
+              then
+                iron.core.send_file(filetype)
+              end
+            end
+          end
+        end,
+      },
+
+      {
+        mode = { "v" },
+        silent = true,
+        ft = { "sql" },
+        "<CR>",
+        function()
+          -- execute visually selected SQL query using DBUI
+          local filetype = vim.api.nvim_buf_get_option(0, "ft")
+          if filetype == "sql" then
+            vim.api.nvim_feedkeys(
+              vim.api.nvim_replace_termcodes("<PLUG>(DBUI_ExecuteQuery)", true, true, true),
+              "n",
+              true
+            )
+          end
+        end,
+      },
+      ---------- End code execution hotkeys ----------
     },
   },
   { -- directly open ipynb files as quarto docuements
