@@ -1,7 +1,9 @@
 -- Keymaps are automatically loaded on the VeryLazy event
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
+
 local keymap = vim.api.nvim_set_keymap
+local lazymap = LazyVim.safe_keymap_set
 
 -- do not copy a single letter to the 0 register when using 'x'
 keymap("n", "x", '"_x', { desc = "Deleting with X doesn't copy deleted character", noremap = true, silent = true })
@@ -30,11 +32,17 @@ keymap("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Searc
 keymap("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 keymap("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
--- Go to normal mode in neovim terminal using just <C-\> instead of <C-\><C-n>
-keymap("t", "<C-\\>", [[<C-\><C-n>]], { expr = false, desc = "Normal mode in terminal" })
-
 ---------- Extensions ----------
 
 if not vim.g.vscode then
   keymap("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<CR>", { desc = "Rename", noremap = true, silent = true })
+
+  -- Go to normal mode in neovim terminal using just <C-\> instead of <C-\><C-n>
+  keymap("t", "<C-\\>", [[<C-\><C-n>]], { expr = false, desc = "Normal mode in terminal" })
+
+  -- easy switch from terminal to other windows
+  keymap("t", "<C-h>", "<C-w>h", { desc = "Move to left window while in terminal" })
+  keymap("t", "<C-j>", "<C-w>j", { desc = "Move to bottom window while in terminal" })
+  keymap("t", "<C-k>", "<C-w>k", { desc = "Move to top window while in terminal" })
+  keymap("t", "<C-l>", "<C-w>l", { desc = "Move to right window while in terminal" })
 end

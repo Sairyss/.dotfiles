@@ -142,12 +142,34 @@ return {
       providers = {
         copilot = {
           endpoint = "https://api.githubcopilot.com",
-          model = "gpt-4o-2024-05-13",
+          model = "gpt-4o-2024-11-20",
           proxy = nil, -- [protocol://]host[:port] Use this proxy
           allow_insecure = false, -- Allow insecure server connections
-          -- timeout = 15000, -- Timeout in milliseconds
-          -- temperature = 0,
-          -- max_tokens = 4096,
+          disable_tools = true,
+          extra_request_body = {
+            temperature = 0,
+            max_completion_tokens = 8192,
+          },
+        },
+        gemini = {
+          model = "gemini-2.5-flash-preview-04-17",
+          temperature = 0,
+          max_tokens = 8192,
+          disable_tools = true,
+          extra_request_body = {
+            temperature = 0,
+            max_completion_tokens = 8192,
+          },
+        },
+        openai = {
+          endpoint = "https://api.openai.com/v1",
+          model = "gpt-4o",
+          disable_tools = true,
+          extra_request_body = {
+            temperature = 0,
+            max_completion_tokens = 8192,
+            reasoning_effort = "medium",
+          },
         },
       },
     },
@@ -407,6 +429,11 @@ return {
     -- Optional dependencies
     dependencies = { { "echasnovski/mini.icons", opts = {} } },
     -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
+  },
+  {
+    "benomahony/oil-git.nvim",
+    dependencies = { "stevearc/oil.nvim" },
+    -- No opts or config needed! Works automatically
   },
   {
     "obsidian-nvim/obsidian.nvim",

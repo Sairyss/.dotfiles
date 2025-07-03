@@ -262,6 +262,14 @@ return {
         end,
         desc = "Recent (cwd)",
       },
+      {
+        "<C-/>",
+        mode = { "n" },
+        function()
+          Snacks.terminal(nil, { cwd = LazyVim.root(), win = { position = "right", width = 0.4 } })
+        end,
+        { desc = "Terminal (Root Dir)" },
+      },
     },
   },
   {
