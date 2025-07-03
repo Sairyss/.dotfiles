@@ -100,7 +100,6 @@ return {
         "<CR>",
         function()
           -- Execute cell/paragraph in repl
-          local iron = require("iron")
           local filetype = vim.api.nvim_buf_get_option(0, "ft")
           if filetype == "quarto" then
             vim.cmd("QuartoSend")
@@ -114,6 +113,7 @@ return {
               or filetype == "c"
               or filetype == "cpp"
             then
+              local iron = require("iron")
               iron.core.send_paragraph()
             else
               if filetype == "http" then
@@ -142,7 +142,6 @@ return {
         function()
           -- If terminal is visible, go to it and execute the last command. Useful for frequently runned commands like tests or scripts.
           -- If no open terminal found, execute current buffer code in repl (iron.nvim).
-          local iron = require("iron")
           local term = Snacks.terminal.list()
           if term[1] ~= nil and term[1]:valid() then
             term[1]:focus()
@@ -165,6 +164,7 @@ return {
                 or filetype == "c"
                 or filetype == "cpp"
               then
+                local iron = require("iron")
                 iron.core.send_file(filetype)
               end
             end
@@ -175,10 +175,10 @@ return {
       {
         mode = { "v" },
         silent = true,
-        ft = { "sql" },
+        ft = { "typescript", "javascript", "rust", "python", "go", "c", "cpp", "sql" },
         "<CR>",
         function()
-          -- execute visually selected SQL query using DBUI
+          -- execute visually selected code
           local filetype = vim.api.nvim_buf_get_option(0, "ft")
           if filetype == "sql" then
             vim.api.nvim_feedkeys(
@@ -186,6 +186,19 @@ return {
               "n",
               true
             )
+          else
+            if
+              filetype == "typescript"
+              or filetype == "javascript"
+              or filetype == "rust"
+              or filetype == "python"
+              or filetype == "go"
+              or filetype == "c"
+              or filetype == "cpp"
+            then
+              local iron = require("iron")
+              iron.core.send(nil, iron.core.mark_visual())
+            end
           end
         end,
       },
