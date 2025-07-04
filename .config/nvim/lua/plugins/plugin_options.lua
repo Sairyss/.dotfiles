@@ -84,6 +84,8 @@ return {
           -- automatically fix linting errors on save
           vim.cmd([[
             autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js EslintFixAll
+            " autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js lua vim.lsp.buf.code_action({ context = { only = { "source.organizeImports" }, diagnostics = {} }, apply = true })
+            " autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js lua vim.lsp.buf.format()
           ]])
         end,
       }

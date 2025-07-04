@@ -113,8 +113,10 @@ return {
               or filetype == "c"
               or filetype == "cpp"
             then
-              local iron = require("iron")
-              iron.core.send_paragraph()
+              if package.loaded["iron"] then
+                local iron = require("iron")
+                iron.core.send_paragraph()
+              end
             else
               if filetype == "http" then
                 local kulala = require("kulala") -- kulala.nvim
