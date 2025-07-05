@@ -61,17 +61,17 @@ layout {
             mode_session       "#[bg=$pink,fg=$crust,bold] SESSION#[bg=$surface0,fg=$pink]"
             mode_prompt        "#[bg=$pink,fg=$crust,bold] PROMPT#[bg=$surface0,fg=$pink]"
 
-            tab_normal              "#[bg=$surface0,fg=$blue]#[bg=$blue,fg=$crust,bold]{index} #[bg=$surface1,fg=$blue,bold] {name}{floating_indicator}#[bg=$surface0,fg=$surface1]"
+            tab_normal              "#[bg=$surface0,fg=$blue]#[bg=$blue,fg=$crust,bold]{index} #[bg=$surface1,fg=$blue,bold] {name}#[bg=$surface0,fg=$surface1]"
             tab_normal_fullscreen   "#[bg=$surface0,fg=$blue]#[bg=$blue,fg=$crust,bold]{index} #[bg=$surface1,fg=$blue,bold] {name}{fullscreen_indicator}#[bg=$surface0,fg=$surface1]"
             tab_normal_sync         "#[bg=$surface0,fg=$blue]#[bg=$blue,fg=$crust,bold]{index} #[bg=$surface1,fg=$blue,bold] {name}{sync_indicator}#[bg=$surface0,fg=$surface1]"
-            tab_active              "#[bg=$surface0,fg=$green]#[bg=$green,fg=$crust,bold]{index} #[bg=$surface1,fg=$green,bold] {name}{floating_indicator}#[bg=$surface0,fg=$surface1]"
+            tab_active              "#[bg=$surface0,fg=$green]#[bg=$green,fg=$crust,bold]{index} #[bg=$surface1,fg=$green,bold] {name}#[bg=$surface0,fg=$surface1]"
             tab_active_fullscreen   "#[bg=$surface0,fg=$green]#[bg=$green,fg=$crust,bold]{index} #[bg=$surface1,fg=$green,bold] {name}{fullscreen_indicator}#[bg=$surface0,fg=$surface1]"
             tab_active_sync         "#[bg=$surface0,fg=$green]#[bg=$green,fg=$crust,bold]{index} #[bg=$surface1,fg=$green,bold] {name}{sync_indicator}#[bg=$surface0,fg=$surface1]"
             tab_separator           "#[bg=$surface0] "
 
             tab_sync_indicator       " "
             tab_fullscreen_indicator " 󰊓"
-            tab_floating_indicator   " 󰹙"
+            // tab_floating_indicator   " 󰹙"
 
             notification_format_unread "#[bg=surface0,fg=$yellow]#[bg=$yellow,fg=$crust] #[bg=$yellow,fg=$surface0]{message}#[bg=$surface0,fg=$yellow]"
             notification_format_no_notifications ""

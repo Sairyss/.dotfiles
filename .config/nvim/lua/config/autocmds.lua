@@ -9,7 +9,7 @@
 
 ----- zellij status line integration https://github.com/dj95/zjstatus
 local function clear_zellij_status_tabs()
-  -- Clear the zellij status line for tabs
+  -- Clear zellij status line for tabs
   vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tabs::'")
 end
 

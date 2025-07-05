@@ -157,7 +157,7 @@ keybinds clear-defaults=true {
                 width "1%"
                 height "1%"
             };
-          }
+        }
         // bind "Ctrl Alt j" { MoveFocus "down"; }
         // bind "Ctrl Alt k" { MoveFocus "up"; }
         bind "Ctrl Alt l" { 
