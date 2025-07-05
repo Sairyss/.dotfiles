@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Neovim in Kitty
 Comment=Run Neovim editor in Kitty
-Exec=kitty --class neovim_kitty -e zellij --layout=no-ui attach --create editor
+Exec=kitty --class neovim_kitty -e zellij --layout=main attach --create editor
 Icon=/home/user/.dotfiles/.config/nvim/logo.png
 Terminal=false
 Type=Application

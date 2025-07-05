@@ -118,12 +118,11 @@ return {
                 iron.core.send_paragraph()
               end
             else
-              if filetype == "http" then
+              if filetype == "http" and package.loaded["kulala"] then
                 local kulala = require("kulala") -- kulala.nvim
                 kulala.run()
               else
                 if filetype == "sql" then
-                  -- vim.cmd("<PLUG>(DBUI_ExecuteQuery)")
                   vim.api.nvim_feedkeys(
                     vim.api.nvim_replace_termcodes("<PLUG>(DBUI_ExecuteQuery)", true, true, true),
                     "n",

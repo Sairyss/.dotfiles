@@ -146,10 +146,32 @@ keybinds clear-defaults=true {
         bind "Alt o" { MoveTab "right"; }
     }
     shared {
-        bind "Ctrl Alt h" { MoveFocusOrTab "left"; }
+        bind "Ctrl Alt h" { 
+            MoveFocusOrTab "left"; 
+            // clear neovim tabs from status bar
+            Run "zellij" "pipe" "zjstatus::pipe::pipe_neovim_tabs::"  {
+                floating true
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            };
+          }
         // bind "Ctrl Alt j" { MoveFocus "down"; }
         // bind "Ctrl Alt k" { MoveFocus "up"; }
-        bind "Ctrl Alt l" { MoveFocusOrTab "right"; }
+        bind "Ctrl Alt l" { 
+            MoveFocusOrTab "right";
+            // clear neovim tabs from status bar
+            Run "zellij" "pipe" "zjstatus::pipe::pipe_neovim_tabs::"  {
+                floating true
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            };
+        }
         bind "Ctrl Alt 1" { GoToTab 1; }
         bind "Ctrl Alt 2" { GoToTab 2; }
         bind "Ctrl Alt 3" { GoToTab 3; }
@@ -294,7 +316,7 @@ load_plugins {
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
-theme "default"
+theme "catppuccin-macchiato"
  
 // Choose the base input mode of zellij.
 // Default: normal
