@@ -43,6 +43,12 @@ return {
         "4gt",
         desc = "Tab 4",
       },
+      {
+        "<leader>5",
+        mode = { "n" },
+        "5gt",
+        desc = "Tab 5",
+      },
     },
   },
 }

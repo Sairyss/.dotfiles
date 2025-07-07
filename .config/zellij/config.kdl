@@ -149,7 +149,7 @@ keybinds clear-defaults=true {
         bind "Ctrl Alt h" { 
             MoveFocusOrTab "left"; 
             // clear neovim tabs from status bar
-            Run "zellij" "pipe" "zjstatus::pipe::pipe_neovim_tabs::"  {
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 close_on_exit true
                 x "1%"
@@ -163,7 +163,7 @@ keybinds clear-defaults=true {
         bind "Ctrl Alt l" { 
             MoveFocusOrTab "right";
             // clear neovim tabs from status bar
-            Run "zellij" "pipe" "zjstatus::pipe::pipe_neovim_tabs::"  {
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 close_on_exit true
                 x "1%"
@@ -172,10 +172,66 @@ keybinds clear-defaults=true {
                 height "1%"
             };
         }
-        bind "Ctrl Alt 1" { GoToTab 1; }
-        bind "Ctrl Alt 2" { GoToTab 2; }
-        bind "Ctrl Alt 3" { GoToTab 3; }
-        bind "Ctrl Alt 4" { GoToTab 4; }
+        bind "Ctrl 1" {
+            GoToTab 1;
+            // clear neovim tabs from status bar
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            };
+        }
+        bind "Ctrl 2" {
+            GoToTab 2;
+            // clear neovim tabs from status bar
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            };
+        }
+        bind "Ctrl 3" {
+            GoToTab 3;
+            // clear neovim tabs from status bar
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            };
+        }
+        bind "Ctrl 4" {
+            GoToTab 4;
+            // clear neovim tabs from status bar
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            };
+        }
+        bind "Ctrl 5" {
+            GoToTab 5;
+            // clear neovim tabs from status bar
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            };
+        }
     }
     shared_except "locked" {
         bind "Ctrl g" { SwitchToMode "locked"; }

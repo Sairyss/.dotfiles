@@ -1,4 +1,5 @@
 plugins=(docker docker-compose fasd tmux zsh-autosuggestions vi-mode)
+source ~/.config/.zsh/custom/zjstatus.sh
 
 # ignore hosts file autocompletion
 zstyle -e ':completion:*:hosts' hosts 'reply=(
