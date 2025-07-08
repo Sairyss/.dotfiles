@@ -380,20 +380,70 @@ return {
         desc = "Snipe buffer menu",
       },
     },
-    opts = {
-      ui = {
-        position = "center",
-        open_win_override = {
-          border = "rounded",
+    config = function()
+      require("snipe").setup({
+        ui = {
+          position = "center",
+          open_win_override = {
+            border = "rounded",
+          },
+          text_align = "file-first",
+          buffer_format = {
+            "icon",
+            " ",
+            "filename",
+            function(buf)
+              if vim.fn.isdirectory(vim.api.nvim_buf_get_name(buf.id)) == 1 then
+                return " ", "SnipeText"
+              end
+            end,
+          },
         },
-        text_align = "file-first",
-      },
-      hints = {
-        -- Charaters to use for hints (NOTE: make sure they don't collide with the navigation keymaps)
-        ---@type string
-        dictionary = "asdqwezxcrfvlmpghio",
-      },
-    },
+        hints = {
+          -- Charaters to use for hints (NOTE: make sure they don't collide with the navigation keymaps)
+          ---@type string
+          dictionary = "asdqwezxcrfvlmpghio",
+        },
+        navigate = {
+          -- Open buffer in vertical split
+          open_vsplit = "|",
+
+          -- Open buffer in split, based on `vim.opt.splitbelow`
+          open_split = "-",
+        },
+      })
+
+      local menu = require("snipe.menu")
+
+      local function safe_tab_switch(n, m)
+        return function()
+          m:close()
+          if vim.fn.tabpagenr("$") >= n then
+            vim.cmd("tabnext " .. n)
+          end
+        end
+      end
+
+      -- set additional keymaps when snipe menu is open
+      local function set_keymaps(m)
+        -- switch to last buffer
+        vim.keymap.set("n", "<BS>", function()
+          m:close()
+          vim.cmd("b#")
+        end, { nowait = true, buffer = m.buf })
+
+        -- switch between tabs
+        vim.keymap.set("n", "1", function()
+          m:close()
+          vim.cmd("tabfirst")
+        end, { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "2", safe_tab_switch(2, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "3", safe_tab_switch(3, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "4", safe_tab_switch(4, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "5", safe_tab_switch(5, m), { nowait = true, buffer = m.buf })
+      end
+      menu:add_new_buffer_callback(set_keymaps)
+    end,
   },
 
   -- old --

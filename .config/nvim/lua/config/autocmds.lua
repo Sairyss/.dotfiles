@@ -7,6 +7,10 @@
 -- Or remove existing autocmds by their group name (which is prefixed with `lazyvim_` for the defaults)
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
+-- autocom configs
+local show_tabs_on_zjstatus = true
+local show_buffers_on_zjstatus = true
+
 ----- zellij status line integration https://github.com/dj95/zjstatus
 local function clear_zellij_status_tabs()
   -- Clear zellij status line for tabs
@@ -79,28 +83,30 @@ local function has_current_zellij_session()
   return output:match("%(current%)") ~= nil
 end
 
-if has_current_zellij_session() then
-  vim.opt.showtabline = 0 -- hide tabs
-  vim.api.nvim_create_autocmd({
-    "TabEnter",
-    "TabClosed",
-    "BufEnter",
-    "BufDelete",
-    "TermEnter",
-    "TermLeave",
-    "WinEnter",
-    "WinLeave",
-    "FocusGained",
-  }, {
-    callback = function()
-      vim.defer_fn(update_zellij_status_tabs, 0)
-    end,
-  })
-  vim.api.nvim_create_autocmd("VimLeave", {
-    callback = clear_zellij_status_tabs,
-  })
-else
-  vim.opt.showtabline = 1
+if show_tabs_on_zjstatus then
+  if has_current_zellij_session() then
+    vim.opt.showtabline = 0 -- hide tabs
+    vim.api.nvim_create_autocmd({
+      "TabEnter",
+      "TabClosed",
+      "BufEnter",
+      "BufDelete",
+      "TermEnter",
+      "TermLeave",
+      "WinEnter",
+      "WinLeave",
+      "FocusGained",
+    }, {
+      callback = function()
+        vim.defer_fn(update_zellij_status_tabs, 0)
+      end,
+    })
+    vim.api.nvim_create_autocmd("VimLeave", {
+      callback = clear_zellij_status_tabs,
+    })
+  else
+    vim.opt.showtabline = 1
+  end
 end
 
 local function clear_zellij_status_buffers()
@@ -229,7 +235,7 @@ local function update_zellij_status_buffers()
   vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_buffers::" .. message .. "'")
 end
 
-if has_current_zellij_session() then
+if show_buffers_on_zjstatus and has_current_zellij_session() then
   vim.api.nvim_create_autocmd({
     "BufEnter",
     "BufDelete",

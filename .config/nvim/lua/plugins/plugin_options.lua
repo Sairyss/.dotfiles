@@ -125,6 +125,15 @@ return {
           visible = true,
         },
       },
+      window = {
+        mappings = {
+          ["<BS>"] = {
+            function()
+              require("snipe").open_buffer_menu()
+            end,
+          },
+        },
+      },
     },
   },
   {
