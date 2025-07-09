@@ -468,7 +468,7 @@ return {
         end,
         condition = {
           callback = function(search)
-            return vim.fn.filereadable(search.dir .. "/package.json") == 1
+            return vim.fn.filereadable(vim.fn.findfile("package.json", search.dir .. ";")) == 1
           end,
         },
       })
