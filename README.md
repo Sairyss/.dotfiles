@@ -1,6 +1,6 @@
 # Dotfiles
 
-List of modern tools and configs for development.
+My configs, neovim/vscode plugins, tools for development.
 
 ![terminal-screenshot](screenshot.png)
 
@@ -123,7 +123,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [tiny-inline-diagnostic.nvim](https://github.com/rachartier/tiny-inline-diagnostic.nvim) - better looking inline diagnostics
 - [kulala](https://github.com/mistweaverco/kulala.nvim) - neovim HTTP client
 
-To see full list of Neovim plugins, check out [plugins.lua](./.config/nvim/lua/plugins/plugins.lua) file.
+To see full list of Neovim plugins, check out [plugins](./.config/nvim/lua/plugins/) directory.
 
 ### VSCode Extensions
 
