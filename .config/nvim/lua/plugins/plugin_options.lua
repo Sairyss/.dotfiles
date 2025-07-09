@@ -421,6 +421,59 @@ return {
       opts = {},
     },
   },
+  {
+    "stevearc/overseer.nvim",
+    opts = {
+      task_list = {
+        min_height = 14,
+        -- direction = "right",
+      },
+    },
+    keys = {
+      {
+        "<leader>or",
+        function()
+          local overseer = require("overseer")
+          local tasks = overseer.list_tasks({ recent_first = true })
+          if vim.tbl_isempty(tasks) then
+            vim.notify("No tasks found", vim.log.levels.WARN)
+          else
+            overseer.run_action(tasks[1], "restart")
+          end
+        end,
+        mode = { "n" },
+        silent = true,
+        desc = "Rerun last task",
+      },
+    },
+    config = function(_, opts)
+      require("overseer").setup(opts)
+      require("overseer").register_template({
+        name = "npm run test {name}",
+        params = {
+          name = {
+            type = "string",
+            -- Optional fields that are available on any type
+            name = "Test name",
+            desc = "Test to run",
+            order = 1, -- determines order of parameters in the UI
+            optional = false,
+          },
+        },
+        builder = function(params)
+          return {
+            cmd = { "npm" },
+            args = { "run", "test", params.name },
+          }
+        end,
+        condition = {
+          callback = function(search)
+            return vim.fn.filereadable(search.dir .. "/package.json") == 1
+          end,
+        },
+      })
+    end,
+  },
 
   ----- old -----
 
