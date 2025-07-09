@@ -38,7 +38,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [git](https://github.com/git/git) - version control tool
 - [tig](https://github.com/jonas/tig) - text-mode interface for git
 - [scm_breeze](https://github.com/scmbreeze/scm_breeze) - a set of shell scripts that enhance your interaction with git
-- [lazygit](https://github.com/kdheepak/lazygit.nvim) - git in terminal
+- [lazygit](https://github.com/kdheepak/lazygit.nvim) - terminal UI for git
 
 #### Search
 
@@ -64,6 +64,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [tmux](https://github.com/tmux/tmux) - terminal multiplexer
 - [.tmux](https://github.com/gpakosz/.tmux) - tmux config
 - [zellij](https://github.com/zellij-org/zellij) - modern tmux replacement
+- [lazydocker](https://github.com/jesseduffield/lazydocker) - terminal UI for docker
 - [htop](https://github.com/htop-dev/htop) - interactive process viewer
 - [xclip](https://github.com/astrand/xclip) - cli clipboard
 - [yank](https://github.com/mptre/yank) - copy terminal output to clipboard
@@ -106,6 +107,9 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [LazyVim](https://github.com/LazyVim/LazyVim) - neovim setup to make it feel like an IDE
 - [multicursor.nvim](https://github.com/jake-stewart/multicursor.nvim) - multi-select in vim, similar to ctrl + d in vscode
 - [arrow.nvim](https://github.com/otavioschwanck/arrow.nvim) - mark buffers on the fly and switch between them with hotkeys
+- [snipe.nvim](https://github.com/leath-dub/snipe.nvim) - menu to switch buffers using preassigned keys
+- [overseer.nvim](https://github.com/stevearc/overseer.nvim) - a task runner and job management plugin
+- [scope.nvim](https://github.com/tiagovla/scope.nvim) - scoped tabs (isolated buffers for each tab)
 - [yazi.nvim](https://github.com/mikavilpas/yazi.nvim) - use yazi file manager in a floating window inside vim
 - [oil.nvim](https://github.com/stevearc/oil.nvim) - edit your filesystem like a normal Neovim buffer
 - [flash.nvim](https://github.com/folke/flash.nvim) - navigate your code with search labels, enhanced character motions, and Treesitter integration
