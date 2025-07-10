@@ -40,11 +40,12 @@ return {
     dependencies = {
       { "nvim-tree/nvim-web-devicons", lazy = true },
     },
+    lazy = false,
     opts = {
       -- scope = "tab_scope",
       icons = true,
       quick_select = "123456789",
-      prune = "2d",
+      prune = "30d",
       style = "basename",
       scopes = {},
     },
@@ -219,7 +220,8 @@ return {
         -- switch to last buffer
         vim.keymap.set("n", "<BS>", function()
           m:close()
-          vim.cmd("b#")
+          -- vim.cmd("b#") -- go to prev used buffer
+          Snacks.picker.buffers({ filter = { cwd = true } })
         end, { nowait = true, buffer = m.buf })
 
         -- switch between tabs from the Snipe menu

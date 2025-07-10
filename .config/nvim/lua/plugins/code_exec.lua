@@ -141,34 +141,51 @@ return {
         ft = { "typescript", "javascript", "rust", "python", "go", "c", "cpp", "quarto" },
         "<C-CR>",
         function()
-          -- If terminal is visible, go to it and execute the last command. Useful for frequently runned commands like tests or scripts.
-          -- If no open terminal found, execute current buffer code in repl (iron.nvim).
-          local term = Snacks.terminal.list()
-          if term[1] ~= nil and term[1]:valid() then
-            term[1]:focus()
+          local function is_overseer_open()
+            for _, win in ipairs(vim.api.nvim_list_wins()) do
+              local buf = vim.api.nvim_win_get_buf(win)
+              local ft = vim.api.nvim_buf_get_option(buf, "filetype")
+              if ft == "OverseerList" then
+                return true
+              end
+            end
+            return false
+          end
 
+          local term = Snacks.terminal.list()
+          local filetype = vim.api.nvim_buf_get_option(0, "ft")
+
+          -- if overseer task manager is open, rerun the last task (or show the run task menu)
+          if is_overseer_open() then
+            local overseer = require("overseer")
+            local tasks = overseer.list_tasks({ recent_first = true })
+            if vim.tbl_isempty(tasks) then
+              vim.cmd([[OverseerRun]])
+            else
+              overseer.run_action(tasks[1], "restart")
+            end
+          elseif term[1] ~= nil and term[1]:valid() then
+            -- If terminal is visible, go to it and execute the last command. Useful for frequently runned commands like tests or scripts.
+            term[1]:focus()
             vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Up><CR>", true, false, true), "n", true)
             vim.defer_fn(function()
               vim.cmd("wincmd p")
             end, 50)
-          else
-            local filetype = vim.api.nvim_buf_get_option(0, "ft")
-            if filetype == "quarto" then
-              vim.cmd("QuartoSendAll")
-            else
-              if
-                filetype == "typescript"
-                or filetype == "javascript"
-                or filetype == "rust"
-                or filetype == "python"
-                or filetype == "go"
-                or filetype == "c"
-                or filetype == "cpp"
-              then
-                local iron = require("iron")
-                iron.core.send_file(filetype)
-              end
-            end
+            -- if quarto file is open, execute code in it
+          elseif filetype == "quarto" then
+            vim.cmd("QuartoSendAll")
+          elseif
+            filetype == "typescript"
+            or filetype == "javascript"
+            or filetype == "rust"
+            or filetype == "python"
+            or filetype == "go"
+            or filetype == "c"
+            or filetype == "cpp"
+          then
+            -- execute current buffer code in repl (iron.nvim).
+            local iron = require("iron")
+            iron.core.send_file(filetype)
           end
         end,
       },
