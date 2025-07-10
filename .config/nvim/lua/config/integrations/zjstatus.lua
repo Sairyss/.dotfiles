@@ -1,5 +1,5 @@
 local show_tabs_on_zjstatus = true
-local show_buffers_on_zjstatus = true
+local show_buffers_on_zjstatus = false
 
 ----- zellij status line integration https://github.com/dj95/zjstatus
 local function clear_zellij_status_tabs()

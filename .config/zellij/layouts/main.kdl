@@ -32,7 +32,7 @@ layout {
             // #[bg=$blue,fg=$crust]󰃭 #[bg=$surface1,fg=$blue,bold] {datetime}#[bg=$surface1,fg=$surface1]
             // #[bg=$surface1,fg=$blue,bold]{command_user}@{command_host}#[bg=$surface0,fg=$surface1]
             // #[bg=$surface0,fg=$surface1]{command_git_branch}#[bg=$surface0,fg=$surface1]
-            format_left   "#[bg=$surface0] {mode}#[bg=$surface0] {tabs}{pipe_neovim_tabs}{pipe_neovim_buffers}"
+            format_left   "#[bg=$surface0] {mode}#[bg=$surface0] {tabs}{pipe_neovim_tabs}{pipe_neovim_tagged_buffers}{pipe_neovim_buffers}"
             // format_center "{notifications}"
             format_right  "{notifications} {command_neovim_instances} {command_docker_containers} #[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$blue]#[bg=$blue,fg=$crust]󰃭 #[bg=$surface1,fg=$blue,bold] {datetime}#[bg=$surface1,fg=$surface1]"
             format_space  "#[bg=$surface0]"
@@ -114,6 +114,9 @@ layout {
 
             pipe_neovim_buffers_format "{output}"
             pipe_neovim_buffers_rendermode "dynamic"
+
+            pipe_neovim_tagged_buffers_format "{output}"
+            pipe_neovim_tagged_buffers_rendermode "dynamic"
       }
     }
       children

@@ -228,14 +228,14 @@ return {
       {
         "<leader><space>",
         function()
-          Snacks.picker.smart()
+          Snacks.picker.smart({ filter = { cwd = true } })
         end,
         desc = "Smart Find Files",
       },
       {
         "<C-p>",
         function()
-          Snacks.picker.smart()
+          Snacks.picker.smart({ filter = { cwd = true } })
         end,
         desc = "Smart Find Files",
       },

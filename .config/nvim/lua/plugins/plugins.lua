@@ -291,21 +291,6 @@ return {
     end,
   },
   {
-    "Bekaboo/dropbar.nvim",
-    -- optional, but required for fuzzy finder support
-    -- dependencies = {
-    -- "nvim-telescope/telescope-fzf-native.nvim",
-    -- build = "make",
-    -- },
-    enabled = false,
-    config = function()
-      local dropbar_api = require("dropbar.api")
-      vim.keymap.set("n", "<Leader>;", dropbar_api.pick, { desc = "Pick symbols in winbar" })
-      -- vim.keymap.set("n", "[;", dropbar_api.goto_context_start, { desc = "Go to start of current context" })
-      -- vim.keymap.set("n", "];", dropbar_api.select_next_context, { desc = "Select next context" })
-    end,
-  },
-  {
     "Wansmer/treesj",
     keys = {
       {
@@ -323,131 +308,55 @@ return {
       })
     end,
   },
-  {
-    "obsidian-nvim/obsidian.nvim",
-    version = "*", -- recommended, use latest release instead of latest commit
-    lazy = true,
-    ft = "markdown",
-    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
-    -- event = {
-    --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
-    --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/*.md"
-    --   -- refer to `:h file-pattern` for more examples
-    --   "BufReadPre path/to/my-vault/*.md",
-    --   "BufNewFile path/to/my-vault/*.md",
-    -- },
-    dependencies = {
-      -- Required.
-      "nvim-lua/plenary.nvim",
-    },
-    opts = {
-      workspaces = {
-        {
-          name = "cs-notes",
-          path = "/mnt/nvme0n1p3/Code/cs-notes/",
-        },
-      },
-      templates = {
-        folder = "/mnt/nvme0n1p3/Code/cs-notes/Templates/",
-        date_format = "%Y-%m-%d",
-        time_format = "%H:%M",
-      },
-    },
-  },
-  {
-    "leath-dub/snipe.nvim",
-    keys = {
-      -- {
-      --   "<leader>,",
-      --   function()
-      --     require("snipe").open_buffer_menu()
-      --   end,
-      --   desc = "Snipe buffer menu",
-      -- },
-      {
-        "<leader>bs",
-        function()
-          require("snipe").open_buffer_menu()
-        end,
-        desc = "Snipe buffer menu",
-      },
-      {
-        "<BS>",
-        mode = { "n" },
-        function()
-          require("snipe").open_buffer_menu()
-        end,
-        desc = "Snipe buffer menu",
-      },
-    },
-    config = function()
-      require("snipe").setup({
-        ui = {
-          position = "center",
-          open_win_override = {
-            border = "rounded",
-          },
-          text_align = "file-first",
-          buffer_format = {
-            "icon",
-            " ",
-            "filename",
-            function(buf)
-              if vim.fn.isdirectory(vim.api.nvim_buf_get_name(buf.id)) == 1 then
-                return " ", "SnipeText"
-              end
-            end,
-          },
-        },
-        hints = {
-          -- Charaters to use for hints (NOTE: make sure they don't collide with the navigation keymaps)
-          ---@type string
-          dictionary = "asdqwezxcrfvlmpghio",
-        },
-        navigate = {
-          -- Open buffer in vertical split
-          open_vsplit = "|",
-
-          -- Open buffer in split, based on `vim.opt.splitbelow`
-          open_split = "-",
-        },
-      })
-
-      local menu = require("snipe.menu")
-
-      local function safe_tab_switch(n, m)
-        return function()
-          m:close()
-          if vim.fn.tabpagenr("$") >= n then
-            vim.cmd("tabnext " .. n)
-          end
-        end
-      end
-
-      -- set additional keymaps when snipe menu is open
-      local function set_keymaps(m)
-        -- switch to last buffer
-        vim.keymap.set("n", "<BS>", function()
-          m:close()
-          vim.cmd("b#")
-        end, { nowait = true, buffer = m.buf })
-
-        -- switch between tabs
-        vim.keymap.set("n", "1", function()
-          m:close()
-          vim.cmd("tabfirst")
-        end, { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "2", safe_tab_switch(2, m), { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "3", safe_tab_switch(3, m), { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "4", safe_tab_switch(4, m), { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "5", safe_tab_switch(5, m), { nowait = true, buffer = m.buf })
-      end
-      menu:add_new_buffer_callback(set_keymaps)
-    end,
-  },
+  -- {
+  --   "obsidian-nvim/obsidian.nvim",
+  --   version = "*", -- recommended, use latest release instead of latest commit
+  --   lazy = true,
+  --   ft = "markdown",
+  --   -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
+  --   -- event = {
+  --   --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+  --   --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/*.md"
+  --   --   -- refer to `:h file-pattern` for more examples
+  --   --   "BufReadPre path/to/my-vault/*.md",
+  --   --   "BufNewFile path/to/my-vault/*.md",
+  --   -- },
+  --   dependencies = {
+  --     -- Required.
+  --     "nvim-lua/plenary.nvim",
+  --   },
+  --   opts = {
+  --     workspaces = {
+  --       {
+  --         name = "cs-notes",
+  --         path = "/mnt/nvme0n1p3/Code/cs-notes/",
+  --       },
+  --     },
+  --     templates = {
+  --       folder = "/mnt/nvme0n1p3/Code/cs-notes/Templates/",
+  --       date_format = "%Y-%m-%d",
+  --       time_format = "%H:%M",
+  --     },
+  --   },
+  -- },
 
   -- old --
 
+  -- {
+  --   "Bekaboo/dropbar.nvim",
+  --   -- optional, but required for fuzzy finder support
+  --   -- dependencies = {
+  --   -- "nvim-telescope/telescope-fzf-native.nvim",
+  --   -- build = "make",
+  --   -- },
+  --   enabled = false,
+  --   config = function()
+  --     local dropbar_api = require("dropbar.api")
+  --     vim.keymap.set("n", "<Leader>;", dropbar_api.pick, { desc = "Pick symbols in winbar" })
+  --     -- vim.keymap.set("n", "[;", dropbar_api.goto_context_start, { desc = "Go to start of current context" })
+  --     -- vim.keymap.set("n", "];", dropbar_api.select_next_context, { desc = "Select next context" })
+  --   end,
+  -- },
   -- {
   --   "https://git.sr.ht/~swaits/zellij-nav.nvim",
   --   lazy = true,
@@ -459,19 +368,6 @@ return {
   --     { "<c-l>", "<cmd>silent! ZellijNavigateRightTab<cr>", { silent = true, desc = "navigate right or tab" } },
   --   },
   --   opts = {},
-  -- },
-  -- {
-  --   "otavioschwanck/arrow.nvim",
-  --   dependencies = {
-  --     { "nvim-tree/nvim-web-devicons" },
-  --     -- or if using `mini.icons`
-  --     -- { "echasnovski/mini.icons" },
-  --   },
-  --   opts = {
-  --     show_icons = true,
-  --     leader_key = "\\", -- Recommended to be a single key
-  --     buffer_leader_key = "M", -- Per Buffer Mappings
-  --   },
   -- },
   -- {
   --   "michaelb/sniprun",

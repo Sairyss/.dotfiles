@@ -161,7 +161,7 @@ To backup and restore configs, store your configs in github and use Stow to crea
 
 <https://youtu.be/y6XCebnB9gs?si=TnjSMO_tmL5D8Ncn>
 
-- Put `.dotfiles` to home directory and execute `stow . --ignore='README.md'` from inside it.
+- Put `.dotfiles` to home directory and execute `stow .` from it.
 
 ### Sync apps
 
