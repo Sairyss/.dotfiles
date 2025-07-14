@@ -155,14 +155,20 @@ return {
           local term = Snacks.terminal.list()
           local filetype = vim.api.nvim_buf_get_option(0, "ft")
 
-          -- if overseer task manager is open, rerun the last task (or show the run task menu)
+          -- if overseer task manager is open, rerun/stop the last task (or show the run task menu)
           if is_overseer_open() then
             local overseer = require("overseer")
             local tasks = overseer.list_tasks({ recent_first = true })
             if vim.tbl_isempty(tasks) then
               vim.cmd([[OverseerRun]])
             else
-              overseer.run_action(tasks[1], "restart")
+              ---@type overseer.Task
+              local task = tasks[1]
+              if task.status == "RUNNING" then
+                overseer.run_action(task, "stop")
+              else
+                overseer.run_action(task, "restart")
+              end
             end
           elseif term[1] ~= nil and term[1]:valid() then
             -- If terminal is visible, go to it and execute the last command. Useful for frequently runned commands like tests or scripts.
@@ -171,8 +177,8 @@ return {
             vim.defer_fn(function()
               vim.cmd("wincmd p")
             end, 50)
-            -- if quarto file is open, execute code in it
           elseif filetype == "quarto" then
+            -- if quarto file is open, execute code in it
             vim.cmd("QuartoSendAll")
           elseif
             filetype == "typescript"
