@@ -31,7 +31,6 @@ AddPackage kitty                   # Kitty Terminal
 AddPackage kiwix-desktop           # Offline reader for Web content, especially intended to make Wikipedia available offline
 AddPackage lazygit                 # Simple terminal UI for git commands
 AddPackage lutris                  # Open Gaming Platform
-AddPackage navi                    # An interactive cheatsheet tool for the command-line
 AddPackage neovim                  # Fork of Vim aiming to improve user experience, plugins, and GUIs
 AddPackage nodejs                  # Evented I/O for V8 javascript
 AddPackage npm                     # A package manager for JavaScript
