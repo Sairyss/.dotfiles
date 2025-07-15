@@ -1,0 +1,27 @@
+[metadata]
+name = "dotenv"
+description = "Search environment variables in .env* files"
+requirements = ["rg", "bat"]
+
+[source]
+# Output format: file:line:KEY=VALUE
+command = "rg --no-heading --with-filename --line-number --hidden -g '.env*' '^[A-Z_][A-Z0-9_]*=.*'"
+display = "{split:\\::2} [{split:\\::0}:{split:\\::1}]"
+# output = "{split:\\::0}:{split:\\::1}:{split:\\::2}"
+output = "{split:=:1..}"
+
+[preview]
+# Show the file with the target line highlighted
+command = "bat --style=numbers --color=always {split:\\::0}"
+offset = "{split:\\::1}"
+env = { BAT_THEME = "Catppuccin Mocha" }
+
+[ui]
+layout = "portrait"
+
+[ui.preview_panel]
+size = 40
+header = "{split:\\::0}:{split:\\::1}"
+
+[keybindings]
+shortcut = "f3"
