@@ -34,7 +34,7 @@ layout {
             // #[bg=$surface0,fg=$surface1]{command_git_branch}#[bg=$surface0,fg=$surface1]
             format_left   "#[bg=$surface0] {mode}#[bg=$surface0] {tabs}{pipe_neovim_tabs}{pipe_neovim_tagged_buffers}{pipe_neovim_buffers}"
             // format_center "{notifications}"
-            format_right  "{notifications} {command_neovim_instances} {command_docker_containers} #[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$blue]#[bg=$blue,fg=$crust]󰃭 #[bg=$surface1,fg=$blue,bold] {datetime}#[bg=$surface1,fg=$surface1]"
+            format_right  "{notifications} #[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$blue]#[bg=$blue,fg=$crust]󰃭 #[bg=$surface1,fg=$blue,bold] {datetime}#[bg=$surface1,fg=$surface1]"
             format_space  "#[bg=$surface0]"
             format_hide_on_overlength "true"
             format_precedence "lrc"
@@ -83,16 +83,16 @@ layout {
             command_git_branch_rendermode  "static"
 
             // Number of running docker containers
-            command_docker_containers_command     "bash -c 'docker ps -q | wc -l'"
-            command_docker_containers_format      "#[bg=$surface0,fg=$surface1]#[bg=$surface1,fg=$blue,bold]🐳{stdout}#[bg=$surface0,fg=$surface1]"
-            command_docker_containers_interval    "360"
-            command_docker_containers_rendermode  "static"
+            // command_docker_containers_command     "bash -c 'docker ps -q | wc -l'"
+            // command_docker_containers_format      "#[bg=$surface0,fg=$surface1]#[bg=$surface1,fg=$blue,bold]🐳{stdout}#[bg=$surface0,fg=$surface1]"
+            // command_docker_containers_interval    "360"
+            // command_docker_containers_rendermode  "static"
 
             // Numbero of running neovim instances
-            command_neovim_instances_command     "bash -c \"ps -C nvim -o pid,args --no-headers | grep -v -- '--embed' | wc -l\""
-            command_neovim_instances_format      "#[bg=$surface0,fg=$surface1]#[bg=$surface1,fg=$blue,bold]📟{stdout}#[bg=$surface0,fg=$surface1]"
-            command_neovim_instances_interval    "120"
-            command_neovim_instances_rendermode  "static"
+            // command_neovim_instances_command     "bash -c \"ps -C nvim -o pid,args --no-headers | grep -v -- '--embed' | wc -l\""
+            // command_neovim_instances_format      "#[bg=$surface0,fg=$surface1]#[bg=$surface1,fg=$blue,bold]📟{stdout}#[bg=$surface0,fg=$surface1]"
+            // command_neovim_instances_interval    "120"
+            // command_neovim_instances_rendermode  "static"
 
             command_host_command    "uname -n"
             command_host_format     "{stdout}"
