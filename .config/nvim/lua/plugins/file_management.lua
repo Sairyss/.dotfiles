@@ -6,9 +6,21 @@ return {
     ---@type oil.SetupOpts
     opts = {
       default_file_explorer = false,
+      float = {
+        padding = 2,
+        max_width = 0.8,
+        max_height = 0.8,
+      },
     },
     keys = {
-      { "<leader>fo", "<cmd>Oil<cr>", desc = "Oil.nvim" },
+      {
+        "<leader>fo",
+        function()
+          require("oil").toggle_float()
+          vim.api.nvim_buf_set_keymap(0, "n", "<Esc>", "<cmd>lua require('oil').close()<cr>", { silent = true })
+        end,
+        desc = "Oil.nvim",
+      },
     },
     -- Optional dependencies
     dependencies = { { "echasnovski/mini.icons", opts = {} } },

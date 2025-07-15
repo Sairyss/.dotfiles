@@ -140,13 +140,19 @@ return {
           },
         },
         gemini = {
-          model = "gemini-2.5-flash-preview-04-17",
+          model = "gemini-2.5-pro",
+          -- temperature = 0,
           temperature = 0,
           max_tokens = 8192,
-          disable_tools = true,
+          -- max_tokens = 10000,
+          -- disable_tools = true,
           extra_request_body = {
             temperature = 0,
+            max_tokens = 8192,
             max_completion_tokens = 8192,
+            -- max_completion_tokens = 10000,
+            -- max_tokens = 10000,
+            -- disable_tools = true,
           },
         },
         openai = {
@@ -307,6 +313,42 @@ return {
         use_default_keymaps = false,
       })
     end,
+  },
+  {
+    "bngarren/checkmate.nvim",
+    ft = "markdown", -- Lazy loads for Markdown files matching patterns in 'files'
+    opts = {
+      -- your configuration here
+      -- or leave empty to use defaults
+    },
+    keys = {
+      {
+        "<CR>",
+        desc = "Toggle todo item",
+        silent = true,
+        mode = { "n", "v" },
+        ft = { "markdown" },
+        function()
+          local checkmate = require("checkmate")
+          if checkmate.is_running() then
+            checkmate.toggle()
+          end
+        end,
+      },
+      {
+        "<C-CR>",
+        desc = "Create todo item",
+        silent = true,
+        mode = { "n", "v" },
+        ft = { "markdown" },
+        function()
+          local checkmate = require("checkmate")
+          if checkmate.is_running() then
+            checkmate.create()
+          end
+        end,
+      },
+    },
   },
   -- {
   --   "obsidian-nvim/obsidian.nvim",
