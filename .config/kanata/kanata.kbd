@@ -45,6 +45,7 @@
   L_j_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout j (layer-toggle ctrl_homerow))
   L_d_alt_tog (tap-hold-release $tap_timeout $hold_timeout d (layer-toggle alt_homerow))
   L_k_alt_tog (tap-hold-release $tap_timeout $hold_timeout k (layer-toggle alt_homerow))
+  L_ret_ctrl_alt_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle ctrl_alt_homerow))
 
   ;; Modes tog from normal mode layer
   L_f_norm_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle normal_mode_ctrl_layer))
@@ -133,6 +134,7 @@
   ;; left hand
   f @L_f_ctrl_tog
   d @L_d_alt_tog
+  ret @L_ret_ctrl_alt_tog
 
   ;; right hand
   ;; j @L_j_ctrl_tog
@@ -218,7 +220,7 @@
 
   ;; layers
   ;; spc @L_leader
-  ret @L_ret_leader_tog
+  ;; ret @L_ret_leader_tog
   spc @L_spc_leader_tog
   rmet @L_rmet_leader_tog
   lctl @L_f_norm_ctrl_tog
@@ -438,7 +440,7 @@
 )
 
 ;; ----- Home row mods below -----
-;; hold "f" to enter ctrl layer. Useful for navigating apps like vim with ctrl+d and ctrl+u and so on.
+;; enter ctrl layer. Useful for navigating apps like vim with ctrl+d and ctrl+u and so on.
 (deflayermap (ctrl_homerow)
   esc @L_main
   ' @L_main
@@ -459,7 +461,7 @@
   ___ XX
 )
 
-;; hold "d" to enter alt layer.
+;; alt layer.
 (deflayermap (alt_homerow)
   esc @L_main
   ' @L_main
@@ -478,6 +480,29 @@
   t A-t
   p A-p
   tab A-tab
+  ___ XX
+)
+
+;; ctrl+alt layer.
+(deflayermap (ctrl_alt_homerow)
+  esc @L_main
+  ' @L_main
+  w C-A-w
+  d C-A-d
+  f C-A-f
+  u C-A-u
+  l C-A-l
+  h C-A-h
+  j C-A-j
+  k C-A-k
+  a C-A-a
+  c C-A-c
+  v C-A-v
+  o C-A-o
+  i C-A-i
+  r C-A-r
+  t C-A-t
+  p C-A-p
   ___ XX
 )
 
