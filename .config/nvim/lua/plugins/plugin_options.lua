@@ -260,6 +260,30 @@ return {
       { "<leader>sg", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
       { "<leader>sW", LazyVim.pick("grep_word"), desc = "Visual selection or word (Root Dir)", mode = { "n", "x" } },
       {
+        "<leader>sn",
+        function()
+          -- Yank the visual selection into "z register
+          vim.cmd('normal! "zy')
+
+          -- Get the contents of the z register
+          local text = vim.fn.getreg("z")
+
+          if not text or text == "" then
+            return
+          end
+
+          -- Escape special characters for search
+          text = vim.fn.escape(text, [[\/.*$^~[]])
+          text = text:gsub("\n", [[\\n]])
+
+          -- Feedkeys to open search prompt with the selection
+          local keys = "/" .. text .. "\r"
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "n", false)
+        end,
+        desc = "Search next from visual selection",
+        mode = { "v" },
+      },
+      {
         "<leader>sw",
         LazyVim.pick("grep_word", { root = false }),
         desc = "Visual selection or word (cwd)",
@@ -488,6 +512,36 @@ return {
         },
       })
     end,
+  },
+  {
+    "saghen/blink.cmp",
+    opts = {
+      sources = {
+        -- changing order of lsp sources
+        providers = {
+          snippets = {
+            min_keyword_length = 1,
+            score_offset = 5,
+          },
+          lsp = {
+            min_keyword_length = 1,
+            score_offset = 4,
+          },
+          copilot = {
+            min_keyword_length = 3,
+            score_offset = 3,
+          },
+          path = {
+            min_keyword_length = 3,
+            score_offset = 2,
+          },
+          buffer = {
+            min_keyword_length = 4,
+            score_offset = 1,
+          },
+        },
+      },
+    },
   },
 
   ----- old -----
