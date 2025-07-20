@@ -446,6 +446,7 @@
   ' @L_main
   d C-d
   u C-u
+  w C-w
   l C-l
   h C-h
   j C-j
@@ -466,6 +467,7 @@
   esc @L_main
   ' @L_main
   d A-d
+  w A-w
   u A-u
   l A-l
   h A-h
