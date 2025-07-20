@@ -5,33 +5,33 @@ return {
     lazy = true,
     keys = {
       {
-        "<M-w>",
+        "w",
         "<cmd>lua require('spider').motion('w', { skipInsignificantPunctuation = true, subwordMovement = false, })<CR>",
         mode = { "n", "o", "x" },
       },
       {
-        "<M-e>",
+        "e",
         "<cmd>lua require('spider').motion('e', { skipInsignificantPunctuation = true, subwordMovement = false, })<CR>",
         mode = { "n", "o", "x" },
       },
       {
-        "<M-b>",
+        "b",
         "<cmd>lua require('spider').motion('b', { skipInsignificantPunctuation = true, subwordMovement = false, })<CR>",
         mode = { "n", "o", "x" },
       },
 
       {
-        "w",
+        "<M-w>",
         "<cmd>lua require('spider').motion('w', { skipInsignificantPunctuation = false, })<CR>",
         mode = { "n", "o", "x" },
       },
       {
-        "e",
+        "<M-e>",
         "<cmd>lua require('spider').motion('e', { skipInsignificantPunctuation = false, })<CR>",
         mode = { "n", "o", "x" },
       },
       {
-        "b",
+        "<M-b>",
         "<cmd>lua require('spider').motion('b', { skipInsignificantPunctuation = false, })<CR>",
         mode = { "n", "o", "x" },
       },

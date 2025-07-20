@@ -75,7 +75,6 @@ return {
       },
     },
   },
-
   {
     -- ctrl + a/x to increment/decrement or cycle through values
     "monaqa/dial.nvim",

@@ -1,6 +1,7 @@
 -- Tab management plugins
 return {
   {
+    -- make buffers scoped per tab
     "tiagovla/scope.nvim",
     config = function()
       require("scope").setup({
@@ -19,6 +20,7 @@ return {
       -- configs...
     },
     keys = {
+      -- switch to a specific tab with a hotkey
       {
         "<leader>1",
         mode = { "n" },
