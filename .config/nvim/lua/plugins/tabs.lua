@@ -19,38 +19,5 @@ return {
     opts = {
       -- configs...
     },
-    keys = {
-      -- switch to a specific tab with a hotkey
-      {
-        "<leader>1",
-        mode = { "n" },
-        "1gt",
-        desc = "Tab 1",
-      },
-      {
-        "<leader>2",
-        mode = { "n" },
-        "2gt",
-        desc = "Tab 2",
-      },
-      {
-        "<leader>3",
-        mode = { "n" },
-        "3gt",
-        desc = "Tab 3",
-      },
-      {
-        "<leader>4",
-        mode = { "n" },
-        "4gt",
-        desc = "Tab 4",
-      },
-      {
-        "<leader>5",
-        mode = { "n" },
-        "5gt",
-        desc = "Tab 5",
-      },
-    },
   },
 }

@@ -26,11 +26,11 @@ return {
     dependencies = { { "echasnovski/mini.icons", opts = {} } },
     -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
   },
-  {
-    "benomahony/oil-git.nvim",
-    dependencies = { "stevearc/oil.nvim" },
-    -- No opts or config needed! Works automatically
-  },
+  -- {
+  --   "benomahony/oil-git.nvim",
+  --   dependencies = { "stevearc/oil.nvim" },
+  --   -- No opts or config needed! Works automatically
+  -- },
   {
     "mikavilpas/yazi.nvim",
     event = "VeryLazy",

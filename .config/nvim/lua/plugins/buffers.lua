@@ -136,6 +136,38 @@ return {
         end,
         desc = "Toggle tag",
       },
+      -- switch to a specific tab with a hotkey
+      {
+        "<leader>1",
+        mode = { "n" },
+        ":Grapple select index=1<cr>",
+        desc = "Grapple 1",
+      },
+      {
+        "<leader>2",
+        mode = { "n" },
+        ":Grapple select index=2<cr>",
+        desc = "Grapple 2",
+      },
+      {
+        "<leader>3",
+        mode = { "n" },
+        ":Grapple select index=3<cr>",
+        desc = "Grapple 3",
+      },
+      {
+        "<leader>4",
+        mode = { "n" },
+        ":Grapple select index=4<cr>",
+        desc = "Grapple 4",
+      },
+      {
+        "<leader>5",
+        mode = { "n" },
+        ":Grapple select index=5<cr>",
+        desc = "Grapple 5",
+      },
+
       -- { "H", "<cmd>Grapple cycle_tags next<cr>", desc = "Go to next tag" },
       -- { "L", "<cmd>Grapple cycle_tags prev<cr>", desc = "Go to previous tag" },
     },
@@ -224,36 +256,30 @@ return {
           Snacks.picker.buffers({ filter = { cwd = true } })
         end, { nowait = true, buffer = m.buf })
 
-        -- switch between tabs from the Snipe menu
-        -- local function safe_tab_switch(n, m)
+        -- switch between Grapple.nvim tags from the Snipe menu
+        -- local function safe_grapple_buffer_switch(n, m)
         --   return function()
         --     m:close()
-        --     if vim.fn.tabpagenr("$") >= n then
-        --       vim.cmd("tabnext " .. n)
-        --     end
+        --     vim.cmd(string.format("Grapple select index=%d", n))
         --   end
         -- end
-        -- vim.keymap.set("n", "1", function()
-        --   m:close()
-        --   vim.cmd("tabfirst")
-        -- end, { nowait = true, buffer = m.buf })
-        -- vim.keymap.set("n", "2", safe_tab_switch(2, m), { nowait = true, buffer = m.buf })
-        -- vim.keymap.set("n", "3", safe_tab_switch(3, m), { nowait = true, buffer = m.buf })
-        -- vim.keymap.set("n", "4", safe_tab_switch(4, m), { nowait = true, buffer = m.buf })
-        -- vim.keymap.set("n", "5", safe_tab_switch(5, m), { nowait = true, buffer = m.buf })
 
-        -- switch between Grapple.nvim tags from the Snipe menu
-        local function safe_grapple_buffer_switch(n, m)
+        -- switch tabs
+        local function safe_tab_switch(n, m)
           return function()
             m:close()
-            vim.cmd(string.format("Grapple select index=%d", n))
+            if n == 1 then
+              vim.cmd("tabfirst")
+            else
+              vim.cmd("tabnext " .. n)
+            end
           end
         end
-        vim.keymap.set("n", "1", safe_grapple_buffer_switch(1, m), { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "2", safe_grapple_buffer_switch(2, m), { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "3", safe_grapple_buffer_switch(3, m), { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "4", safe_grapple_buffer_switch(4, m), { nowait = true, buffer = m.buf })
-        vim.keymap.set("n", "5", safe_grapple_buffer_switch(5, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "1", safe_tab_switch(1, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "2", safe_tab_switch(2, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "3", safe_tab_switch(3, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "4", safe_tab_switch(4, m), { nowait = true, buffer = m.buf })
+        vim.keymap.set("n", "5", safe_tab_switch(5, m), { nowait = true, buffer = m.buf })
         vim.keymap.set("n", "m", function()
           m:close()
           require("grapple").toggle_tags()

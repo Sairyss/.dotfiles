@@ -441,8 +441,11 @@ return {
       ft = "http",
       keys = {
         { "<C-M-r>", "<cmd>lua require('kulala').run()<cr>", desc = "Send the request", ft = "http" },
+        { "<leader>Re", "<cmd>lua require('kulala').set_selected_env()<cr>", desc = "Send the request", ft = "http" },
       },
-      opts = {},
+      opts = {
+        default_env = "local",
+      },
     },
   },
   {
@@ -523,12 +526,12 @@ return {
             min_keyword_length = 1,
             score_offset = 5,
           },
-          lsp = {
-            min_keyword_length = 1,
-            score_offset = 4,
-          },
           copilot = {
             min_keyword_length = 3,
+            score_offset = 4,
+          },
+          lsp = {
+            min_keyword_length = 1,
             score_offset = 3,
           },
           path = {
