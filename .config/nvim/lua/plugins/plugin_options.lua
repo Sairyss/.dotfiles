@@ -527,11 +527,11 @@ return {
             score_offset = 5,
           },
           copilot = {
-            min_keyword_length = 3,
+            min_keyword_length = 2,
             score_offset = 4,
           },
           lsp = {
-            min_keyword_length = 1,
+            min_keyword_length = 0,
             score_offset = 3,
           },
           path = {

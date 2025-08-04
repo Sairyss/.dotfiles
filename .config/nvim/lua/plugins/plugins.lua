@@ -170,6 +170,12 @@ return {
     opts = {
       -- your configuration here
       -- or leave empty to use defaults
+
+      -- -- Regular markers to avoid conflicts with render-markdown.nvim
+      -- todo_markers = {
+      --   unchecked = "[ ]",
+      --   checked = "[x]",
+      -- },
     },
     keys = {
       {

@@ -383,10 +383,10 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "cd /mnt/nvme1n1p3/Work/TODOS && nvim -c 'sleep 5m' -c 'Neotree close' -c 'lua require(\"persistence\").load()' -c 'sleep 5m' -c 'Neotree close'  ." {
                 floating true
                 close_on_exit true
-                x "25%"
-                y "15%"
-                width "50%"
-                height "70%"
+                x "10%"
+                y "5%"
+                width "80%"
+                height "95%"
             };
         }
     }

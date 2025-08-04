@@ -489,6 +489,7 @@
 (deflayermap (ctrl_alt_homerow)
   esc @L_main
   ' @L_main
+  q C-A-q
   w C-A-w
   d C-A-d
   f C-A-f
