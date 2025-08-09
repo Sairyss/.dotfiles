@@ -161,7 +161,11 @@ To backup and restore configs, store your configs in github and use Stow to crea
 
 <https://youtu.be/y6XCebnB9gs?si=TnjSMO_tmL5D8Ncn>
 
-- Put `.dotfiles` to home directory and execute `stow .` from it.
+- Example of config restore:
+  - `git clone your_dotfiles_repo ~/.dotfiles`
+  - `cd ~/.dotfiles`
+  - `git submodule update --init`
+  - `stow .`
 
 ### Sync apps
 

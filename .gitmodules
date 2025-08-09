@@ -1,3 +1,6 @@
 [submodule ".config/.zsh/antidote"]
 	path = .config/.zsh/antidote
 	url = https://github.com/mattmc3/antidote.git
+[submodule ".scm_breeze"]
+	path = .scm_breeze
+	url = https://github.com/scmbreeze/scm_breeze.git
