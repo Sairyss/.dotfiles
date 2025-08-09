@@ -1,1 +1,1 @@
-source ~/.config/.zsh/custom/config.sh
+source ~/.config/.zsh/config.sh

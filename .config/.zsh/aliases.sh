@@ -1,0 +1,13 @@
+alias l='eza -alhF'
+alias ll='eza -lhF'
+alias mkdir='mkdir -pv'
+alias rmdir='rmdir -v'
+alias cp='cp -rvi'
+alias rm='rm -vr'
+alias mv='mv -v'
+alias path='echo -e ${PATH//:/\\n}'
+alias ftoday='find . -type f -daystart -mtime -1' # find today files
+alias cat='bat'
+alias open="xdg-open"
+alias dev='npm run start:dev'
+alias zr='zellij run --floating --width 90% --height 95% --x 5% --y 5%'

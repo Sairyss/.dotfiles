@@ -1,0 +1,3 @@
+[submodule ".config/.zsh/antidote"]
+	path = .config/.zsh/antidote
+	url = https://github.com/mattmc3/antidote.git

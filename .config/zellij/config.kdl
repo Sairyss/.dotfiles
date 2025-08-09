@@ -126,6 +126,149 @@ keybinds clear-defaults=true {
             SwitchToMode "normal"
         }
     }
+    shared_among "normal" "locked" {
+        bind "Ctrl Alt a" {
+            Run "aichat" {
+                floating true
+                hold_on_close false
+                x "5%"
+                y "5%"
+                width "90%"
+                height "95%"
+            }
+        }
+        bind "Ctrl Alt f" {
+            Run "yazi" {
+                floating true
+                hold_on_close false
+                x "5%"
+                y "5%"
+                width "90%"
+                height "95%"
+            }
+        }
+        bind "Ctrl Alt o" {
+            LaunchOrFocusPlugin "session-manager" {
+                floating true
+                move_to_focused_tab true
+            }
+            SwitchToMode "normal"
+        }
+        bind "Ctrl Alt s" {
+            Run "tv" "dotenv" {
+                floating true
+                hold_on_close false
+                x "5%"
+                y "5%"
+                width "90%"
+                height "95%"
+            }
+        }
+        bind "Ctrl Alt t" {
+            Run "bash" "-c" "cd /mnt/nvme1n1p3/Work/TODOS && nvim -c 'sleep 5m' -c 'Neotree close' -c 'lua require(\"persistence\").load()' -c 'sleep 5m' -c 'Neotree close'  ." {
+                floating true
+                hold_on_close false
+                x "10%"
+                y "5%"
+                width "80%"
+                height "95%"
+            }
+        }
+        bind "Ctrl Alt w" { ToggleFloatingPanes; SwitchToMode "normal"; }
+        bind "Ctrl Alt z" {
+            MessagePlugin "autolock" {
+                name "autolock"
+                payload "enable"
+                floating false
+            }
+        }
+        bind "Alt z" {
+            MessagePlugin "autolock" {
+                name "autolock"
+                payload "disable"
+                floating false
+            }
+        }
+    }
+    shared {
+        bind "Ctrl 1" {
+            GoToTab 1
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+        bind "Ctrl 2" {
+            GoToTab 2
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+        bind "Ctrl 3" {
+            GoToTab 3
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+        bind "Ctrl 4" {
+            GoToTab 4
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+        bind "Ctrl 5" {
+            GoToTab 5
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+        bind "Ctrl Alt h" {
+            MoveFocusOrTab "left"
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+        bind "Ctrl Alt l" {
+            MoveFocusOrTab "right"
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+    }
     shared_except "locked" {
         bind "Alt left" { MoveFocusOrTab "left"; }
         bind "Alt down" { MoveFocus "down"; }
@@ -137,110 +280,20 @@ keybinds clear-defaults=true {
         bind "Alt [" { PreviousSwapLayout; }
         bind "Alt ]" { NextSwapLayout; }
         bind "Alt f" { ToggleFloatingPanes; }
+        bind "Ctrl g" { SwitchToMode "locked"; }
         bind "Alt h" { MoveFocusOrTab "left"; }
         bind "Alt i" { MoveTab "left"; }
         bind "Alt j" { MoveFocus "down"; }
         bind "Alt k" { MoveFocus "up"; }
         bind "Alt l" { MoveFocusOrTab "right"; }
+        bind "Alt m" {
+            LaunchOrFocusPlugin "zellij:multiple-select" {
+                floating true
+                move_to_focused_tab true
+            }
+        }
         bind "Alt n" { NewPane; }
         bind "Alt o" { MoveTab "right"; }
-    }
-    shared {
-        bind "Ctrl Alt h" { 
-            MoveFocusOrTab "left"; 
-            // clear neovim tabs from status bar
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            };
-        }
-        // bind "Ctrl Alt j" { MoveFocus "down"; }
-        // bind "Ctrl Alt k" { MoveFocus "up"; }
-        bind "Ctrl Alt l" { 
-            MoveFocusOrTab "right";
-            // clear neovim tabs from status bar
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            };
-        }
-        bind "Ctrl 1" {
-            GoToTab 1;
-            // clear neovim tabs from status bar
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            };
-        }
-        bind "Ctrl 2" {
-            GoToTab 2;
-            // clear neovim tabs from status bar
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            };
-        }
-        bind "Ctrl 3" {
-            GoToTab 3;
-            // clear neovim tabs from status bar
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            };
-        }
-        bind "Ctrl 4" {
-            GoToTab 4;
-            // clear neovim tabs from status bar
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            };
-        }
-        bind "Ctrl 5" {
-            GoToTab 5;
-            // clear neovim tabs from status bar
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            };
-        }
-    }
-    shared_except "locked" {
-        bind "Ctrl g" { SwitchToMode "locked"; }
-        bind "Alt m" {
-          LaunchOrFocusPlugin "zellij:multiple-select" {
-              floating true
-              move_to_focused_tab true
-          }
-        }
         bind "Ctrl q" { Quit; }
     }
     shared_except "locked" "move" {
@@ -328,69 +381,6 @@ keybinds clear-defaults=true {
         bind "p" { GoToPreviousTab; SwitchToMode "normal"; }
         bind "z" { ToggleFocusFullscreen; SwitchToMode "normal"; }
     }
-
-    shared_among "normal" "locked" {
-        // Custom hotkeys
-        bind "Ctrl Alt w" { ToggleFloatingPanes; SwitchToMode "normal"; }
-        bind "Ctrl Alt o" {
-            LaunchOrFocusPlugin "session-manager" {
-                floating true
-                move_to_focused_tab true
-            }
-            SwitchToMode "normal"
-        }
-        bind "Alt z" {
-            MessagePlugin "autolock" {payload "disable";};
-        }
-        bind "Ctrl Alt z" {
-            MessagePlugin "autolock" {payload "enable";};
-        }
-
-
-        // Custom hotkeys for floating apps
-        bind "Ctrl Alt a" { 
-            Run "aichat" {
-                floating true
-                close_on_exit true
-                x "5%"
-                y "5%"
-                width "90%"
-                height "95%"
-            };
-        }
-        bind "Ctrl Alt s" { 
-            Run "tv" "dotenv" {
-                floating true
-                close_on_exit true
-                x "5%"
-                y "5%"
-                width "90%"
-                height "95%"
-            };
-        }
-        bind "Ctrl Alt f" { 
-            Run "yazi" {
-                floating true
-                close_on_exit true
-                x "5%"
-                y "5%"
-                width "90%"
-                height "95%"
-            };
-        }
-        bind "Ctrl Alt t" { 
-            // workaround to make Neotree close properly and not interrupt session restore
-            Run "bash" "-c" "cd /mnt/nvme1n1p3/Work/TODOS && nvim -c 'sleep 5m' -c 'Neotree close' -c 'lua require(\"persistence\").load()' -c 'sleep 5m' -c 'Neotree close'  ." {
-                floating true
-                close_on_exit true
-                x "10%"
-                y "5%"
-                width "80%"
-                height "95%"
-            };
-        }
-    }
-
 }
 
 // Plugin aliases - can be used to change the implementation of Zellij
@@ -423,6 +413,9 @@ plugins {
 // eg. "https://example.com/my-plugin.wasm"
 load_plugins {
     autolock
+}
+web_client {
+    font "monospace"
 }
  
 // Use a simplified UI without special fonts (arrow glyphs)
@@ -601,6 +594,52 @@ pane_frames false
 // Default: true (if the host terminal supports it)
 // 
 // support_kitty_keyboard_protocol false
+// Whether to make sure a local web server is running when a new Zellij session starts.
+// This web server will allow creating new sessions and attaching to existing ones that have
+// opted in to being shared in the browser.
+// When enabled, navigate to http://127.0.0.1:8082
+// (Requires restart)
+// 
+// Note: a local web server can still be manually started from within a Zellij session or from the CLI.
+// If this is not desired, one can use a version of Zellij compiled without
+// `web_server_capability`
+// 
+// Possible values:
+// - true
+// - false
+// Default: false
+// 
+// web_server false
+// Whether to allow sessions started in the terminal to be shared through a local web server, assuming one is
+// running (see the `web_server` option for more details).
+// (Requires restart)
+// 
+// Note: This is an administrative separation and not intended as a security measure.
+// 
+// Possible values:
+// - "on" (allow web sharing through the local web server if it
+// is online)
+// - "off" (do not allow web sharing unless sessions explicitly opt-in to it)
+// - "disabled" (do not allow web sharing and do not permit sessions started in the terminal to opt-in to it)
+// Default: "off"
+// 
+// web_sharing "off"
+// A path to a certificate file to be used when setting up the web client to serve the
+// connection over HTTPs
+// 
+web_server_cert "/home/user/.certs/localhost+3.pem"
+// A path to a key file to be used when setting up the web client to serve the
+// connection over HTTPs
+// 
+web_server_key "/home/user/.certs/localhost+3-key.pem"
+/// Whether to enforce https connections to the web server when it is bound to localhost
+/// (127.0.0.0/8)
+///
+/// Note: https is ALWAYS enforced when bound to non-local interfaces
+///
+/// Default: false
+// 
+// enforce_https_for_localhost false
  
 // Whether to stack panes when resizing beyond a certain size
 // Default: true
@@ -610,9 +649,30 @@ pane_frames false
 // Whether to show tips on startup
 // Default: true
 // 
-show_startup_tips true
+show_startup_tips false
  
 // Whether to show release notes on first version run
 // Default: true
 // 
 // show_release_notes false
+ 
+// Whether to enable mouse hover effects and pane grouping functionality
+// default is true
+// advanced_mouse_actions false
+ 
+// The ip address the web server should listen on when it starts
+// Default: "127.0.0.1"
+// (Requires restart)
+// web_server_ip "127.0.0.1"
+ 
+// The port the web server should listen on when it starts
+// Default: 8082
+// (Requires restart)
+// web_server_port 8082
+ 
+// A command to run (will be wrapped with sh -c and provided the RESURRECT_COMMAND env variable) 
+// after Zellij attempts to discover a command inside a pane when resurrecting sessions, the STDOUT
+// of this command will be used instead of the discovered RESURRECT_COMMAND
+// can be useful for removing wrappers around commands
+// Note: be sure to escape backslashes and similar characters properly
+// post_command_discovery_hook "echo $RESURRECT_COMMAND | sed <your_regex_here>"
