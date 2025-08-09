@@ -5,7 +5,7 @@ jeffreytse/zsh-vi-mode
 
 # empty lines are skipped
 
-romkatv/zsh-bench kind:path
+# romkatv/zsh-bench kind:path
 olets/zsh-abbr    kind:defer
 
 # set up Zsh completions with plugins
@@ -25,7 +25,7 @@ belak/zsh-utils path:utility
 # prompts:
 #   with prompt plugins, remember to add this to your .zshrc:
 #   `autoload -Uz promptinit && promptinit && prompt pure`
-sindresorhus/pure     kind:fpath
+# sindresorhus/pure     kind:fpath
 # romkatv/powerlevel10k kind:fpath
 
 # popular fish-like plugins
