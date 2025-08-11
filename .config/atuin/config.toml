@@ -104,7 +104,6 @@ history_filter = [
   "^git commit -m",
   "^git checkout -b",
   "^git merge",
-  "^gc -m",
 ]
 
 ## prevent commands run with cwd matching any of these regexes from being written
