@@ -24,6 +24,8 @@ zvm_after_init_commands+=("source $CONFIG_DIR/plugins/aichat/aichat_integration.
 # Bind up/down (and j/k in vim mode) to substring search history
 zvm_after_init_commands+=("bindkey \"${terminfo[kcuu1]}\" history-substring-search-up")
 zvm_after_init_commands+=("bindkey \"${terminfo[kcud1]}\" history-substring-search-down")
+zvm_after_init_commands+=("bindkey '^[[A' history-substring-search-up")
+zvm_after_init_commands+=("bindkey '^[[B' history-substring-search-down")
 bindkey -M vicmd 'k' history-substring-search-up
 bindkey -M vicmd 'j' history-substring-search-down
 
