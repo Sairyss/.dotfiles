@@ -61,4 +61,46 @@ return {
       },
     },
   },
+  {
+    "dmtrKovalenko/fff.nvim",
+    build = "cargo build --release",
+    -- or if you are using nixos
+    -- build = "nix run .#release",
+    opts = {
+      -- pass here all the options
+      layout = {
+        prompt_position = "top", -- Position of prompt ('top' or 'bottom')
+        preview_position = "right", -- Position of preview ('right' or 'left')
+        preview_width = 0.4, -- Width of preview pane
+        height = 0.8, -- Window height
+        width = 0.8, -- Window width
+      },
+    },
+    keys = {
+      {
+        "<leader><space>",
+        function()
+          require("fff").find_files() -- or find_in_git_root() if you only want git files
+        end,
+        desc = "Open file picker",
+      },
+    },
+  },
+  {
+    "A7Lavinraj/fyler.nvim",
+    dependencies = { "echasnovski/mini.icons" },
+    branch = "stable",
+    opts = {
+      git_status = true,
+    }, -- check the default options in the README.md
+    keys = {
+      {
+        "<leader>fO",
+        function()
+          require("fyler").open({ cwd = vim.fn.getcwd() })
+        end,
+        desc = "Fyler.nvim in current working directory",
+      },
+    },
+  },
 }

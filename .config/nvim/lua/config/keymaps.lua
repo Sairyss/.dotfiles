@@ -36,6 +36,7 @@ keymap("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Res
 
 if not vim.g.vscode then
   keymap("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<CR>", { desc = "Rename", noremap = true, silent = true })
+  keymap("n", "<C-M-q>", "<cmd>qa<CR>", { desc = "Quit neovim", noremap = true, silent = true })
 
   -- Go to normal mode in neovim terminal using just <C-\> instead of <C-\><C-n>
   keymap("t", "<C-\\>", [[<C-\><C-n>]], { expr = false, desc = "Normal mode in terminal" })

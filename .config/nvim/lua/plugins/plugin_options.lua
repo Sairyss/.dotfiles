@@ -225,13 +225,13 @@ return {
       },
     },
     keys = {
-      {
-        "<leader><space>",
-        function()
-          Snacks.picker.smart({ filter = { cwd = true } })
-        end,
-        desc = "Smart Find Files",
-      },
+      -- {
+      --   "<leader><space>",
+      --   function()
+      --     Snacks.picker.smart({ filter = { cwd = true } })
+      --   end,
+      --   desc = "Smart Find Files",
+      -- },
       {
         "<C-p>",
         function()
