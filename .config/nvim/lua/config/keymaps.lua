@@ -46,4 +46,6 @@ if not vim.g.vscode then
   keymap("t", "<C-j>", "<C-w>j", { desc = "Move to bottom window while in terminal" })
   keymap("t", "<C-k>", "<C-w>k", { desc = "Move to top window while in terminal" })
   keymap("t", "<C-l>", "<C-w>l", { desc = "Move to right window while in terminal" })
+
+  keymap("n", "<leader><space>", ":FFFFind<CR>", { desc = "Smart Find Files", silent = true, noremap = true })
 end

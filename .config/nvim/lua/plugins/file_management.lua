@@ -26,41 +26,6 @@ return {
     dependencies = { { "echasnovski/mini.icons", opts = {} } },
     -- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if prefer nvim-web-devicons
   },
-  -- {
-  --   "benomahony/oil-git.nvim",
-  --   dependencies = { "stevearc/oil.nvim" },
-  --   -- No opts or config needed! Works automatically
-  -- },
-  {
-    "mikavilpas/yazi.nvim",
-    event = "VeryLazy",
-    keys = {
-      -- 👇 in this section, choose your own keymappings!
-      {
-        "<leader>fy",
-        "<cmd>Yazi<cr>",
-        desc = "Open yazi at the current file",
-      },
-      {
-        -- Open in the current working directory
-        "<leader>fY",
-        "<cmd>Yazi cwd<cr>",
-        desc = "Open yazi in working directory",
-      },
-      {
-        "<c-up>",
-        "<cmd>Yazi toggle<cr>",
-        desc = "Resume the last yazi session",
-      },
-    },
-    opts = {
-      -- if you want to open yazi instead of netrw, see below for more info
-      open_for_directories = false,
-      keymaps = {
-        show_help = "<f1>",
-      },
-    },
-  },
   {
     "dmtrKovalenko/fff.nvim",
     build = "cargo build --release",
@@ -76,31 +41,14 @@ return {
         width = 0.8, -- Window width
       },
     },
-    keys = {
-      {
-        "<leader><space>",
-        function()
-          require("fff").find_files() -- or find_in_git_root() if you only want git files
-        end,
-        desc = "Open file picker",
-      },
-    },
-  },
-  {
-    "A7Lavinraj/fyler.nvim",
-    dependencies = { "echasnovski/mini.icons" },
-    branch = "stable",
-    opts = {
-      git_status = true,
-    }, -- check the default options in the README.md
-    keys = {
-      {
-        "<leader>fO",
-        function()
-          require("fyler").open({ cwd = vim.fn.getcwd() })
-        end,
-        desc = "Fyler.nvim in current working directory",
-      },
-    },
+    -- keys = {
+    -- 	{
+    -- 		"<leader><space>",
+    -- 		function()
+    -- 			require("fff").find_files() -- or find_in_git_root() if you only want git files
+    -- 		end,
+    -- 		desc = "Open file picker",
+    -- 	},
+    -- },
   },
 }

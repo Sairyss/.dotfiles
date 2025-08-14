@@ -278,6 +278,8 @@ return {
   },
   {
     "linux-cultist/venv-selector.nvim",
+    lazy = true,
+    ft = { "python", "quarto" },
     dependencies = { "neovim/nvim-lspconfig", "nvim-telescope/telescope.nvim", "mfussenegger/nvim-dap-python" },
     opts = {
       -- Your options go here

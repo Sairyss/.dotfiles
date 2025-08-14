@@ -145,25 +145,25 @@ return {
       })
     end,
   },
-  {
-    "rachartier/tiny-inline-diagnostic.nvim",
-    event = "VeryLazy", -- Or `LspAttach`
-    priority = 1000, -- needs to be loaded in first
-    config = function()
-      require("tiny-inline-diagnostic").setup({
-        options = {
-          -- Enable diagnostic message on all lines.
-          multilines = true,
-
-          -- If multiple diagnostics are under the cursor, display all of them.
-          multiple_diag_under_cursor = true,
-
-          -- Show all diagnostics on the cursor line.
-          show_all_diags_on_cursorline = false,
-        },
-      })
-    end,
-  },
+  -- {
+  --   "rachartier/tiny-inline-diagnostic.nvim",
+  --   event = "VeryLazy", -- Or `LspAttach`
+  --   priority = 1000, -- needs to be loaded in first
+  --   config = function()
+  --     require("tiny-inline-diagnostic").setup({
+  --       options = {
+  --         -- Enable diagnostic message on all lines.
+  --         multilines = true,
+  --
+  --         -- If multiple diagnostics are under the cursor, display all of them.
+  --         multiple_diag_under_cursor = true,
+  --
+  --         -- Show all diagnostics on the cursor line.
+  --         show_all_diags_on_cursorline = false,
+  --       },
+  --     })
+  --   end,
+  -- },
   {
     "bngarren/checkmate.nvim",
     ft = "markdown", -- Lazy loads for Markdown files matching patterns in 'files'
@@ -234,77 +234,6 @@ return {
   --       folder = "/mnt/nvme0n1p3/Code/cs-notes/Templates/",
   --       date_format = "%Y-%m-%d",
   --       time_format = "%H:%M",
-  --     },
-  --   },
-  -- },
-
-  -- old --
-
-  -- {
-  --   "Bekaboo/dropbar.nvim",
-  --   -- optional, but required for fuzzy finder support
-  --   -- dependencies = {
-  --   -- "nvim-telescope/telescope-fzf-native.nvim",
-  --   -- build = "make",
-  --   -- },
-  --   enabled = false,
-  --   config = function()
-  --     local dropbar_api = require("dropbar.api")
-  --     vim.keymap.set("n", "<Leader>;", dropbar_api.pick, { desc = "Pick symbols in winbar" })
-  --     -- vim.keymap.set("n", "[;", dropbar_api.goto_context_start, { desc = "Go to start of current context" })
-  --     -- vim.keymap.set("n", "];", dropbar_api.select_next_context, { desc = "Select next context" })
-  --   end,
-  -- },
-  -- {
-  --   "https://git.sr.ht/~swaits/zellij-nav.nvim",
-  --   lazy = true,
-  --   event = "VeryLazy",
-  --   keys = {
-  --     { "<c-h>", "<cmd>silent! ZellijNavigateLeftTab<cr>", { silent = true, desc = "navigate left or tab" } },
-  --     { "<c-j>", "<cmd>silent! ZellijNavigateDown<cr>", { silent = true, desc = "navigate down" } },
-  --     { "<c-k>", "<cmd>silent! ZellijNavigateUp<cr>", { silent = true, desc = "navigate up" } },
-  --     { "<c-l>", "<cmd>silent! ZellijNavigateRightTab<cr>", { silent = true, desc = "navigate right or tab" } },
-  --   },
-  --   opts = {},
-  -- },
-  -- {
-  --   "michaelb/sniprun",
-  --   branch = "master",
-  --   build = "sh install.sh",
-  --   -- do 'sh install.sh 1' if you want to force compile locally
-  --   -- (instead of fetching a binary from the github release). Requires Rust >= 1.65
-  --   config = function()
-  --     require("sniprun").setup({
-  --       -- your options
-  --       display = {
-  --         -- "Classic", --# display results in the command-line  area
-  --         "VirtualTextOk", --# display ok results as virtual text (multiline is shortened)
-  --
-  --         -- "VirtualText",             --# display results as virtual text
-  --         -- "TempFloatingWindow",      --# display results in a floating window
-  --         -- "LongTempFloatingWindow",  --# same as above, but only long results. To use with VirtualText[Ok/Err]
-  --         "Terminal", --# display results in a vertical split
-  --         -- "TerminalWithCode",        --# display results and code history in a vertical split
-  --         -- "NvimNotify",              --# display with the nvim-notify plugin
-  --         -- "Api"                      --# return output to a programming interface
-  --       },
-  --       display_options = {
-  --         terminal_scrollback = vim.o.scrollback, --# change terminal display scrollback lines
-  --         terminal_line_number = false, --# whether show line number in terminal window
-  --         terminal_signcolumn = false, --# whether show signcolumn in terminal window
-  --         terminal_position = "horizontal", --# "vertical" or "horizontal", to open as horizontal split instead of vertical split
-  --         terminal_width = 45, --# change the terminal display option width (if vertical)
-  --         terminal_height = 20, --# change the terminal display option height (if horizontal)
-  --         notification_timeout = 5, --# timeout for nvim_notify output
-  --       },
-  --     })
-  --   end,
-  --   keys = {
-  --     {
-  --       mode = { "n" },
-  --       silent = true,
-  --       "<C-M-r>",
-  --       ":let b:caret=winsaveview()<CR>|:%SnipRun<CR>|:call winrestview(b:caret)<CR>",
   --     },
   --   },
   -- },

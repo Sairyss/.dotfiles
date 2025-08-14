@@ -2,10 +2,9 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 
-local opt = vim.opt
-opt.wrap = true
-opt.relativenumber = false
-opt.swapfile = false
+vim.opt.wrap = true
+vim.opt.relativenumber = false
+vim.opt.swapfile = false
 
 -- LazyVim related
 vim.g.snacks_animate = false

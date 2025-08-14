@@ -40,82 +40,28 @@ return {
         },
       }
     end,
-    -- keys = {
-    --   {
-    --     "<M-;>",
-    --     function()
-    --       local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
-    --       ts_repeat_move.repeat_last_move_next()
-    --     end,
-    --   },
-    --   {
-    --     "<M-,>",
-    --     function()
-    --       local ts_repeat_move = require("nvim-treesitter.textobjects.repeatable_move")
-    --       ts_repeat_move.repeat_last_move_previous()
-    --     end,
-    --   },
-    -- },
   },
   {
     "neovim/nvim-lspconfig",
     opts = function(_, opts)
       opts.inlay_hints = { enabled = false }
-      opts.diagnostics = {
-        virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
-      }
+      -- opts.diagnostics = {
+      -- 	virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
+      -- }
 
       local keys = require("lazyvim.plugins.lsp.keymaps").get()
       keys[#keys + 1] = { "<C-.>", vim.lsp.buf.code_action }
       keys[#keys + 1] = { "<C-M-.>", LazyVim.lsp.action.source }
-      keys[#keys + 1] = {
-        "<F2>",
-        function()
-          local inc_rename = require("inc_rename")
-          return ":" .. inc_rename.config.cmd_name .. " " .. vim.fn.expand("<cword>")
-        end,
-        expr = true,
-        desc = "Rename (inc-rename.nvim)",
-        has = "rename",
-      }
 
       opts.setup = {
         eslint = function()
           -- automatically fix linting errors on save
           vim.cmd([[
             autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js EslintFixAll
-            " autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js lua vim.lsp.buf.code_action({ context = { only = { "source.organizeImports" }, diagnostics = {} }, apply = true })
-            " autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js lua vim.lsp.buf.format()
           ]])
         end,
       }
     end,
-    -- opts = {
-    --   inlay_hints = { enabled = false },
-    --   diagnostics = {
-    --     virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
-    --   },
-    -- },
-
-    -- add kulala-ls support
-    -- config = function()
-    --   local nvim_lsp = require("lspconfig")
-    --   local capabilities = vim.lsp.protocol.make_client_capabilities()
-    --   local servers = {
-    --     "kulala_ls",
-    --   }
-    --   for _, lsp in ipairs(servers) do
-    --     if nvim_lsp[lsp] ~= nil then
-    --       if nvim_lsp[lsp].setup ~= nil then
-    --         nvim_lsp[lsp].setup({
-    --           capabilities = capabilities,
-    --         })
-    --       else
-    --         vim.notify("LSP server " .. lsp .. " does not have a setup function", vim.log.levels.ERROR)
-    --       end
-    --     end
-    --   end
-    -- end,
   },
   {
     "nvim-neo-tree/neo-tree.nvim",
@@ -123,15 +69,6 @@ return {
       filesystem = {
         filtered_items = {
           visible = true,
-        },
-      },
-      window = {
-        mappings = {
-          ["<BS>"] = {
-            function()
-              require("snipe").open_buffer_menu()
-            end,
-          },
         },
       },
     },
@@ -225,34 +162,6 @@ return {
       },
     },
     keys = {
-      -- {
-      --   "<leader><space>",
-      --   function()
-      --     Snacks.picker.smart({ filter = { cwd = true } })
-      --   end,
-      --   desc = "Smart Find Files",
-      -- },
-      {
-        "<C-p>",
-        function()
-          Snacks.picker.smart({ filter = { cwd = true } })
-        end,
-        desc = "Smart Find Files",
-      },
-      {
-        "<C-M-p>",
-        function()
-          Snacks.picker.git_status()
-        end,
-        desc = "Git Status",
-      },
-      {
-        "<C-M-/>",
-        function()
-          Snacks.picker.resume()
-        end,
-        desc = "Resume",
-      },
       { "<leader>fF", LazyVim.pick("files"), desc = "Find Files (Root Dir)" },
       { "<leader>ff", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" },
       { "<leader>/", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
@@ -313,37 +222,6 @@ return {
         end,
         { desc = "Terminal (Root Dir)" },
       },
-      -- {
-      --   "<C-M-t>",
-      --   mode = { "n" },
-      --   -- Prompts user for a command that will be executed in snacks terminal
-      --   function()
-      --     -- TODO: make commands execute in the same terminal (and other things) described here https://www.jackfranklin.co.uk/blog/executing-tasks-in-neovim/
-      --
-      --     vim.ui.input({ prompt = "Run terminal command: " }, function(input)
-      --       if not input or input == "" then
-      --         return
-      --       end
-      --       local term = Snacks.terminal.open(nil, {
-      --         auto_insert = false,
-      --         win = {
-      --           split = "right",
-      --           width = 0.4,
-      --           position = "right",
-      --           focusable = true,
-      --           enter = true,
-      --           show = true,
-      --           hide = false,
-      --         },
-      --       })
-      --       local chan = vim.bo[term.buf].channel
-      --       vim.defer_fn(function()
-      --         vim.fn.chansend(chan, { input .. "\r\n" })
-      --       end, 100)
-      --     end)
-      --   end,
-      --   { desc = "Run terminal command" },
-      -- },
     },
   },
   {
@@ -399,14 +277,6 @@ return {
         },
       }
     end,
-    -- config = function(_, opts)
-    --   require("mini.ai").setup(opts)
-    --   LazyVim.on_load("which-key.nvim", function()
-    --     vim.schedule(function()
-    --       LazyVim.mini.ai_whichkey(opts)
-    --     end)
-    --   end)
-    -- end,
   },
   {
     {
@@ -516,79 +386,4 @@ return {
       })
     end,
   },
-  {
-    "saghen/blink.cmp",
-    opts = {
-      sources = {
-        -- changing order of lsp sources
-        providers = {
-          snippets = {
-            min_keyword_length = 1,
-            score_offset = 5,
-          },
-          copilot = {
-            min_keyword_length = 2,
-            score_offset = 4,
-          },
-          lsp = {
-            min_keyword_length = 0,
-            score_offset = 3,
-          },
-          path = {
-            min_keyword_length = 3,
-            score_offset = 2,
-          },
-          buffer = {
-            min_keyword_length = 4,
-            score_offset = 1,
-          },
-        },
-      },
-    },
-  },
-
-  ----- old -----
-
-  -- {
-  --   "ibhagwan/fzf-lua",
-  --   cmd = "FzfLua",
-  --   opts = function(_, opts)
-  --     local config = require("fzf-lua.config")
-  --
-  --     config.defaults.keymap.fzf["ctrl-b"] = "half-page-up"
-  --     config.defaults.keymap.fzf["ctrl-f"] = "half-page-down"
-  --     config.defaults.keymap.fzf["ctrl-d"] = "preview-page-down"
-  --     config.defaults.keymap.fzf["ctrl-u"] = "preview-page-up"
-  --     config.defaults.keymap.builtin["<c-d>"] = "preview-page-down"
-  --     config.defaults.keymap.builtin["<c-u>"] = "preview-page-up"
-  --
-  --     opts.defaults = {
-  --       -- formatter = "path.dirname_first",
-  --       formatter = "path.filename_first",
-  --     }
-  --     opts.oldfiles = {
-  --       include_current_session = true,
-  --     }
-  --     opts.previewers = {
-  --       builtin = {
-  --         syntax_limit_b = 1024 * 100, -- 100KB
-  --       },
-  --     }
-  --     opts.grep = {
-  --       rg_glob = true, -- enable glob parsing
-  --       glob_flag = "--iglob", -- case insensitive globs
-  --       glob_separator = "%s%-%-", -- query separator pattern (lua): ' --'
-  --     }
-  --   end,
-  --   keys = {
-  --     -- { "<leader>/", LazyVim.pick("live_grep_glob"), desc = "Grep (Root Dir)" },
-  --     { "<leader>/", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },
-  --     { "<leader>fR", "<cmd>FzfLua oldfiles<cr>", desc = "Recent" },
-  --     { "<leader>fr", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
-  --     { "<C-M-o>", LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }), desc = "Recent (cwd)" },
-  --     { "<C-p>", LazyVim.pick("files", { cwd = vim.uv.cwd() }), desc = "Find Files (cwd)" },
-  --     { "<C-M-p>", "<cmd>FzfLua git_status<CR>", desc = "Status" },
-  --     { "<C-M-/>", "<cmd>FzfLua resume<cr>", desc = "Resume" },
-  --   },
-  -- },
 }
