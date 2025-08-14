@@ -168,6 +168,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "cd /mnt/nvme1n1p3/Work/TODOS && nvim -c 'sleep 5m' -c 'Neotree close' -c 'lua require(\"persistence\").load()' -c 'sleep 5m' -c 'Neotree close'  ." {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "10%"
                 y "5%"
                 width "80%"
@@ -196,6 +197,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "1%"
                 y "1%"
                 width "1%"
@@ -207,6 +209,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "1%"
                 y "1%"
                 width "1%"
@@ -218,6 +221,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "1%"
                 y "1%"
                 width "1%"
@@ -229,6 +233,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "1%"
                 y "1%"
                 width "1%"
@@ -240,6 +245,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "1%"
                 y "1%"
                 width "1%"
@@ -251,6 +257,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "1%"
                 y "1%"
                 width "1%"
@@ -262,6 +269,7 @@ keybinds clear-defaults=true {
             Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "1%"
                 y "1%"
                 width "1%"
