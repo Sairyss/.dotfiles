@@ -131,6 +131,7 @@ keybinds clear-defaults=true {
             Run "aichat" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "5%"
                 y "5%"
                 width "90%"
@@ -141,6 +142,7 @@ keybinds clear-defaults=true {
             Run "yazi" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "5%"
                 y "5%"
                 width "90%"
@@ -151,6 +153,7 @@ keybinds clear-defaults=true {
             LaunchOrFocusPlugin "session-manager" {
                 floating true
                 move_to_focused_tab true
+                close_on_exit true
             }
             SwitchToMode "normal"
         }
@@ -158,6 +161,7 @@ keybinds clear-defaults=true {
             Run "tv" "dotenv" {
                 floating true
                 hold_on_close false
+                close_on_exit true
                 x "5%"
                 y "5%"
                 width "90%"
