@@ -10,11 +10,16 @@
 )
 
 (defsrc
-      esc
-      q w e r t y u i o p
-      a s d f g h j k l ; '
-      z x c v b n m , .
-      lalt spc ralt
+      caps prnt ins
+      f1 f2 f3 f4 f5 f6 f7 f8 f9 f10 f11 f12
+      grv 1 2 3 4 5 6 7 8 9 0 - =
+      tab q w e r t y u i o p \
+      esc a s d f g h j k l ; '
+      lsft z x c v b n m , . / rsft
+      lalt lmet rctl spc rmet
+      lctl ralt ret bspc
+      left right up down [ ]
+      home end pgup pgdn
 )
 
   ;; Variables
@@ -36,8 +41,10 @@
   ;; toggling different layers for Vim motions
   L_ret_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
   L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
-  L_ret_leader2_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle leader2))
+  ;; L_ret_leader2_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle leader2))
+  L_ret_shift_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle shift_layer))
   L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
+  L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader))
   L_win_tog (tap-hold-release $tap_timeout $hold_timeout w (layer-toggle window))
   L_lsft_leader_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle leader_mode_shift_layer))
 
@@ -128,8 +135,10 @@
   ;; (I use a split keyboard so leader keys are usually on my left and right thumb keys so it's convenient to reach)
   ;; ret @L_ret_leader_tog
   ;; spc @L_spc_leader_tog
-  rmet @L_rmet_leader_tog ;; mapped to left thumb key
-  ret @L_ret_leader2_tog  ;; mapped to right thumb key
+  ;; rmet @L_rmet_leader_tog ;; mapped to left thumb key
+  ;; ret @L_ret_leader2_tog     ;; mapped to right thumb key
+  ret @L_ret_shift_tog     ;; mapped to right thumb key
+  esc @L_esc_leader_tog      ;; mapped to left thumb key
 
   ;; -- Home row mods -- 
   ;; left hand
@@ -143,10 +152,10 @@
 (deflayermap (leader)
   esc @L_main
   ' @L_main
-  i @L_main
+  ;; i @L_main
 
   ;; layers
-  n (multi (release-layer leader) @L_norm)
+  ;; n (multi (release-layer leader) @L_norm)
   w (multi (release-layer leader) @L_win)
 
   ;; apps
@@ -160,24 +169,33 @@
   e (multi @L_main @a_filemanager)
   g (multi @L_main @a_dbclient)
   x (multi @L_main @a_editor2)
-  p (multi @L_main @a_clipboard)
+  ;; p (multi @L_main @a_clipboard)
   t (multi @L_main @a_postman)
   spc (multi @L_main @a_launcher)
-  / (multi @L_main @a_terminal)
+  ;; / (multi @L_main @a_terminal)
   q (multi @L_main A-tab)       ;; go to previous window (alt-tab)
   tab (multi @L_main A-tab)     ;; go to previous window (alt-tab)
+
+  ;; useful hotkeys
+  p C-S-v  ;; paste
 
   ;; add some navigation keys to the right hand side when leader layer is active
   h left
   l right
   k up
   j down
-  , (macro-repeat up)
-  m (macro-repeat down)
+  u (macro-repeat up)
+  i (macro-repeat down)
 
   ;; some additional keys for my specific keyboard
   lsft @L_lsft_leader_shift_tog
   y (multi @L_main =)
+  / \
+  ; S-'
+  n (multi @L_main S-[)
+  m (multi @L_main S-])
+  , (multi @L_main [)
+  . (multi @L_main ])
 
   ;; switch between zellij tabs
   1 (multi @L_main (macro C-A-1))
@@ -193,6 +211,9 @@
   esc @L_main
   ' @L_main
   y (multi @L_main +)
+  / S-\
+  ; '
+
   ___ XX
 )
 
@@ -444,6 +465,16 @@
 (deflayermap (ctrl_homerow)
   esc @L_main
   ' @L_main
+  1 C-1
+  2 C-2
+  3 C-3
+  4 C-4
+  5 C-5
+  6 C-6
+  7 C-7
+  8 C-8
+  9 C-9
+  0 C-0
   d C-d
   u C-u
   w C-w
@@ -513,6 +544,7 @@
   p C-S-v ;; easier paste into terminals
 
   ;; remapped single keys for easier access on my keyboard
+  y =
   n S-[ ;; opening curly brace {
   m S-] ;; closing curly brace }
   , [
@@ -520,3 +552,55 @@
   ___ XX
 )
 
+(deflayermap (shift_layer)
+  1 S-1
+  2 S-2
+  3 S-3
+  4 S-4
+  5 S-5
+  6 S-6
+  7 S-7
+  8 S-8
+  9 S-9
+  0 S-0
+
+  a S-a
+  b S-b
+  c S-c
+  d S-d
+  e S-e
+  f S-f
+  g S-g
+  h S-h
+  i S-i
+  j S-j
+  k S-k
+  l S-l
+  m S-m
+  n S-n
+  o S-o
+  p S-p
+  q S-q
+  r S-r
+  s S-s
+  t S-t
+  u S-u
+  v S-v
+  w S-w
+  x S-x
+  y S-y
+  z S-z
+
+  ; S-;
+  ' S-'
+  ` S-`
+  / S-/
+  \ S-\
+  - S--
+  , S-,
+  . S-.
+  ] S-]
+  [ S-[
+
+  ___ XX
+)
