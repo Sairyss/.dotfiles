@@ -186,25 +186,28 @@
   l right
   k up
   j down
-  u (macro-repeat up)
-  i (macro-repeat down)
 
   ;; some additional keys for my specific keyboard
   bspc tab
+
   y (multi @L_main =)
-  / \
-  ; '
   o -
+  / \
+
   n (multi @L_main S-[)
   m (multi @L_main S-])
   , (multi @L_main [)
   . (multi @L_main ])
 
-  ;; switch between zellij tabs
-  1 (multi @L_main (macro C-A-1))
-  2 (multi @L_main (macro C-A-2))
-  3 (multi @L_main (macro C-A-3))
-  4 (multi @L_main (macro C-A-4))
+  ; '
+  u `
+  i '
+
+  ;; switch between tabs in some apps (zellij)
+  1 (multi @L_main (macro C-1))
+  2 (multi @L_main (macro C-2))
+  3 (multi @L_main (macro C-3))
+  4 (multi @L_main (macro C-4))
 
   ___ @L_main
 )
@@ -213,10 +216,20 @@
 (deflayermap (leader_mode_shift_layer)
   esc @L_main
   ' @L_main
+
   y (multi @L_main +)
-  / S-\
   o S--
+  / S-\
+
   ; S-'
+  u S-`
+  i S-'
+
+  ;; navigation
+  k (macro-repeat up)
+  j (macro-repeat down)
+  h (macro-repeat left)
+  l (macro-repeat right)
 
   ___ XX
 )
