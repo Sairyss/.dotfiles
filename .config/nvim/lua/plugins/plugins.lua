@@ -206,6 +206,16 @@ return {
       },
     },
   },
+  {
+    -- contextual information above functions
+    "oribarilan/lensline.nvim",
+    -- tag = "1.0.0", -- or: branch = 'release/1.x' for latest non-breaking updates
+    branch = "release/1.x",
+    event = "LspAttach",
+    config = function()
+      require("lensline").setup()
+    end,
+  },
   -- {
   --   "obsidian-nvim/obsidian.nvim",
   --   version = "*", -- recommended, use latest release instead of latest commit

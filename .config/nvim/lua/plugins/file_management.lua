@@ -36,7 +36,7 @@ return {
       layout = {
         prompt_position = "top", -- Position of prompt ('top' or 'bottom')
         preview_position = "right", -- Position of preview ('right' or 'left')
-        preview_width = 0.4, -- Width of preview pane
+        -- preview_size = 0.4, -- Width of preview pane
         height = 0.8, -- Window height
         width = 0.8, -- Window width
       },
