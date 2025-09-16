@@ -157,6 +157,8 @@
   ;; layers
   ;; n (multi (release-layer leader) @L_norm)
   w (multi (release-layer leader) @L_win)
+  lsft @L_lsft_leader_shift_tog
+  ret @L_lsft_leader_shift_tog
 
   ;; apps
   r (multi @L_main @a_launcher)
@@ -188,10 +190,11 @@
   i (macro-repeat down)
 
   ;; some additional keys for my specific keyboard
-  lsft @L_lsft_leader_shift_tog
+  bspc tab
   y (multi @L_main =)
   / \
-  ; S-'
+  ; '
+  o -
   n (multi @L_main S-[)
   m (multi @L_main S-])
   , (multi @L_main [)
@@ -212,7 +215,8 @@
   ' @L_main
   y (multi @L_main +)
   / S-\
-  ; '
+  o S--
+  ; S-'
 
   ___ XX
 )
