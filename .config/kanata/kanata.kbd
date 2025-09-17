@@ -42,7 +42,7 @@
   L_ret_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
   L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
   ;; L_ret_leader2_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle leader2))
-  L_ret_shift_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle shift_layer))
+  L_ret_shift_tog (tap-hold-release 150 150 ret (layer-toggle shift_layer))
   L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
   L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader))
   L_win_tog (tap-hold-release $tap_timeout $hold_timeout w (layer-toggle window))
