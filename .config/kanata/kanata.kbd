@@ -46,6 +46,7 @@
   L_spc_spc_tog (tap-hold-release 250 250 spc (layer-toggle space_layer))
   L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
   L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader))
+  L_esc_leader2_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader2))
   L_win_tog (tap-hold-release $tap_timeout $hold_timeout w (layer-toggle window))
   L_lsft_leader_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle leader_mode_shift_layer))
 
@@ -134,13 +135,14 @@
 (deflayermap (main)
   ;; Mapping leader toggle when key is held (goes back to main mode when key is released)
   ;; (I use a split keyboard so leader keys are usually on my left and right thumb keys so it's convenient to reach)
-  ;; ret @L_ret_leader_tog
+  ret @L_ret_leader_tog
   ;; spc @L_spc_leader_tog
-  ;; rmet @L_rmet_leader_tog  ;; mapped to left thumb key
-  ;; ret @L_ret_leader2_tog   ;; mapped to right thumb key
-  ;; ret @L_ret_shift_tog     ;; mapped to right thumb key
-  spc @L_spc_spc_tog          ;; mapped to left thumb key
-  esc @L_esc_leader_tog       ;; mapped to left thumb key
+  ;; rmet @L_rmet_leader_tog
+  ;; ret @L_ret_leader2_tog
+  ;; ret @L_ret_shift_tog 
+  spc @L_spc_spc_tog
+  ;; esc @L_esc_leader_tog
+  esc @L_esc_leader2_tog
 
   ;; -- Home row mods -- 
   ;; left hand
@@ -189,24 +191,12 @@
   k up
   j down
 
-  y (multi @L_main =)
-  o -
-  / \
-
-  n (multi @L_main S-[)
-  m (multi @L_main S-])
-  , (multi @L_main [)
-  . (multi @L_main ])
-
-  ; '
-  u `
-  i '
-
   ;; switch between tabs in some apps (zellij)
   1 (multi @L_main (macro C-1))
   2 (multi @L_main (macro C-2))
   3 (multi @L_main (macro C-3))
   4 (multi @L_main (macro C-4))
+  5 (multi @L_main (macro C-5))
 
   ___ @L_main
 )
@@ -538,41 +528,61 @@
 (deflayermap (leader2)
   esc @L_main
   ' @L_main
-  q C-A-q
-  w C-A-w
-  d C-A-d
-  f C-A-f
-  s C-A-s
-  a C-A-a
-  o C-A-o
-  r C-A-r
-  t C-A-t
 
   ;; navigation keys
-  h left
-  l right
-  k up
-  j down
-  u (macro-repeat up)
-  i (macro-repeat down)
+  ;; h left
+  ;; l right
+  ;; k up
+  ;; j down
+  ;; u (macro-repeat up)
+  ;; i (macro-repeat down)
 
   ;; remapped hotkey combinations for easier access
   v C-S-v ;; easier paste into terminals
   p C-S-v ;; easier paste into terminals
 
-  ;; remapped single keys for easier access on my keyboard
+  ;; switch between tabs in some apps (zellij)
+  1 (multi @L_main (macro C-1))
+  2 (multi @L_main (macro C-2))
+  3 (multi @L_main (macro C-3))
+  4 (multi @L_main (macro C-4))
+  5 (multi @L_main (macro C-5))
+
+  q S-1  ;; !
+  w S-2  ;; @
+  e S-3  ;; #
+  r S-4  ;; $
+  t S-5  ;; %
+  a S-6  ;; ^
+  s S-7  ;; &
+  d S-8  ;; *
+  f S-9  ;; (
+  g S-0  ;; )
+
   y =
-  n S-[ ;; opening curly brace {
-  m S-] ;; closing curly brace }
-  , [
-  . ]
+  u +
+  i -
+  o S--
+  
+  h '
+  j S-'  ;; "
+  k `
+  l S-`  ;; ~
+  ; S-\  ;; |
+
+  n (multi @L_main S-[)
+  m (multi @L_main S-])
+  , (multi @L_main [)
+  . (multi @L_main ])
+  / \
+
   ___ XX
 )
 
 ;; layer on space hold
 (deflayermap (space_layer)
  lsft bspc
- ret tab
+ esc tab
 )
 
 (deflayermap (shift_layer)
