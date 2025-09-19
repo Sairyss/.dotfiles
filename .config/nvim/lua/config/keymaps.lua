@@ -32,9 +32,6 @@ keymap("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Searc
 keymap("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 keymap("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
--- switch to prev buffer
-keymap("n", "<leader>q", "<cmd>b#<CR>", { desc = "Switch to other buffer", noremap = true, silent = true })
-
 ---------- Extensions ----------
 
 if not vim.g.vscode then
