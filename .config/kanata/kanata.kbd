@@ -42,7 +42,8 @@
   L_ret_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
   L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
   ;; L_ret_leader2_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle leader2))
-  L_ret_shift_tog (tap-hold-release 150 150 ret (layer-toggle shift_layer))
+  ;; L_ret_shift_tog (tap-hold-release 150 150 ret (layer-toggle shift_layer))
+  L_spc_spc_tog (tap-hold-release 250 250 spc (layer-toggle space_layer))
   L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
   L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader))
   L_win_tog (tap-hold-release $tap_timeout $hold_timeout w (layer-toggle window))
@@ -135,10 +136,11 @@
   ;; (I use a split keyboard so leader keys are usually on my left and right thumb keys so it's convenient to reach)
   ;; ret @L_ret_leader_tog
   ;; spc @L_spc_leader_tog
-  ;; rmet @L_rmet_leader_tog ;; mapped to left thumb key
-  ;; ret @L_ret_leader2_tog     ;; mapped to right thumb key
-  ret @L_ret_shift_tog     ;; mapped to right thumb key
-  esc @L_esc_leader_tog      ;; mapped to left thumb key
+  ;; rmet @L_rmet_leader_tog  ;; mapped to left thumb key
+  ;; ret @L_ret_leader2_tog   ;; mapped to right thumb key
+  ;; ret @L_ret_shift_tog     ;; mapped to right thumb key
+  spc @L_spc_spc_tog          ;; mapped to left thumb key
+  esc @L_esc_leader_tog       ;; mapped to left thumb key
 
   ;; -- Home row mods -- 
   ;; left hand
@@ -186,9 +188,6 @@
   l right
   k up
   j down
-
-  ;; some additional keys for my specific keyboard
-  bspc tab
 
   y (multi @L_main =)
   o -
@@ -568,6 +567,12 @@
   , [
   . ]
   ___ XX
+)
+
+;; layer on space hold
+(deflayermap (space_layer)
+ lsft bspc
+ ret tab
 )
 
 (deflayermap (shift_layer)
