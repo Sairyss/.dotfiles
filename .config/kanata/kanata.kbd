@@ -498,6 +498,9 @@
   t C-t
   p C-p
   / C-/
+
+  ret C-ret
+
   ___ XX
 )
 
@@ -634,6 +637,8 @@
   . S-.
   ] S-]
   [ S-[
+
+  ret S-ret
 
   ___ XX
 )
