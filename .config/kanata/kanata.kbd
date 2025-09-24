@@ -55,6 +55,7 @@
   L_j_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout j (layer-toggle ctrl_homerow))
   L_d_alt_tog (tap-hold-release $tap_timeout $hold_timeout d (layer-toggle alt_homerow))
   L_k_alt_tog (tap-hold-release $tap_timeout $hold_timeout k (layer-toggle alt_homerow))
+  L_s_numbers_tog (tap-hold-release $tap_timeout $hold_timeout s (layer-toggle numbers))
 
   ;; Modes tog from normal mode layer
   L_f_norm_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle normal_mode_ctrl_layer))
@@ -148,6 +149,7 @@
   ;; left hand
   f @L_f_ctrl_tog
   d @L_d_alt_tog
+  s @L_s_numbers_tog
 
   ;; right hand
   ;; j @L_j_ctrl_tog
@@ -581,6 +583,25 @@
 (deflayermap (space_layer)
  lsft bspc
  esc tab
+)
+
+(deflayermap (numbers)
+ ;; number pad
+ m 1
+ , 2
+ . 3
+ j 4
+ k 5
+ l 6
+ u 7
+ i 8
+ o 9
+ n 0
+
+ spc @L_spc_spc_tog
+ esc @L_esc_leader2_tog
+
+  ___ XX
 )
 
 (deflayermap (shift_layer)
