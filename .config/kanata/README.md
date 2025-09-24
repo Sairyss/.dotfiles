@@ -177,7 +177,7 @@ Example configs for Kanata to enable home row mods:
 If regular home row mods don't work for you, consider this:
 
 - map only most used key combinations instead of remapping all the keys to minimize accidental presses
-- try home row mods for some hold+key navigation actions (like described in [Modifier layers](#modifier-layers) section above) which works pretty great in kanata thanks to [tap-hold-release](https://github.com/jtroo/kanata/blob/v1.7.0/docs/config.adoc#tap-hold) feature.
+- try home row mods for some hold+key navigation actions (like described in [Modifier layers](#modifier-layers) section above) which works pretty great in kanata thanks to [tap-hold](https://github.com/jtroo/kanata/blob/v1.7.0/docs/config.adoc#tap-hold) feature.
 - try kanata [input chords](https://github.com/jtroo/kanata/blob/v1.7.0/docs/config.adoc#input-chords--combos-v2)
 
 ### Alternatives

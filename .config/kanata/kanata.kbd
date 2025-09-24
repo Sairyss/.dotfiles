@@ -39,23 +39,22 @@
 
   ;; --- Vim layers ---
   ;; toggling different layers for Vim motions
-  L_ret_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
+  L_ret_leader_tog (tap-hold-press $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
   L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
   ;; L_ret_leader2_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle leader2))
-  ;; L_ret_shift_tog (tap-hold-release 150 150 ret (layer-toggle shift_layer))
-  L_spc_spc_tog (tap-hold-release 250 250 spc (layer-toggle space_layer))
+  L_bspc_shift_tog (tap-hold-press $tap_timeout_slow 1000 bspc (layer-toggle shift_layer))
+  L_spc_spc_tog (tap-hold-press $tap_timeout_slow $hold_timeout spc (layer-toggle space_layer))
   L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
   L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader))
-  L_esc_leader2_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader2))
-  L_win_tog (tap-hold-release $tap_timeout $hold_timeout w (layer-toggle window))
+  L_esc_leader2_tog (tap-hold-press $tap_timeout 1000 esc (layer-toggle leader2))
   L_lsft_leader_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle leader_mode_shift_layer))
 
   ;; Homerow mods tog
-  L_f_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle ctrl_homerow))
-  L_j_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout j (layer-toggle ctrl_homerow))
-  L_d_alt_tog (tap-hold-release $tap_timeout $hold_timeout d (layer-toggle alt_homerow))
-  L_k_alt_tog (tap-hold-release $tap_timeout $hold_timeout k (layer-toggle alt_homerow))
-  L_s_numbers_tog (tap-hold-release $tap_timeout $hold_timeout s (layer-toggle numbers))
+  L_f_ctrl_tog (tap-hold-release $tap_timeout_slow $hold_timeout f (layer-toggle ctrl_homerow))
+  L_j_ctrl_tog (tap-hold-release $tap_timeout_slow $hold_timeout j (layer-toggle ctrl_homerow))
+  L_d_alt_tog (tap-hold-release $tap_timeout_slow $hold_timeout d (layer-toggle alt_homerow))
+  L_k_alt_tog (tap-hold-release $tap_timeout_slow $hold_timeout k (layer-toggle alt_homerow))
+  L_s_numbers_tog (tap-hold-release $tap_timeout_slow $hold_timeout s (layer-toggle numbers))
 
   ;; Modes tog from normal mode layer
   L_f_norm_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle normal_mode_ctrl_layer))
@@ -140,8 +139,8 @@
   ;; spc @L_spc_leader_tog
   ;; rmet @L_rmet_leader_tog
   ;; ret @L_ret_leader2_tog
-  ;; ret @L_ret_shift_tog 
-  spc @L_spc_spc_tog
+  bspc @L_bspc_shift_tog 
+  spc  @L_spc_spc_tog
   ;; esc @L_esc_leader_tog
   esc @L_esc_leader2_tog
 
@@ -581,8 +580,8 @@
 
 ;; layer on space hold
 (deflayermap (space_layer)
- lsft bspc
  esc tab
+ bspc del
 )
 
 (deflayermap (numbers)
@@ -655,6 +654,7 @@
   [ S-[
 
   ret S-ret
+  spc A-tab
 
   ___ XX
 )
