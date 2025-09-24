@@ -154,7 +154,7 @@
 )
 
 (deflayermap (leader)
-  esc @L_main
+  ;; esc @L_main
   ' @L_main
   ;; i @L_main
 
@@ -162,7 +162,8 @@
   ;; n (multi (release-layer leader) @L_norm)
   w (multi (release-layer leader) @L_win)
   lsft @L_lsft_leader_shift_tog
-  ret @L_lsft_leader_shift_tog
+  ;; ret @L_lsft_leader_shift_tog
+  esc A-tab
 
   ;; apps
   r (multi @L_main @a_launcher)
@@ -190,6 +191,8 @@
   l right
   k up
   j down
+  i (macro-repeat up)
+  u (macro-repeat down)
 
   ;; switch between tabs in some apps (zellij)
   1 (multi @L_main (macro C-1))
@@ -205,14 +208,6 @@
 (deflayermap (leader_mode_shift_layer)
   esc @L_main
   ' @L_main
-
-  y (multi @L_main +)
-  o S--
-  / S-\
-
-  ; S-'
-  u S-`
-  i S-'
 
   ;; navigation
   k (macro-repeat up)
