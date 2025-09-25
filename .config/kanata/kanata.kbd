@@ -43,9 +43,8 @@
   L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
   ;; L_ret_leader2_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle leader2))
   L_bspc_shift_tog (tap-hold-press $tap_timeout_slow 1000 bspc (layer-toggle shift_layer))
-  L_spc_spc_tog (tap-hold-press $tap_timeout_slow $hold_timeout spc (layer-toggle space_layer))
   L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
-  L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout esc (layer-toggle leader))
+  L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout_slow esc (layer-toggle leader))
   L_esc_leader2_tog (tap-hold-press $tap_timeout 1000 esc (layer-toggle leader2))
   L_lsft_leader_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle leader_mode_shift_layer))
 
@@ -140,7 +139,6 @@
   ;; rmet @L_rmet_leader_tog
   ;; ret @L_ret_leader2_tog
   bspc @L_bspc_shift_tog 
-  spc  @L_spc_spc_tog
   ;; esc @L_esc_leader_tog
   esc @L_esc_leader2_tog
 
@@ -164,7 +162,6 @@
   w (multi (release-layer leader) @L_win)
   lsft @L_lsft_leader_shift_tog
   ;; ret @L_lsft_leader_shift_tog
-  esc A-tab
 
   ;; apps
   r (multi @L_main @a_launcher)
@@ -201,6 +198,9 @@
   3 (multi @L_main (macro C-3))
   4 (multi @L_main (macro C-4))
   5 (multi @L_main (macro C-5))
+
+ esc tab
+ bspc del
 
   ___ @L_main
 )
@@ -525,7 +525,7 @@
 
 ;; leader2 layer for some frequently used hotkeys
 (deflayermap (leader2)
-  esc @L_main
+  ;; esc @L_main
   ' @L_main
 
   ;; navigation keys
@@ -575,13 +575,9 @@
   . (multi @L_main ])
   / \
 
-  ___ XX
-)
+  spc A-tab
 
-;; layer on space hold
-(deflayermap (space_layer)
- esc tab
- bspc del
+  ___ XX
 )
 
 (deflayermap (numbers)
@@ -597,7 +593,6 @@
  o 9
  n 0
 
- spc @L_spc_spc_tog
  esc @L_esc_leader2_tog
 
   ___ XX
@@ -654,7 +649,7 @@
   [ S-[
 
   ret S-ret
-  spc A-tab
+  spc S-spc
 
   ___ XX
 )
