@@ -493,6 +493,7 @@
   r C-r
   t C-t
   p C-p
+  . C-.
   / C-/
 
   ret C-ret

@@ -99,16 +99,89 @@ return {
   keys = {
     -- opencode.nvim exposes a general, flexible API — customize it to your workflow!
     -- But here are some examples to get you started :)
-    { '<leader>At', function() require('opencode').toggle() end, desc = 'Toggle opencode', },
-    { '<leader>Aa', function() require('opencode').ask() end, desc = 'Ask opencode', mode = { 'n', 'v' }, },
-    { '<leader>AA', function() require('opencode').ask('@file ') end, desc = 'Ask opencode about current file', mode = { 'n', 'v' }, },
-    { '<leader>An', function() require('opencode').command('/new') end, desc = 'New session', },
-    { '<leader>Ae', function() require('opencode').prompt('Explain @cursor and its context') end, desc = 'Explain code near cursor' },
-    { '<leader>Ar', function() require('opencode').prompt('Review @file for correctness and readability') end, desc = 'Review file', },
-    { '<leader>Af', function() require('opencode').prompt('Fix these @diagnostics') end, desc = 'Fix errors', },
-    { '<leader>Ao', function() require('opencode').prompt('Optimize @selection for performance and readability') end, desc = 'Optimize selection', mode = 'v', },
-    { '<leader>Ad', function() require('opencode').prompt('Add documentation comments for @selection') end, desc = 'Document selection', mode = 'v', },
-    { '<leader>At', function() require('opencode').prompt('Add tests for @selection') end, desc = 'Test selection', mode = 'v', },
+      { '<leader>At', function() require('opencode').toggle() end, desc = 'Toggle opencode', },
+      { '<leader>Aa', function() require('opencode').ask() end, desc = 'Ask opencode', mode = { 'n', 'v' }, },
+      { '<leader>AA', function() require('opencode').ask('@file ') end, desc = 'Ask opencode about current file', mode = { 'n', 'v' }, },
+      { '<leader>An', function() require('opencode').command('/new') end, desc = 'New session', },
+      { '<leader>Ae', function() require('opencode').prompt('Explain @cursor and its context') end, desc = 'Explain code near cursor' },
+      { '<leader>Ar', function() require('opencode').prompt('Review @file for correctness and readability') end, desc = 'Review file', },
+      { '<leader>Af', function() require('opencode').prompt('Fix these @diagnostics') end, desc = 'Fix errors', },
+      { '<leader>Ao', function() require('opencode').prompt('Optimize @selection for performance and readability') end, desc = 'Optimize selection', mode = 'v', },
+      { '<leader>Ad', function() require('opencode').prompt('Add documentation comments for @selection') end, desc = 'Document selection', mode = 'v', },
+      { '<leader>At', function() require('opencode').prompt('Add tests for @selection') end, desc = 'Test selection', mode = 'v', },
+    },
   },
+  {
+    "folke/sidekick.nvim",
+    opts = {
+      -- add any options here
+      cli = {
+        mux = {
+          backend = "zellij",
+          enabled = true,
+        },
+      },
+    },
+    keys = {
+      {
+        "<tab>",
+        function()
+          -- if there is a next edit, jump to it, otherwise apply it if any
+          if not require("sidekick").nes_jump_or_apply() then
+            return "<Tab>" -- fallback to normal tab
+          end
+        end,
+        expr = true,
+        desc = "Goto/Apply Next Edit Suggestion",
+      },
+      {
+        "<c-.>",
+        function()
+          require("sidekick.cli").focus()
+        end,
+        mode = { "n", "x", "i", "t" },
+        desc = "Sidekick Switch Focus",
+      },
+      {
+        -- doesn't work when binding from avante config, so doing it here
+        "<leader>aa",
+        function()
+          require("avante").toggle()
+        end,
+        desc = "avante: toggle",
+      },
+      {
+        "<leader>aA",
+        function()
+          require("sidekick.cli").toggle({ focus = true })
+        end,
+        desc = "Sidekick Toggle CLI",
+        mode = { "n", "v" },
+      },
+      -- {
+      --   "<leader>ac",
+      --   function()
+      --     require("sidekick.cli").toggle({ name = "claude", focus = true })
+      --   end,
+      --   desc = "Sidekick Claude Toggle",
+      --   mode = { "n", "v" },
+      -- },
+      -- {
+      --   "<leader>ag",
+      --   function()
+      --     require("sidekick.cli").toggle({ name = "grok", focus = true })
+      --   end,
+      --   desc = "Sidekick Grok Toggle",
+      --   mode = { "n", "v" },
+      -- },
+      {
+        "<leader>ap",
+        function()
+          require("sidekick.cli").prompt()
+        end,
+        desc = "Sidekick Ask Prompt",
+        mode = { "n", "v" },
+      },
+    },
   },
 }
