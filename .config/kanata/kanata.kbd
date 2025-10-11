@@ -538,8 +538,12 @@
   ;; i (macro-repeat down)
 
   ;; remapped hotkey combinations for easier access
+  c C-c
   v C-S-v ;; easier paste into terminals
   p C-S-v ;; easier paste into terminals
+  z C-z   ;; undo
+  x C-S-z ;; redo
+  ret C-ret
 
   ;; switch between tabs in some apps (zellij)
   1 (multi @L_main (macro C-1))
@@ -575,8 +579,6 @@
   , (multi @L_main [)
   . (multi @L_main ])
   / \
-
-  spc A-tab
 
   ___ XX
 )
