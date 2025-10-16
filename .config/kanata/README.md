@@ -32,14 +32,11 @@ move my hands away from the home row.
 Below is (non-exhaustive) list of key maps I use.
 For full list check the config: [kanata.kdb](./kanata.kbd)
 
-> [!NOTE]
-> This config is tested in KDE plasma. Might need some adjustments for
-> other DEs since it heavily utilizes default shortcuts to map certain actions.
-
 ### Leader layer
 
-`<leader>` key is mapped to `j+k` chord to enter the leader layer until `esc` is pressed to exit,
-or while holding `space` or `return` keys - layer is toggled until key is released.
+`<leader>` key can be mapped to any convenient key.
+For example, I use left thumb key on my split keyboard. On tap it's a `return` key, but when held it becomes a leader key.
+It can also be configured to enter the leader layer on tap, until `esc` is pressed to exit the layer.
 
 > [!Note]
 > I use a split keyboard so these keys are on my left and right thumbs respectively,
@@ -58,7 +55,7 @@ other layers (same as Vim):
 - `<leader>p` - open clipboard history and go to normal mode so you can navigate using `hjkl` and paste using `p` (uses KDE clipboard by default)
 - and so on. I have all of my most frequently used apps in leader layer.
 
-Pressing `esc` or `'` exits from any layer.
+Pressing `esc` exits from any layer.
 
 ### Window layer
 
@@ -98,6 +95,10 @@ Not all functionality is possible/easy to replicate outside of Vim,
 but I've managed to replicate some commonly used basic things. It still
 is a work in progress, I will try to add more features as time goes.
 
+> [!NOTE]
+> This config is tested in KDE plasma. Might need some adjustments for
+> other DEs since it heavily utilizes default shortcuts to map certain actions.
+
 ### Modifier layers
 
 Kanata has `tap-hold` functionality to trigger certain actions when the key is held.
@@ -127,7 +128,6 @@ For example you can press `1+2`, `1+2+3`, or `a+b`, etc. I use it to switch betw
 - `d+f` focuses my terminal that runs Neovim
 - `c+v` focuses my regular terminal
 - `f+g` focuses Firefox
-- `j+k` enters leader layer
 - etc.
 
 It's more convenient than `mod+key` combinations that I previously used for this.

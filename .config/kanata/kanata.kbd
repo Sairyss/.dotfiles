@@ -53,7 +53,8 @@
   L_j_ctrl_tog (tap-hold-release $tap_timeout_slow $hold_timeout j (layer-toggle ctrl_homerow))
   L_d_alt_tog (tap-hold-release $tap_timeout_slow $hold_timeout d (layer-toggle alt_homerow))
   L_k_alt_tog (tap-hold-release $tap_timeout_slow $hold_timeout k (layer-toggle alt_homerow))
-  L_s_numbers_tog (tap-hold-release $tap_timeout_slow $hold_timeout s (layer-toggle numbers))
+  L_c_numbers_tog (tap-hold-release $tap_timeout_slow $hold_timeout c (layer-toggle numbers))
+  L_s_navigation_tog (tap-hold-release $tap_timeout_slow $hold_timeout s (layer-toggle navigation))
 
   ;; Modes tog from normal mode layer
   L_f_norm_ctrl_tog (tap-hold-release $tap_timeout $hold_timeout f (layer-toggle normal_mode_ctrl_layer))
@@ -146,7 +147,8 @@
   ;; left hand
   f @L_f_ctrl_tog
   d @L_d_alt_tog
-  s @L_s_numbers_tog
+  c @L_c_numbers_tog
+  s @L_s_navigation_tog
 
   ;; right hand
   ;; j @L_j_ctrl_tog
@@ -583,8 +585,8 @@
   ___ XX
 )
 
+;; number pad on right hand side
 (deflayermap (numbers)
- ;; number pad
  m 1
  , 2
  . 3
@@ -595,10 +597,30 @@
  i 8
  o 9
  n 0
+ bspc bspc
+ ret ret
 
  esc @L_esc_leader2_tog
 
   ___ XX
+)
+
+;; utility layer for navigation
+(deflayermap (navigation)
+  ;; scroll neovim search history
+  h C-left
+  l C-right
+  k C-up
+  j C-down
+
+  ;; switch zellij tabs
+  y C-1
+  u C-2
+  i C-3
+  o C-4
+  p C-5
+
+  spc A-tab
 )
 
 (deflayermap (shift_layer)
