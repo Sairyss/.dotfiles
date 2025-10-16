@@ -198,7 +198,20 @@ return {
         desc = "Visual selection or word (cwd)",
         mode = { "n", "x" },
       },
-      { "<leader>fR", LazyVim.pick("oldfiles"), desc = "Recent" },
+      {
+        "<leader>fR",
+        function()
+          Snacks.picker.recent()
+        end,
+        desc = "Recent",
+      },
+      {
+        "<leader>r",
+        function()
+          Snacks.picker.recent({ filter = { cwd = true } })
+        end,
+        desc = "Recent Files",
+      },
       {
         "<leader>fr",
         function()

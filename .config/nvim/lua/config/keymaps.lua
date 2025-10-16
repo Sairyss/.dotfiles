@@ -48,4 +48,5 @@ if not vim.g.vscode then
   keymap("t", "<C-l>", "<C-w>l", { desc = "Move to right window while in terminal" })
 
   keymap("n", "<leader><space>", ":FFFFind<CR>", { desc = "Smart Find Files", silent = true, noremap = true })
+  keymap("n", "<leader>v", "<C-^>", { desc = "Switch to previous buffer", silent = true, noremap = true })
 end
