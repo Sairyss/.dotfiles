@@ -9,11 +9,21 @@ local function update_zellij_status_grapple_buffers()
     vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tagged_buffers::'")
     return
   end
+
+  -- Truncate to max 4 tags, otherwise zellij statusline overflows
+  if #tags > 4 then
+    local truncated = {}
+    for i = 1, 4 do
+      table.insert(truncated, tags[i])
+    end
+    tags = truncated
+  end
+
   local current_buf_path = vim.api.nvim_buf_get_name(0)
   local message = "#[bg=$surface0,fg=$blue] | "
   for idx, tag in ipairs(tags) do
     local buf_name = tag.path:match("^.+/(.+)$") or tag.path
-    buf_name = buf_name and #buf_name > 30 and buf_name:sub(1, 27) .. "..." or buf_name
+    buf_name = buf_name and #buf_name > 28 and buf_name:sub(1, 25) .. "..." or buf_name
     local fg_color = tag.path == current_buf_path and "sky" or "overlay2"
     message = message
       .. "#[bg=$surface0,fg=$darkblue]"
@@ -45,7 +55,7 @@ return {
       -- scope = "tab_scope",
       icons = true,
       quick_select = "123456789",
-      prune = "30d",
+      prune = "14d",
       style = "basename",
       scopes = {},
     },
@@ -56,7 +66,7 @@ return {
       local base_tab_id = string.format("tab:%s:%d", vim.loop.cwd(), 1)
       grapple.define_scope({
         name = base_tab_id,
-        desc = "Scope based on tabs",
+        desc = "Tab-based scope",
         fallback = "cwd",
         cache = {
           event = { "TabNew" },
@@ -75,7 +85,7 @@ return {
           local id = string.format("tab:%s:%d", root, tab_id)
           grapple.define_scope({
             name = id,
-            desc = "Scope based on tabs",
+            desc = "Tab-based scope",
             fallback = "cwd",
             cache = {
               event = { "TabNew" },
@@ -136,6 +146,15 @@ return {
         end,
         desc = "Toggle tag",
       },
+      {
+        -- Switch to tags of the current git branch. Useful when working on a feature
+        "<leader>gt",
+        function()
+          require("grapple").use_scope("git_branch")
+          vim.defer_fn(update_zellij_status_grapple_buffers, 0)
+        end,
+        desc = "Git Tags for Branch (Grapple)",
+      },
       -- switch to a specific tab with a hotkey
       {
         "<leader>1",
@@ -173,8 +192,8 @@ return {
         silent = true,
       },
 
-      -- { "H", "<cmd>Grapple cycle_tags next<cr>", desc = "Go to next tag" },
-      -- { "L", "<cmd>Grapple cycle_tags prev<cr>", desc = "Go to previous tag" },
+      { "L", "<cmd>Grapple cycle_tags next<cr>", desc = "Go to next tag" },
+      { "H", "<cmd>Grapple cycle_tags prev<cr>", desc = "Go to previous tag" },
     },
   },
 }
