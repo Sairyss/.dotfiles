@@ -608,10 +608,14 @@
 ;; utility layer for navigation
 (deflayermap (navigation)
   ;; scroll neovim search history
-  h C-left
-  l C-right
-  k C-up
-  j C-down
+  h left
+  l right
+  k up
+  j down
+  , C-up
+  m C-down
+  . C-right
+  n C-left
 
   ;; switch zellij tabs
   y C-1
