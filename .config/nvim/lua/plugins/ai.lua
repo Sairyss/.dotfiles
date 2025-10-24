@@ -179,8 +179,6 @@ return {
     ---},
   -- stylua: ignore
     keys = {
-    -- opencode.nvim exposes a general, flexible API — customize it to your workflow!
-    -- But here are some examples to get you started :)
       { '<leader>At', function() require('opencode').toggle() end, desc = 'Toggle opencode', },
       { '<leader>Aa', function() require('opencode').ask() end, desc = 'Ask opencode', mode = { 'n', 'v' }, },
       { '<leader>AA', function() require('opencode').ask('@file ') end, desc = 'Ask opencode about current file', mode = { 'n', 'v' }, },
