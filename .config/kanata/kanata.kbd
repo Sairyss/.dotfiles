@@ -41,6 +41,7 @@
   ;; toggling different layers for Vim motions
   L_ret_leader_tog (tap-hold-press $tap_timeout_slow $hold_timeout_slow ret (layer-toggle leader))
   L_spc_leader_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle leader))
+  L_spc_spc_tog (tap-hold-release $tap_timeout_slow $hold_timeout_slow spc (layer-toggle space_layer))
   ;; L_ret_leader2_tog (tap-hold-release $tap_timeout $hold_timeout ret (layer-toggle leader2))
   L_bspc_shift_tog (tap-hold-press $tap_timeout_slow 1000 bspc (layer-toggle shift_layer))
   L_rmet_leader_tog (tap-hold-release 1 1 rmet (layer-toggle leader))
@@ -51,8 +52,10 @@
   ;; Homerow mods tog
   L_f_ctrl_tog (tap-hold-release $tap_timeout_slow $hold_timeout f (layer-toggle ctrl_homerow))
   L_j_ctrl_tog (tap-hold-release $tap_timeout_slow $hold_timeout j (layer-toggle ctrl_homerow))
+  L_,_ctrl_tog (tap-hold-release $tap_timeout_slow $hold_timeout , (layer-toggle ctrl_homerow))
   L_d_alt_tog (tap-hold-release $tap_timeout_slow $hold_timeout d (layer-toggle alt_homerow))
   L_k_alt_tog (tap-hold-release $tap_timeout_slow $hold_timeout k (layer-toggle alt_homerow))
+  L_m_alt_tog (tap-hold-release $tap_timeout_slow $hold_timeout m (layer-toggle alt_homerow))
   L_c_numbers_tog (tap-hold-release $tap_timeout_slow $hold_timeout c (layer-toggle numbers))
   L_s_navigation_tog (tap-hold-release $tap_timeout_slow $hold_timeout s (layer-toggle navigation))
 
@@ -139,14 +142,17 @@
   ;; spc @L_spc_leader_tog
   ;; rmet @L_rmet_leader_tog
   ;; ret @L_ret_leader2_tog
-  bspc @L_bspc_shift_tog 
+  ;; bspc @L_bspc_shift_tog
   ;; esc @L_esc_leader_tog
+  spc @L_spc_spc_tog
   esc @L_esc_leader2_tog
 
   ;; -- Home row mods -- 
   ;; left hand
   f @L_f_ctrl_tog
+  , @L_,_ctrl_tog
   d @L_d_alt_tog
+  m @L_m_alt_tog
   c @L_c_numbers_tog
   s @L_s_navigation_tog
 
@@ -483,6 +489,7 @@
   u C-u
   w C-w
   s C-s
+  f C-f
   l C-l
   h C-h
   j C-j
@@ -507,6 +514,7 @@
 (deflayermap (alt_homerow)
   esc @L_main
   ' @L_main
+  q A-q
   d A-d
   w A-w
   u A-u
@@ -515,6 +523,13 @@
   j A-j
   k A-k
   a A-a
+  b A-b
+  e A-e
+  m A-m
+  y A-y
+  n A-n
+  , A-,
+  . A-.
   c A-c
   v A-v
   o A-o
@@ -625,6 +640,11 @@
   p C-5
 
   spc A-tab
+)
+
+;; utility layer for extra buttons
+(deflayermap (space_layer)
+  lsft bspc
 )
 
 (deflayermap (shift_layer)
