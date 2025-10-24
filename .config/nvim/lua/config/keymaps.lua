@@ -32,6 +32,13 @@ keymap("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Searc
 keymap("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 keymap("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
+-- code navigation
+keymap("n", "<M-u>", "]e", { desc = "Next Diagnostic Error" })
+keymap("n", "<M-i>", "[e", { desc = "Prev Diagnostic Error" })
+keymap("n", "<M-,>", "]h", { desc = "Next Hunk" })
+keymap("n", "<M-m>", "[h", { desc = "Prev Hunk" })
+keymap("n", "<M-o>", "]f", { desc = "Next function" })
+keymap("n", "<M-y>", "[f", { desc = "Prev function" })
 ---------- Extensions ----------
 
 if not vim.g.vscode then

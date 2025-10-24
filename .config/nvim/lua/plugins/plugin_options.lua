@@ -412,4 +412,19 @@ return {
     { "<leader>Qd", function() require("persistence").stop() end, desc = "Don't Save Current Session" },
     },
   },
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      defaults = {
+        path_display = {
+          "smart",
+        },
+        layout_config = {
+          prompt_position = "top",
+        },
+        sorting_strategy = "ascending",
+      },
+    },
+  },
 }

@@ -60,6 +60,7 @@ return {
       scopes = {},
     },
     config = function(_, opts)
+      require("telescope").load_extension("grapple")
       local grapple = require("grapple")
       grapple.setup(opts)
 
@@ -137,9 +138,11 @@ return {
       })
     end,
     keys = {
-      { "<BS>", "<cmd>Grapple toggle_tags<cr>", desc = "Toggle tags menu" },
+      { "<BS>", "<cmd>Grapple toggle_tags<cr>", desc = "Grapple menu (Tags)" },
+      { "<CR><space>", "<cmd>Grapple toggle_tags<cr>", desc = "Grapple menu (Tags)" },
+      { "<CR><CR>", "<cmd>Telescope grapple tags<cr>", desc = "Grapple menu (Telescope)" },
       {
-        "<leader>m",
+        "<CR>m",
         function()
           require("grapple").toggle()
           update_zellij_status_grapple_buffers()
@@ -191,7 +194,6 @@ return {
         desc = "Grapple 5",
         silent = true,
       },
-
       { "L", "<cmd>Grapple cycle_tags next<cr>", desc = "Go to next tag" },
       { "H", "<cmd>Grapple cycle_tags prev<cr>", desc = "Go to previous tag" },
     },
