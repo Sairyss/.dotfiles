@@ -1,4 +1,4 @@
--- Modifications to existing LazyVim plugin options
+-- Modifiuations to existing LazyVim plugin options
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -13,6 +13,7 @@ return {
         "typescript",
         "regex",
         "query",
+        "rust",
         "sql",
         "prisma",
         "javascript",
@@ -30,15 +31,6 @@ return {
         "gowork",
         "gosum",
       })
-      opts.incremental_selection = {
-        enable = true,
-        keymaps = {
-          init_selection = "<S-b>",
-          node_incremental = "<S-b>",
-          scope_incremental = false,
-          node_decremental = "<bs>",
-        },
-      }
     end,
   },
   {
