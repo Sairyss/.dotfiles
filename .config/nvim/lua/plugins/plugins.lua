@@ -145,25 +145,26 @@ return {
       })
     end,
   },
-  -- {
-  --   "rachartier/tiny-inline-diagnostic.nvim",
-  --   event = "VeryLazy", -- Or `LspAttach`
-  --   priority = 1000, -- needs to be loaded in first
-  --   config = function()
-  --     require("tiny-inline-diagnostic").setup({
-  --       options = {
-  --         -- Enable diagnostic message on all lines.
-  --         multilines = true,
-  --
-  --         -- If multiple diagnostics are under the cursor, display all of them.
-  --         multiple_diag_under_cursor = true,
-  --
-  --         -- Show all diagnostics on the cursor line.
-  --         show_all_diags_on_cursorline = false,
-  --       },
-  --     })
-  --   end,
-  -- },
+  {
+    "rachartier/tiny-inline-diagnostic.nvim",
+    event = "VeryLazy", -- Or `LspAttach`
+    priority = 1000, -- needs to be loaded in first
+    config = function()
+      require("tiny-inline-diagnostic").setup({
+        options = {
+          -- Enable diagnostic message on all lines.
+          multilines = true,
+
+          -- If multiple diagnostics are under the cursor, display all of them.
+          multiple_diag_under_cursor = true,
+
+          -- Show all diagnostics on the cursor line.
+          show_all_diags_on_cursorline = false,
+        },
+      })
+      vim.diagnostic.config({ virtual_text = false })
+    end,
+  },
   {
     "bngarren/checkmate.nvim",
     ft = "markdown", -- Lazy loads for Markdown files matching patterns in 'files'

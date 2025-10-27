@@ -8,7 +8,6 @@ vim.opt.swapfile = false
 
 -- LazyVim related
 vim.g.snacks_animate = false
-vim.diagnostic.config({ virtual_text = false })
 
 -- Ensures that when exiting NeoVim, Zellij returns to normal mode
 vim.api.nvim_create_autocmd("VimLeave", {

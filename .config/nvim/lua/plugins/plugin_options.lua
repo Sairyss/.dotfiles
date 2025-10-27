@@ -45,13 +45,9 @@ return {
     "neovim/nvim-lspconfig",
     opts = function(_, opts)
       opts.inlay_hints = { enabled = false }
-      -- opts.diagnostics = {
-      -- 	virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
-      -- }
-
-      local keys = require("lazyvim.plugins.lsp.keymaps").get()
-      keys[#keys + 1] = { "<C-.>", vim.lsp.buf.code_action }
-      keys[#keys + 1] = { "<C-M-.>", LazyVim.lsp.action.source }
+      opts.diagnostics = {
+        virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
+      }
 
       opts.setup = {
         eslint = function()
@@ -60,6 +56,14 @@ return {
             autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js EslintFixAll
           ]])
         end,
+      }
+      opts.servers = {
+        ["*"] = {
+          keys = {
+            { "<C-.>", vim.lsp.buf.code_action, desc = "Code Action" },
+            { "<C-M-.>", LazyVim.lsp.action.source, desc = "Source Action" },
+          },
+        },
       }
     end,
   },
@@ -162,6 +166,72 @@ return {
       },
     },
     keys = {
+      -- LSP
+      {
+        "gd",
+        function()
+          Snacks.picker.lsp_definitions()
+        end,
+        desc = "Goto Definition",
+      },
+      {
+        "gD",
+        function()
+          Snacks.picker.lsp_declarations()
+        end,
+        desc = "Goto Declaration",
+      },
+      {
+        "gr",
+        function()
+          Snacks.picker.lsp_references()
+        end,
+        nowait = true,
+        desc = "References",
+      },
+      {
+        "gI",
+        function()
+          Snacks.picker.lsp_implementations()
+        end,
+        desc = "Goto Implementation",
+      },
+      {
+        "gy",
+        function()
+          Snacks.picker.lsp_type_definitions()
+        end,
+        desc = "Goto T[y]pe Definition",
+      },
+      {
+        "gai",
+        function()
+          Snacks.picker.lsp_incoming_calls()
+        end,
+        desc = "C[a]lls Incoming",
+      },
+      {
+        "gao",
+        function()
+          Snacks.picker.lsp_outgoing_calls()
+        end,
+        desc = "C[a]lls Outgoing",
+      },
+      {
+        "<leader>ss",
+        function()
+          Snacks.picker.lsp_symbols()
+        end,
+        desc = "LSP Symbols",
+      },
+      {
+        "<leader>sS",
+        function()
+          Snacks.picker.lsp_workspace_symbols()
+        end,
+        desc = "LSP Workspace Symbols",
+      },
+
       { "<leader>fF", LazyVim.pick("files"), desc = "Find Files (Root Dir)" },
       { "<leader>ff", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)" },
       { "<leader>/", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)" },

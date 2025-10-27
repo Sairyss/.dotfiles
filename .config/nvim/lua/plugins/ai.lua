@@ -9,6 +9,7 @@ return {
       auto_suggestions_provider = "gemini",
       behaviour = {
         auto_suggestions = false,
+        auto_set_keymaps = true,
       },
       input = {
         provider = "snacks",
@@ -96,78 +97,38 @@ return {
       },
     },
   },
-  {
-    "milanglacier/minuet-ai.nvim",
-    config = function()
-      require("minuet").setup({
-        provider = "gemini",
-        blink = {
-          enable_auto_complete = true,
-        },
-        provider_options = {
-          gemini = {
-            model = "gemini-2.5-flash",
-            -- system = "see [Prompt] section for the default value",
-            -- few_shots = "see [Prompt] section for the default value",
-            -- chat_input = "See [Prompt Section for default value]",
-            stream = true,
-            api_key = "GEMINI_API_KEY",
-            end_point = "https://generativelanguage.googleapis.com/v1beta/models",
-            optional = {
-              generationConfig = {
-                maxOutputTokens = 512,
-                -- When using `gemini-2.5-flash`, it is recommended to entirely
-                -- disable thinking for faster completion retrieval.
-                thinkingConfig = {
-                  thinkingBudget = 0,
-                },
-              },
-            },
-          },
-        },
-      })
-    end,
-  },
-  {
-    "saghen/blink.cmp",
-    dependencies = {
-      "Kaiser-Yang/blink-cmp-avante",
-      -- ... Other dependencies
-    },
-    config = function(_, opts)
-      opts.keymap = vim.tbl_deep_extend("force", opts.keymap or {}, {
-        ["<A-y>"] = require("minuet").make_blink_map(),
-      })
-      require("blink-cmp").setup(opts)
-    end,
-    opts = {
-      sources = {
-        default = { "avante", "minuet", "lsp", "path", "snippets", "buffer" },
-        providers = {
-          avante = {
-            module = "blink-cmp-avante",
-            name = "Avante",
-            opts = {
-              -- options for blink-cmp-avante
-            },
-          },
-          minuet = {
-            name = "minuet",
-            module = "minuet.blink",
-            async = true,
-            -- Should match minuet.config.request_timeout * 1000,
-            -- since minuet.config.request_timeout is in seconds
-            timeout_ms = 3000,
-            score_offset = 50, -- Gives minuet higher priority among suggestions
-          },
-        },
-      },
-    },
-    -- keymap = {
-    --   -- Manually invoke minuet completion.
-    --   -- ["<A-y>"] = require("minuet").make_blink_map(),
-    -- },
-  },
+  -- {
+  --   "milanglacier/minuet-ai.nvim",
+  --   config = function()
+  --     require("minuet").setup({
+  --       provider = "gemini",
+  --       blink = {
+  --         enable_auto_complete = true,
+  --       },
+  --       provider_options = {
+  --         gemini = {
+  --           model = "gemini-2.5-flash",
+  --           -- system = "see [Prompt] section for the default value",
+  --           -- few_shots = "see [Prompt] section for the default value",
+  --           -- chat_input = "See [Prompt Section for default value]",
+  --           stream = true,
+  --           api_key = "GEMINI_API_KEY",
+  --           end_point = "https://generativelanguage.googleapis.com/v1beta/models",
+  --           optional = {
+  --             generationConfig = {
+  --               maxOutputTokens = 256,
+  --               -- When using `gemini-2.5-flash`, it is recommended to entirely
+  --               -- disable thinking for faster completion retrieval.
+  --               thinkingConfig = {
+  --                 thinkingBudget = 0,
+  --               },
+  --             },
+  --           },
+  --         },
+  --       },
+  --     })
+  --   end,
+  -- },
   {
     "NickvanDyke/opencode.nvim",
     dependencies = {
