@@ -44,19 +44,18 @@ return {
       opts.setup = {
         eslint = function()
           -- automatically fix linting errors on save
-          vim.cmd([[
-            autocmd BufWritePre *.tsx,*.ts,*.jsx,*.js EslintFixAll
-          ]])
+          vim.api.nvim_create_autocmd("BufWritePre", {
+            pattern = { "*.tsx", "*.ts", "*.jsx", "*.js" },
+            callback = function()
+              vim.cmd("LspEslintFixAll")
+            end,
+          })
         end,
       }
-      opts.servers = {
-        ["*"] = {
-          keys = {
-            { "<C-.>", vim.lsp.buf.code_action, desc = "Code Action" },
-            { "<C-M-.>", LazyVim.lsp.action.source, desc = "Source Action" },
-          },
-        },
-      }
+      vim.list_extend(opts.servers["*"].keys, {
+        { "<C-.>", vim.lsp.buf.code_action, desc = "Code Action" },
+        { "<C-,>", LazyVim.lsp.action.source, desc = "Source Action" },
+      })
     end,
   },
   {
