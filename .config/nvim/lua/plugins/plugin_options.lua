@@ -206,7 +206,7 @@ return {
         desc = "Recent",
       },
       {
-        "<leader>r",
+        "<CR>r",
         function()
           Snacks.picker.recent({ filter = { cwd = true } })
         end,

@@ -147,7 +147,7 @@ return {
           require("grapple").toggle()
           update_zellij_status_grapple_buffers()
         end,
-        desc = "Toggle tag",
+        desc = "Mark file (Grapple)",
       },
       {
         -- Switch to tags of the current git branch. Useful when working on a feature

@@ -97,7 +97,8 @@ return {
         mode = { "n" },
         silent = true,
         ft = { "typescript", "javascript", "rust", "python", "go", "c", "cpp", "quarto", "http", "sql" },
-        "<CR>",
+        desc = "Execute block under cursor",
+        "<CR>e",
         function()
           -- Execute cell/paragraph in repl
           local filetype = vim.api.nvim_buf_get_option(0, "ft")
@@ -134,12 +135,12 @@ return {
           end
         end,
       },
-
       {
         mode = { "n" },
         silent = true,
         ft = { "typescript", "javascript", "rust", "python", "go", "c", "cpp", "quarto" },
-        "<C-CR>",
+        "<CR>E",
+        desc = "Execute file",
         function()
           local function is_overseer_open()
             for _, win in ipairs(vim.api.nvim_list_wins()) do
@@ -201,6 +202,7 @@ return {
         silent = true,
         ft = { "typescript", "javascript", "rust", "python", "go", "c", "cpp", "sql" },
         "<CR>",
+        desc = "Execute selection",
         function()
           -- execute visually selected code
           local filetype = vim.api.nvim_buf_get_option(0, "ft")
