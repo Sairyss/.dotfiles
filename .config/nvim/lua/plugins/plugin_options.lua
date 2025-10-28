@@ -117,19 +117,19 @@ return {
         desc = "Search and Replace",
       },
       {
-        "<leader>sr",
+        "<leader>sR",
         function()
           local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
           require("grug-far").toggle_instance({
             instanceName = "far",
-            staticTitle = "Find and Replace",
+            staticTitle = "Search and Replace",
             prefills = {
               filesFilter = ext and ext ~= "" and "*." .. ext or nil,
             },
           })
         end,
         mode = { "n", "v" },
-        desc = "Search and Replace",
+        desc = "Search and Replace (grug-far)",
       },
     },
   },
@@ -260,18 +260,25 @@ return {
         mode = { "n", "x" },
       },
       {
+        "<leader>sr",
+        function()
+          Snacks.picker.resume({ source = "grep" })
+        end,
+        desc = "Resume Grep",
+      },
+      {
         "<leader>fR",
         function()
           Snacks.picker.recent()
         end,
-        desc = "Recent",
+        desc = "Recent Files (all)",
       },
       {
         "<CR>r",
         function()
           Snacks.picker.recent({ filter = { cwd = true } })
         end,
-        desc = "Recent Files",
+        desc = "Recent Files (cwd)",
       },
       {
         "<leader>fr",
