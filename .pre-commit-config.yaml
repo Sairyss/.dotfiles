@@ -1,0 +1,62 @@
+# Pre-commit hooks for dotfiles
+# Install: pip install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$'
+      - id: end-of-file-fixer
+      - id: check-yaml
+        exclude: '.*/opensnitch/.*'
+      - id: check-json
+        exclude: '(lazy-lock\.json|.*/opensnitch/rules/.*\.json)$'
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: detect-private-key
+
+  # Prettier for JSON, YAML, Markdown
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types_or: [json, yaml, markdown]
+        exclude: '(lazy-lock\.json|package-lock\.json|.*/opensnitch/rules/.*\.json)$'
+
+  # Shell script formatting with shfmt
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.7.0-4
+    hooks:
+      - id: shfmt
+        args: ['-w', '-i', '4', '-ci']
+
+  # Shell script linting with shellcheck
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: ['-x']
+
+  # Lua formatting with StyLua
+  - repo: https://github.com/JohnnyMorganz/StyLua
+    rev: v0.20.0
+    hooks:
+      - id: stylua
+        files: '\.lua$'
+        args: ['--config-path', '.config/nvim/stylua.toml']
+
+  # EditorConfig checker
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 2.7.3
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
+        exclude: '(lazy-lock\.json|package-lock\.json|.*/opensnitch/rules/.*\.json)$'

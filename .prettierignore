@@ -1,0 +1,34 @@
+# Dependencies and build outputs
+node_modules/
+.npm/
+.yarn/
+dist/
+build/
+
+# Git
+.git/
+
+# Lock files (should not be formatted)
+**/lazy-lock.json
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+
+# OpenSnitch rules (auto-generated, might break if formatted)
+.config/opensnitch/rules/*.json
+
+# Emacs auto-generated
+.config/doom/.local/
+
+# Neovim plugin data
+.config/nvim/lazy-lock.json
+
+# System files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Other
+.stow-local-ignore
+.aconfmgr.d/

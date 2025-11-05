@@ -148,6 +148,58 @@ To see full list of Neovim plugins, check out [plugins.lua](./.config/nvim/lua/p
 
 - [hosts](https://github.com/StevenBlack/hosts) - hosts file to block malicious sites, trackers, ads, etc.
 
+### Code Formatting and Quality
+
+This repository includes automated formatting and linting tools to maintain consistent code quality across all configuration files.
+
+#### Available Tools
+
+- **EditorConfig** - Universal formatting rules for all editors
+- **Prettier** - Formats JSON, YAML, and Markdown files
+- **StyLua** - Formats Lua files (Neovim and Yazi configs)
+- **shfmt** - Formats shell scripts
+- **ShellCheck** - Lints shell scripts for common issues
+
+#### Quick Start
+
+```bash
+# Install all formatting tools
+make install-tools
+
+# Format all files
+make format
+
+# Check if files are properly formatted (dry-run)
+make format-check
+
+# Format specific file types
+make format-lua    # Lua files
+make format-sh     # Shell scripts
+make format-web    # JSON, YAML, Markdown
+
+# Lint shell scripts
+make lint
+```
+
+#### Pre-commit Hooks (Optional)
+
+To automatically format files before each commit:
+
+```bash
+# Install pre-commit
+pip install pre-commit
+
+# Install the git hooks
+pre-commit install
+
+# Run manually on all files
+pre-commit run --all-files
+```
+
+#### Makefile Targets
+
+Run `make help` to see all available commands.
+
 ### Sync configs
 
 To backup and restore configs, store your configs in github and use Stow to create symbolic links.
