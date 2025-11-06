@@ -69,7 +69,7 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 - [xclip](https://github.com/astrand/xclip) - cli clipboard
 - [yank](https://github.com/mptre/yank) - copy terminal output to clipboard
 - [jq](https://github.com/stedolan/jq) - command-line JSON processor
-- [jid](https://github.com/simeji/jid) - Json Incremental Digger
+- [jnv](https://github.com/ynqa/jnv) - interactive JSON navigation
 - [hyperfine](https://github.com/sharkdp/hyperfine) - terminal benchmarking tool
 - [mprocs](https://github.com/pvolok/mprocs) - runs multiple commands in parallel and shows output of each command separately
 

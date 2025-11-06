@@ -78,7 +78,6 @@ AddPackage --foreign birdtray                     # Run Thunderbird with a syste
 AddPackage --foreign google-chrome                # The popular and trusted web browser by Google (Stable Channel)
 AddPackage --foreign headset-charge-indicator-git # Simple app-indicator for GNOME desktops to display the battery charge of some wireless headsets
 AddPackage --foreign headsetcontrol               # Sidetone and Battery status for Logitech G930, G533, G633, G933 SteelSeries Arctis 7/PRO 2019 and Corsair VOID (Pro) in Linux and MacOSX
-AddPackage --foreign jid-bin                      # Json incremental digger
 AddPackage --foreign kanata                       # Bring the customizability of a QMK board to any keyboard near you
 AddPackage --foreign lazydocker                   # A simple terminal UI for docker and docker-compose, written in Go with the gocui library.
 AddPackage --foreign mprocs                       # Run multiple commands in parallel
