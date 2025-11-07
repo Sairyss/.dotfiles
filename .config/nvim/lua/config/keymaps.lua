@@ -16,10 +16,6 @@ keymap("n", "`", "'", { desc = "Go to mark", noremap = true, silent = true })
 keymap("n", ";", "]", { desc = "+next", noremap = false, silent = true })
 keymap("n", ",", "[", { desc = "+prev", noremap = false, silent = true })
 
--- easier shortcuts for going to the end/beginning of the line
-keymap("n", "<M-f>", "$", { desc = "Go to the end of line", noremap = false, silent = true })
-keymap("n", "<M-d>", "^", { desc = "Go to the beginning of line", noremap = false, silent = true })
-
 -- Center screen when navigating
 keymap("n", "<C-d>", "<C-d>zz", { desc = "Center screen when moving down", noremap = true, silent = true })
 keymap("n", "<C-u>", "<C-u>zz", { desc = "Center screen when moving up", noremap = true, silent = true })
@@ -32,13 +28,14 @@ keymap("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Searc
 keymap("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 keymap("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
--- code navigation
+-- quick code navigation
 keymap("n", "<M-u>", "]e", { desc = "Next Diagnostic Error" })
 keymap("n", "<M-i>", "[e", { desc = "Prev Diagnostic Error" })
 keymap("n", "<M-,>", "]h", { desc = "Next Hunk" })
 keymap("n", "<M-m>", "[h", { desc = "Prev Hunk" })
 keymap("n", "<M-o>", "]f", { desc = "Next function" })
 keymap("n", "<M-y>", "[f", { desc = "Prev function" })
+
 ---------- Extensions ----------
 
 if not vim.g.vscode then

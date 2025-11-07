@@ -293,7 +293,7 @@ return {
         function()
           Snacks.terminal(nil, { cwd = LazyVim.root(), win = { position = "right", width = 0.4 } })
         end,
-        { desc = "Terminal (Root Dir)" },
+        desc = "Terminal (Root Dir)",
       },
       {
         "<leader>ft",
@@ -301,7 +301,7 @@ return {
         function()
           Snacks.terminal(nil, { cwd = LazyVim.root(), win = { position = "right", width = 0.4 } })
         end,
-        { desc = "Terminal (Root Dir)" },
+        desc = "Terminal (Root Dir)",
       },
     },
   },
@@ -360,33 +360,33 @@ return {
     end,
   },
   {
-    {
-      "nvim-lualine/lualine.nvim",
-      opts = {
-        -- optimize lualine performance https://github.com/LazyVim/LazyVim/discussions/326
-        refresh = {
-          statusline = 1500,
-          tabline = 1500,
-          winbar = 1500,
-        },
-        sections = {
-          --   lualine_a = { "branch" },
-          --   lualine_b = {},
-          lualine_c = {
-            LazyVim.lualine.root_dir(),
-            { "diagnostics" },
-            { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-            { LazyVim.lualine.pretty_path() },
-          },
-          --   lualine_x = {},
-          --   lualine_y = {
-          --     { "progress", separator = " ", padding = { left = 1, right = 0 } },
-          --     { "location", padding = { left = 0, right = 1 } },
-          --   },
-          lualine_z = {},
-        },
-      },
-    },
+    -- {
+    --   "nvim-lualine/lualine.nvim",
+    --   opts = {
+    --     -- optimize lualine performance https://github.com/LazyVim/LazyVim/discussions/326
+    --     refresh = {
+    --       statusline = 1500,
+    --       tabline = 1500,
+    --       winbar = 1500,
+    --     },
+    --     sections = {
+    --       --   lualine_a = { "branch" },
+    --       --   lualine_b = {},
+    --       lualine_c = {
+    --         LazyVim.lualine.root_dir(),
+    --         { "diagnostics" },
+    --         { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
+    --         { LazyVim.lualine.pretty_path() },
+    --       },
+    --       --   lualine_x = {},
+    --       --   lualine_y = {
+    --       --     { "progress", separator = " ", padding = { left = 1, right = 0 } },
+    --       --     { "location", padding = { left = 0, right = 1 } },
+    --       --   },
+    --       lualine_z = {},
+    --     },
+    --   },
+    -- },
     {
       "mistweaverco/kulala.nvim",
       ft = "http",
