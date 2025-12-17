@@ -163,6 +163,7 @@ return {
         },
       })
       vim.diagnostic.config({ virtual_text = false })
+      vim.diagnostic.open_float = require("tiny-inline-diagnostic.override").open_float
     end,
   },
   {
