@@ -218,6 +218,11 @@ return {
       require("lensline").setup()
     end,
   },
+  {
+    "esmuellert/codediff.nvim",
+    dependencies = { "MunifTanjim/nui.nvim" },
+    cmd = "CodeDiff",
+  },
   -- {
   --   "obsidian-nvim/obsidian.nvim",
   --   version = "*", -- recommended, use latest release instead of latest commit

@@ -129,29 +129,92 @@ return {
   --     })
   --   end,
   -- },
+  -- {
+  --   "saghen/blink.cmp",
+  --   opts = {
+  --
+  --     -- keymap = {
+  --     --   -- Manually invoke minuet completion.
+  --     --   ["<A-y>"] = require("minuet").make_blink_map(),
+  --     -- },
+  --     sources = {
+  --       -- Enable minuet for autocomplete
+  --       default = { "lsp", "path", "snippets", "buffer", "copilot", "dadbod", "minuet" },
+  --       -- For manual completion only, remove 'minuet' from default
+  --       providers = {
+  --         minuet = {
+  --           name = "minuet",
+  --           module = "minuet.blink",
+  --           async = true,
+  --           -- Should match minuet.config.request_timeout * 1000,
+  --           -- since minuet.config.request_timeout is in seconds
+  --           timeout_ms = 3000,
+  --           score_offset = 50, -- Gives minuet higher priority among suggestions
+  --         },
+  --       },
+  --     },
+  --     -- Recommended to avoid unnecessary request
+  --     -- completion = { trigger = { prefetch_on_insert = false } },
+  --   },
+  -- },
   {
-    "NickvanDyke/opencode.nvim",
-    dependencies = {
-      "folke/snacks.nvim",
+    "zbirenbaum/copilot.lua",
+    enabled = false,
+  },
+  -- {
+  --   "NickvanDyke/opencode.nvim",
+  --   dependencies = {
+  --     "folke/snacks.nvim",
+  --   },
+  --   ------@type opencode.Config
+  --   ---opts = {
+  --   ---  -- Your configuration, if any
+  --   ---},
+  -- -- stylua: ignore
+  --   keys = {
+  --     { '<leader>At', function() require('opencode').toggle() end, desc = 'Toggle opencode', },
+  --     { '<leader>Aa', function() require('opencode').ask() end, desc = 'Ask opencode', mode = { 'n', 'v' }, },
+  --     { '<leader>AA', function() require('opencode').ask('@file ') end, desc = 'Ask opencode about current file', mode = { 'n', 'v' }, },
+  --     { '<leader>An', function() require('opencode').command('/new') end, desc = 'New session', },
+  --     { '<leader>Ae', function() require('opencode').prompt('Explain @cursor and its context') end, desc = 'Explain code near cursor' },
+  --     { '<leader>Ar', function() require('opencode').prompt('Review @file for correctness and readability') end, desc = 'Review file', },
+  --     { '<leader>Af', function() require('opencode').prompt('Fix these @diagnostics') end, desc = 'Fix errors', },
+  --     { '<leader>Ao', function() require('opencode').prompt('Optimize @selection for performance and readability') end, desc = 'Optimize selection', mode = 'v', },
+  --     { '<leader>Ad', function() require('opencode').prompt('Add documentation comments for @selection') end, desc = 'Document selection', mode = 'v', },
+  --     { '<leader>At', function() require('opencode').prompt('Add tests for @selection') end, desc = 'Test selection', mode = 'v', },
+  --   },
+  -- },
+  {
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    opts = {
+      terminal_cmd = "/usr/bin/claude", -- Point to local installation
     },
-    ------@type opencode.Config
-    ---opts = {
-    ---  -- Your configuration, if any
-    ---},
-  -- stylua: ignore
+    config = true,
     keys = {
-      { '<leader>At', function() require('opencode').toggle() end, desc = 'Toggle opencode', },
-      { '<leader>Aa', function() require('opencode').ask() end, desc = 'Ask opencode', mode = { 'n', 'v' }, },
-      { '<leader>AA', function() require('opencode').ask('@file ') end, desc = 'Ask opencode about current file', mode = { 'n', 'v' }, },
-      { '<leader>An', function() require('opencode').command('/new') end, desc = 'New session', },
-      { '<leader>Ae', function() require('opencode').prompt('Explain @cursor and its context') end, desc = 'Explain code near cursor' },
-      { '<leader>Ar', function() require('opencode').prompt('Review @file for correctness and readability') end, desc = 'Review file', },
-      { '<leader>Af', function() require('opencode').prompt('Fix these @diagnostics') end, desc = 'Fix errors', },
-      { '<leader>Ao', function() require('opencode').prompt('Optimize @selection for performance and readability') end, desc = 'Optimize selection', mode = 'v', },
-      { '<leader>Ad', function() require('opencode').prompt('Add documentation comments for @selection') end, desc = 'Document selection', mode = 'v', },
-      { '<leader>At', function() require('opencode').prompt('Add tests for @selection') end, desc = 'Test selection', mode = 'v', },
+      -- Your keymaps here
+      { "<C-;>", "<cmd>ClaudeCodeFocus<cr>", desc = "Claude Code", mode = { "n", "x", "t" } },
     },
   },
+  -- {
+  --   "greggh/claude-code.nvim",
+  --   dependencies = {
+  --     "nvim-lua/plenary.nvim", -- Required for git operations
+  --   },
+  --   config = function()
+  --     require("claude-code").setup({
+  --       window = {
+  --         position = "vertical",
+  --       },
+  --       keymaps = {
+  --         toggle = {
+  --           normal = "<C-;>",
+  --           terminal = "<C-;>",
+  --         },
+  --       },
+  --     })
+  --   end,
+  -- },
   -- {
   --   "folke/sidekick.nvim",
   --   opts = {
