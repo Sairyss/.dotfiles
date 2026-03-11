@@ -303,6 +303,74 @@ return {
         end,
         desc = "Terminal (Root Dir)",
       },
+      {
+        -- Custom: allows to pick all files that differ from master (like git diff but includes uncommited files too).
+        "<leader>gc",
+        function()
+          local git_root = vim.trim(vim.fn.system("git rev-parse --show-toplevel"))
+          if vim.v.shell_error ~= 0 then
+            vim.notify("Not a git repository", vim.log.levels.ERROR)
+            return
+          end
+
+          local base_commit = vim.trim(vim.fn.system("git merge-base master HEAD"))
+
+          local status_map = {}
+          local handle = io.popen(string.format("git -C %s status --porcelain --untracked-files=all", git_root))
+          if handle then
+            for line in handle:lines() do
+              local stat = line:sub(1, 2)
+              local file = line:sub(4):gsub('^"', ""):gsub('"$', "")
+              status_map[file] = stat
+            end
+            handle:close()
+          end
+
+          Snacks.picker.pick({
+            title = "Branch Changes",
+            finder = "proc",
+            cmd = "sh",
+            args = {
+              "-c",
+              string.format(
+                "{ git diff --name-only %s; git ls-files --others --exclude-standard; } | sort -u",
+                base_commit
+              ),
+            },
+            cwd = git_root,
+            -- Force the picker to use our sort and not re-rank based on fuzzy matching until the user types
+            matcher = { sort_empty = true },
+            sort = function(a, b)
+              -- Priority 1: Has local status (Active)
+              -- Priority 2: Committed branch changes (Historical)
+              local a_active = (a.status and a.status ~= "") and 1 or 2
+              local b_active = (b.status and b.status ~= "") and 1 or 2
+
+              if a_active ~= b_active then
+                return a_active < b_active
+              end
+              return a.text < b.text
+            end,
+            transform = function(item)
+              item.file = git_root .. "/" .. item.text
+              item.status = status_map[item.text]
+              return item
+            end,
+            preview = function(ctx)
+              local diff_cmd = { "git", "diff", base_commit, "--", ctx.item.text }
+              local stat = status_map[ctx.item.text] or ""
+              local is_untracked = stat:find("??", 1, true) ~= nil
+
+              if is_untracked then
+                Snacks.picker.preview.file(ctx)
+              else
+                Snacks.picker.preview.cmd(diff_cmd, ctx, { ft = "diff" })
+              end
+            end,
+          })
+        end,
+        desc = "Branch changes",
+      },
     },
   },
   {

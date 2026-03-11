@@ -222,6 +222,14 @@ return {
     "esmuellert/codediff.nvim",
     dependencies = { "MunifTanjim/nui.nvim" },
     cmd = "CodeDiff",
+    keys = {
+      {
+        "<leader>gC",
+        ":CodeDiff master<CR>",
+        desc = "CodeDiff master",
+        silent = true,
+      },
+    },
   },
   -- {
   --   "obsidian-nvim/obsidian.nvim",
