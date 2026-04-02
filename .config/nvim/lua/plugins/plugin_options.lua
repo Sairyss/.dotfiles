@@ -137,6 +137,31 @@ return {
     "folke/snacks.nvim",
     ---@type snacks.Config
     opts = {
+      lazygit = {
+        config = {
+          os = {
+            editPreset = "nvim-remote",
+            edit = 'sh -c \'nvr --nostart --servername "$NVIM" -c "lua require(\\"lazygit-edit\\").open(\\"{{filename}}\\")"\'',
+            editAtLine = 'sh -c \'nvr --nostart --servername "$NVIM" -c "lua require(\\"lazygit-edit\\").open(\\"{{filename}}\\", {{line}})"\'',
+            editInTerminal = false,
+          },
+        },
+        auto_close = false,
+        win = {
+          on_buf = function(self)
+            vim.api.nvim_create_autocmd("TermClose", {
+              buffer = self.buf,
+              once = true,
+              callback = function()
+                vim.schedule(function()
+                  self:close({ buf = true })
+                  vim.cmd.checktime()
+                end)
+              end,
+            })
+          end,
+        },
+      },
       zen = {
         toggles = {
           dim = false,
