@@ -168,7 +168,15 @@ return {
         },
       },
       picker = {
-        actions = require("trouble.sources.snacks").actions,
+        actions = {
+          -- lazy wrapper: avoids loading trouble+telescope at startup
+          trouble_open = {
+            action = function(picker, item)
+              require("trouble.sources.snacks").actions.trouble_open.action(picker, item)
+            end,
+            desc = "smart-open-with-trouble",
+          },
+        },
         win = {
           input = {
             keys = {

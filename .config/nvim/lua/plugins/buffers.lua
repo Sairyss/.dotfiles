@@ -50,7 +50,7 @@ return {
     dependencies = {
       { "nvim-tree/nvim-web-devicons", lazy = true },
     },
-    lazy = false,
+    event = "VeryLazy",
     opts = {
       -- scope = "tab_scope",
       icons = true,
@@ -60,7 +60,13 @@ return {
       scopes = {},
     },
     config = function(_, opts)
-      require("telescope").load_extension("grapple")
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "TelescopeLoaded",
+        once = true,
+        callback = function()
+          require("telescope").load_extension("grapple")
+        end,
+      })
       local grapple = require("grapple")
       grapple.setup(opts)
 
@@ -114,8 +120,9 @@ return {
           local root = vim.loop.cwd()
           local id = string.format("tab:%s:%d", root, tab_id)
           grapple.reset({ id = id, notify = false })
-          vim.wait(100)
-          grapple.delete_scope(id)
+          vim.defer_fn(function()
+            grapple.delete_scope(id)
+          end, 100)
         end,
       })
 

@@ -5,8 +5,8 @@ return {
     opts = {
       transparent = false,
       styles = {
-        sidebars = "transparent",
-        floats = "transparent",
+        sidebars = "dark",
+        floats = "dark",
       },
       style = "moon",
       on_colors = function(colors)

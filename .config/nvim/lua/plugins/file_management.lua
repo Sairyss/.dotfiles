@@ -28,7 +28,11 @@ return {
   },
   {
     "dmtrKovalenko/fff.nvim",
-    build = "cargo build --release",
+    build = function()
+      -- this will download prebuild binary or try to use existing rustup toolchain to build from source
+      -- (if you are using lazy you can use gb for rebuilding a plugin if needed)
+      require("fff.download").download_or_build_binary()
+    end,
     -- or if you are using nixos
     -- build = "nix run .#release",
     opts = {
@@ -50,5 +54,17 @@ return {
     -- 		desc = "Open file picker",
     -- 	},
     -- },
+  },
+  {
+    "2kabhishek/seeker.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    cmd = { "Seeker" },
+    keys = {
+      { "<leader>fs", ":Seeker files<CR>", desc = "Seek Files" },
+      -- { '<leader>ff', ':Seeker git_files<CR>', desc = 'Seek Git Files' },
+      -- { '<leader>fg', ':Seeker grep<CR>', desc = 'Seek Grep' },
+      -- { '<leader>fw', ':Seeker grep_word<CR>', desc = 'Seek Grep Word' },
+    },
+    opts = {}, -- Required unless you call seeker.setup() manually, add your configs here
   },
 }

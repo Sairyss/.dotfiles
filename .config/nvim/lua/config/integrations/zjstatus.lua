@@ -60,17 +60,9 @@ local function update_zellij_status_tabs()
   vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tabs::" .. message .. "'")
 end
 
--- check if zellij is active. if not we do not load the script
+-- check if zellij is active by env var (avoids blocking shell call on startup)
 local function has_current_zellij_session()
-  local handle = io.popen("zellij list-sessions")
-  if not handle then
-    return false
-  end
-
-  local output = handle:read("*a")
-  handle:close()
-
-  return output:match("%(current%)") ~= nil
+  return os.getenv("ZELLIJ") ~= nil
 end
 
 if show_tabs_on_zjstatus then
@@ -85,7 +77,7 @@ if show_tabs_on_zjstatus then
       "TermLeave",
       -- "WinEnter",
       -- "WinLeave",
-      "FocusGained",
+      -- "FocusGained", -- disabled: blocks UI thread on every focus (lazygit/picker close)
     }, {
       callback = function()
         vim.defer_fn(update_zellij_status_tabs, 0)

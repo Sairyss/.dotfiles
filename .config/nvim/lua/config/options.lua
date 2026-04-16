@@ -15,6 +15,14 @@ vim.api.nvim_create_autocmd("VimLeave", {
   command = "silent !zellij action switch-mode normal",
 })
 
+-- Use wl-clipboard on Wayland to avoid xsel BadWindow errors
+vim.g.clipboard = {
+  name = "wl-clipboard",
+  copy = { ["+"] = "wl-copy", ["*"] = "wl-copy --primary" },
+  paste = { ["+"] = "wl-paste --no-newline", ["*"] = "wl-paste --no-newline --primary" },
+  cache_enabled = 0,
+}
+
 ----- Performance improvements -----
 -- https://github.com/LazyVim/LazyVim/discussions/326
 
