@@ -114,6 +114,31 @@
   ;; Navigation
   mscrollup (mwheel-down 150 360)
   mscrolldown (mwheel-up 150 360)
+
+  ;; --- Typing layer (jk chord to enter) ---
+  L_typing   (layer-switch typing_layer)
+  L_typing_c (layer-switch typing_c_layer)
+  L_typing_s (layer-switch typing_s_layer)
+  L_typing_f (layer-switch typing_f_layer)
+  L_typing_e (layer-switch typing_e_layer)
+  L_typing_h (layer-switch typing_h_layer)
+  L_typing_w (layer-switch typing_w_layer)
+  L_typing_a (layer-switch typing_a_layer)
+  L_typing_u (layer-switch typing_u_layer)
+  L_typing_r (layer-switch typing_r_layer)
+  L_typing_i (layer-switch typing_i_layer)
+  L_typing_d (layer-switch typing_d_layer)
+  L_typing_l (layer-switch typing_l_layer)
+  L_typing_t (layer-switch typing_t_layer)
+  L_typing_g (layer-switch typing_g_layer)
+  L_typing_m (layer-switch typing_m_layer)
+  L_typing_b (layer-switch typing_b_layer)
+  L_typing_n (layer-switch typing_n_layer)
+  L_typing_q (layer-switch typing_q_layer)
+  L_typing_v (layer-switch typing_v_layer)
+  L_typing_p (layer-switch typing_p_layer)
+  L_typing_j (layer-switch typing_j_layer)
+  L_typing_o (layer-switch typing_o_layer)
 )
 
 ;; input chords. pressing key1 + key2 will trigger the action
@@ -122,7 +147,9 @@
   ;; (j k) @L_leader 50 first-release ()
   ;; (d f) @L_leader 50 first-release ()
   ;; (s d f) @L_leader 50 first-release ()
-  (n m) @L_norm 50 first-release ()
+  ;; (n m) @L_norm 50 first-release ()
+  (j k l) @L_norm 50 first-release ()
+  (j k) @L_typing 50 first-release ()
 
   ;; app chords
   (d f) @a_editor 25 first-release ()
@@ -131,8 +158,22 @@
   (v b) @a_chrome 50 first-release ()
 
   ;; key chords
-  (x c) esc 50 first-release () ;; escape easier to reach
+  ;; (x c) esc 50 first-release () ;; escape easier to reach
   ;; (d f) (multi lalt lctl) 50 first-release () ;; ctrl + alt on home row
+
+  ;; chords to type common words quickly
+  (u i)   (macro t h e spc)     50 first-release ()
+  (u i o) (macro t h a t spc)   50 first-release ()
+  (i o)   (macro t h i s spc)   50 first-release ()
+  (u o)   (macro t h e s e spc) 50 first-release ()
+  (m ,)   (macro a n d spc)     50 first-release ()
+  (a r)   (macro a r e spc)     50 first-release ()
+  (f o)   (macro f o r spc)     50 first-release ()
+  (y u)   (macro y o u spc)     50 first-release ()
+  (w a)   (macro w a s spc)     50 first-release ()
+  (w i)   (macro w i t h spc)   20 first-release ()
+  (w i l) (macro w i l l spc)   50 first-release ()
+  (m , .) (macro n o t spc)     50 first-release ()
 )
 
 (deflayermap (main)
@@ -647,6 +688,7 @@
 ;; utility layer for extra buttons
 (deflayermap (space_layer)
   lsft bspc
+  esc (macro C-bspc) ;; delete last word
 )
 
 (deflayermap (shift_layer)
@@ -704,3 +746,301 @@
 
   ___ XX
 )
+
+;; ============================================================
+;; TYPING LAYER — jk chord to enter, esc/' to exit anytime
+;; Commands: double-tap (cc=create, ss=search, ...)
+;; Nouns: two-letter combo (fn=function, co=code, ...)
+;; First keypress always enters a sub-layer to disambiguate.
+;; ============================================================
+
+(deflayermap (typing_layer)
+  esc @L_main
+  ' @L_main
+  c @L_typing_c
+  s @L_typing_s
+  f @L_typing_f
+  e @L_typing_e
+  h @L_typing_h
+  w @L_typing_w
+  a @L_typing_a
+  u @L_typing_u
+  r @L_typing_r
+  i @L_typing_i
+  d @L_typing_d
+  l @L_typing_l
+  t @L_typing_t
+  g @L_typing_g
+  m @L_typing_m
+  b @L_typing_b
+  n @L_typing_n
+  q @L_typing_q
+  v @L_typing_v
+  p @L_typing_p
+  j @L_typing_j
+  o @L_typing_o
+  ___ (multi use-defsrc @L_main)
+)
+
+;; Each sub-layer: double-tap = command, other key = noun, esc/' = exit
+
+;; c: cc=create, cr=create, ch=change, cd=claude | co=code, cl=class, cm=component, cp=copy, cf=config, cx=context, ca=cache
+(deflayermap (typing_c_layer)
+  esc @L_main
+  ' @L_main
+  c (multi (macro c r e a t e spc)       @L_main)
+  r (multi (macro c r e a t e spc)       @L_main)
+  h (multi (macro c h a n g e spc)       @L_main)
+  o (multi (macro c o d e spc)           @L_main)
+  l (multi (macro c l a s s spc)         @L_main)
+  m (multi (macro c o m p o n e n t spc) @L_main)
+  p (multi (macro c o p y spc)           @L_main)
+  d (multi (macro c l a u d e spc)       @L_main)
+  f (multi (macro c o n f i g spc)       @L_main)
+  x (multi (macro c o n t e x t spc)     @L_main)
+  a (multi (macro c a c h e spc)         @L_main)
+  ___ @L_typing
+)
+
+;; s: ss=search | se=service, sc=schema, st=state, sp=scope, sr=struct, sl=select, si=string
+(deflayermap (typing_s_layer)
+  esc @L_main
+  ' @L_main
+  s (multi (macro s e a r c h spc) @L_main)
+  e (multi (macro s e r v i c e spc) @L_main)
+  c (multi (macro s c h e m a spc)   @L_main)
+  t (multi (macro s t a t e spc)     @L_main)
+  p (multi (macro s c o p e spc)     @L_main)
+  r (multi (macro s t r u c t spc)   @L_main)
+  l (multi (macro s e l e c t spc)   @L_main)
+  i (multi (macro s t r i n g spc)   @L_main)
+  ___ @L_typing
+)
+
+;; f: ff=find, fd=find | fn=function, fy=functionality, fi=file, fe=fetch, fo=format
+(deflayermap (typing_f_layer)
+  esc @L_main
+  ' @L_main
+  f (multi (macro f i n d spc)                   @L_main)
+  d (multi (macro f i n d spc)                   @L_main)
+  n (multi (macro f u n c t i o n spc)           @L_main)
+  y (multi (macro f u n c t i o n a l i t y spc) @L_main)
+  i (multi (macro f i l e spc)                   @L_main)
+  e (multi (macro f e t c h spc)                 @L_main)
+  o (multi (macro f o r m a t spc)               @L_main)
+  ___ @L_typing
+)
+
+;; e: ee=explain, ex=explain (skip: ex=export conflict) | ev=event, ep=endpoint, ex=export, er=error
+(deflayermap (typing_e_layer)
+  esc @L_main
+  ' @L_main
+  e (multi (macro e x p l a i n spc)  @L_main)
+  v (multi (macro e v e n t spc)       @L_main)
+  p (multi (macro e n d p o i n t spc) @L_main)
+  x (multi (macro e x p o r t spc)     @L_main)
+  r (multi (macro e r r o r spc)       @L_main)
+  ___ @L_typing
+)
+
+;; h: hh=help, he=help, hm=help me, ht=how to | ha=handler
+(deflayermap (typing_h_layer)
+  esc @L_main
+  ' @L_main
+  h (multi (macro h e l p spc)               @L_main)
+  e (multi (macro h e l p spc)               @L_main)
+  m (multi (macro h e l p spc m e spc)       @L_main)
+  t (multi (macro h o w spc t o spc)         @L_main)
+  a (multi (macro h a n d l e r spc)         @L_main)
+  ___ @L_typing
+)
+
+;; w: ww=what, wh=what | wf=workflow
+(deflayermap (typing_w_layer)
+  esc @L_main
+  ' @L_main
+  w (multi (macro w h a t spc)         @L_main)
+  h (multi (macro w h a t spc)         @L_main)
+  f (multi (macro w o r k f l o w spc) @L_main)
+  ___ @L_typing
+)
+
+;; a: aa=add | ar=argument, at=attribute, ac=action, ag=agent, ap=api, au=auth
+(deflayermap (typing_a_layer)
+  esc @L_main
+  ' @L_main
+  a (multi (macro a d d spc) @L_main)
+  r (multi (macro a r g u m e n t spc)   @L_main)
+  t (multi (macro a t t r i b u t e spc) @L_main)
+  c (multi (macro a c t i o n spc)       @L_main)
+  g (multi (macro a g e n t spc)         @L_main)
+  p (multi (macro a p i spc)             @L_main)
+  u (multi (macro a u t h spc)           @L_main)
+  ___ @L_typing
+)
+
+;; u: uu=update, un=undo, up=update
+(deflayermap (typing_u_layer)
+  esc @L_main
+  ' @L_main
+  u (multi (macro u p d a t e spc) @L_main)
+  n (multi (macro u n d o spc)     @L_main)
+  p (multi (macro u p d a t e spc) @L_main)
+  ___ @L_typing
+)
+
+;; r: rr=refactor, re=return | rs=resolver, ro=route, rq=request, rp=response
+(deflayermap (typing_r_layer)
+  esc @L_main
+  ' @L_main
+  r (multi (macro r e f a c t o r spc) @L_main)
+  e (multi (macro r e t u r n spc)     @L_main)
+  s (multi (macro r e s o l v e r spc) @L_main)
+  o (multi (macro r o u t e spc)       @L_main)
+  q (multi (macro r e q u e s t spc)   @L_main)
+  p (multi (macro r e s p o n s e spc) @L_main)
+  ___ @L_typing
+)
+
+;; i: ii=implement | ix=index, in=interface, im=import
+(deflayermap (typing_i_layer)
+  esc @L_main
+  ' @L_main
+  i (multi (macro i m p l e m e n t spc) @L_main)
+  x (multi (macro i n d e x spc)         @L_main)
+  n (multi (macro i n t e r f a c e spc) @L_main)
+  m (multi (macro i m p o r t spc)       @L_main)
+  ___ @L_typing
+)
+
+;; d: dd=delete, de=delete | db=database, dc=decorator, dp=dependency
+(deflayermap (typing_d_layer)
+  esc @L_main
+  ' @L_main
+  d (multi (macro d e l e t e spc) @L_main)
+  e (multi (macro d e l e t e spc)          @L_main)
+  b (multi (macro d a t a b a s e spc)      @L_main)
+  c (multi (macro d e c o r a t o r spc)    @L_main)
+  p (multi (macro d e p e n d e n c y spc)  @L_main)
+  ___ @L_typing
+)
+
+;; l: ll=list | li=library, la=layer
+(deflayermap (typing_l_layer)
+  esc @L_main
+  ' @L_main
+  l (multi (macro l i s t spc) @L_main)
+  i (multi (macro l i b r a r y spc) @L_main)
+  a (multi (macro l a y e r spc)     @L_main)
+  ___ @L_typing
+)
+
+;; t: tt=test | ty=type, te=template, tr=trait, ts=typescript, tk=thanks
+(deflayermap (typing_t_layer)
+  esc @L_main
+  ' @L_main
+  t (multi (macro t e s t spc)             @L_main)
+  y (multi (macro t y p e spc)             @L_main)
+  e (multi (macro t e m p l a t e spc)     @L_main)
+  r (multi (macro t r a i t spc)           @L_main)
+  s (multi (macro t y p e s c r i p t spc) @L_main)
+  k (multi (macro t h a n k s spc)         @L_main)
+  ___ @L_typing
+)
+
+;; j: js=javascript, jn=json
+(deflayermap (typing_j_layer)
+  esc @L_main
+  ' @L_main
+  s (multi (macro j a v a s c r i p t spc) @L_main)
+  n (multi (macro j s o n spc)             @L_main)
+  ___ @L_typing
+)
+
+;; g: gg=generate (no nouns start with g)
+(deflayermap (typing_g_layer)
+  esc @L_main
+  ' @L_main
+  g (multi (macro g e n e r a t e spc) @L_main)
+  ___ @L_typing
+)
+
+;; m: mm=modify | me=method, mo=module, md=markdown, ml=model, mg=migration, mw=middleware
+(deflayermap (typing_m_layer)
+  esc @L_main
+  ' @L_main
+  m (multi (macro m o d i f y spc) @L_main)
+  e (multi (macro m e t h o d spc)         @L_main)
+  o (multi (macro m o d u l e spc)         @L_main)
+  d (multi (macro m a r k d o w n spc)     @L_main)
+  l (multi (macro m o d e l spc)           @L_main)
+  g (multi (macro m i g r a t i o n spc)   @L_main)
+  w (multi (macro m i d d l e w a r e spc) @L_main)
+  ___ @L_typing
+)
+
+;; b: bb=debug | bg=bug, bl=boolean
+(deflayermap (typing_b_layer)
+  esc @L_main
+  ' @L_main
+  b (multi (macro d e b u g spc)     @L_main)
+  g (multi (macro b u g spc)         @L_main)
+  l (multi (macro b o o l e a n spc) @L_main)
+  ___ @L_typing
+)
+
+;; n: nn=navigate, na=navigate | nd=node, nu=number
+(deflayermap (typing_n_layer)
+  esc @L_main
+  ' @L_main
+  n (multi (macro n a v i g a t e spc) @L_main)
+  a (multi (macro n a v i g a t e spc) @L_main)
+  d (multi (macro n o d e spc)         @L_main)
+  u (multi (macro n u m b e r spc)     @L_main)
+  ___ @L_typing
+)
+
+;; q: qq=query | qu=queue
+(deflayermap (typing_q_layer)
+  esc @L_main
+  ' @L_main
+  q (multi (macro q u e r y spc) @L_main)
+  u (multi (macro q u e u e spc) @L_main)
+  ___ @L_typing
+)
+
+;; v: vv=verify, ve=verify | vl=variable, vi=view, va=validate
+(deflayermap (typing_v_layer)
+  esc @L_main
+  ' @L_main
+  v (multi (macro v e r i f y spc)     @L_main)
+  e (multi (macro v e r i f y spc)     @L_main)
+  l (multi (macro v a r i a b l e spc) @L_main)
+  i (multi (macro v i e w spc)         @L_main)
+  a (multi (macro v a l i d a t e spc) @L_main)
+  ___ @L_typing
+)
+
+;; p: pp=print | pr=project, pj=projection, py=python, pk=package, pm=parameter, pi=pipeline
+(deflayermap (typing_p_layer)
+  esc @L_main
+  ' @L_main
+  p (multi (macro p r i n t spc)           @L_main)
+  r (multi (macro p r o j e c t spc)       @L_main)
+  j (multi (macro p r o j e c t i o n spc) @L_main)
+  y (multi (macro p y t h o n spc)         @L_main)
+  k (multi (macro p a c k a g e spc)       @L_main)
+  m (multi (macro p a r a m e t e r spc)   @L_main)
+  i (multi (macro p i p e l i n e spc)     @L_main)
+  ___ @L_typing
+)
+
+;; o: ou=output, ob=object
+(deflayermap (typing_o_layer)
+  esc @L_main
+  ' @L_main
+  u (multi (macro o u t p u t spc) @L_main)
+  b (multi (macro o b j e c t spc) @L_main)
+  ___ @L_typing
+)
+

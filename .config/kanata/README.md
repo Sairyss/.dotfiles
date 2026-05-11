@@ -132,6 +132,18 @@ For example you can press `1+2`, `1+2+3`, or `a+b`, etc. I use it to switch betw
 
 It's more convenient than `mod+key` combinations that I previously used for this.
 
+#### Common phrase chords
+
+We can simulate convenient stenography techniques and map some common words/phrases to chords.
+For example, pressing `y+u` to type "you " (3 letters + 1 space with just 1 press).
+Common words can include "and", "that", "than", "when", etc.
+
+It is also convenient having a layer with common programming words.
+For example `j+k` chord to enter a layer, then pressing `fn` (like in vim) would type
+a word "function", or pressing `fy` will type "functionality", `cl` - "class", and so on.
+
+Cheak the cheatsheet for more info: [typing-cheatsheet.md](./typing-cheatsheet.md)
+
 ## Apps and plugins
 
 Below are some apps and plugins that support vim motions.
