@@ -163,17 +163,18 @@
 
   ;; chords to type common words quickly
   (u i)   (macro t h e spc)     50 first-release ()
-  (u i o) (macro t h a t spc)   50 first-release ()
-  (i o)   (macro t h i s spc)   50 first-release ()
+  (u i o) (macro t h i s spc)   50 first-release ()
   (u o)   (macro t h e s e spc) 50 first-release ()
   (m ,)   (macro a n d spc)     50 first-release ()
-  (a r)   (macro a r e spc)     50 first-release ()
-  (f o)   (macro f o r spc)     50 first-release ()
   (y u)   (macro y o u spc)     50 first-release ()
   (w a)   (macro w a s spc)     50 first-release ()
-  (w i)   (macro w i t h spc)   20 first-release ()
-  (w i l) (macro w i l l spc)   50 first-release ()
   (m , .) (macro n o t spc)     50 first-release ()
+
+  ;; disabled below (too many accidental presses)
+  ;; (i o)   (macro t h a t spc)   50 first-release ()
+  ;; (a r)   (macro a r e spc)     50 first-release ()
+  ;; (f o)   (macro f o r spc)     50 first-release ()
+  ;; (w i)   (macro w i t h spc)   20 first-release ()
 )
 
 (deflayermap (main)

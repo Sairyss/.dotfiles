@@ -2,20 +2,15 @@
 
 ## Steno chords (always active)
 
-| Chord         | Word     |
-| ------------- | -------- |
-| `u` + `i`     | `the`    |
-| `u`+`i`+`o`   | `that`   |
-| `i` + `o`     | `this`   |
-| `u` + `o`     | `these`  |
-| `m` + `,`     | `and`    |
-| `f` + `o`     | `for`    |
-| `a` + `r`     | `are`    |
-| `y` + `u`     | `you`    |
-| `w` + `a`     | `was`    |
-| `w` + `i`     | `with`   |
-| `w`+`i`+`l`   | `will`   |
-| `m`+`,`+`.`   | `not`    |
+| Chord       | Word    |
+| ----------- | ------- |
+| `u` + `i`   | `the`   |
+| `u`+`i`+`o` | `this`  |
+| `u` + `o`   | `these` |
+| `m` + `,`   | `and`   |
+| `y` + `u`   | `you`   |
+| `w` + `a`   | `was`   |
+| `m`+`,`+`.` | `not`   |
 
 ---
 
