@@ -26,6 +26,82 @@ return {
       -- Diff management
       { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
       { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny diff" },
+      {
+        "<leader>an",
+        function()
+          vim.cmd("enew")
+          vim.bo.filetype = "markdown"
+        end,
+        mode = "n",
+        desc = "New markdown buffer",
+      },
+      {
+        "<leader>aB",
+        function()
+          local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+          local text = table.concat(lines, "\n")
+          local term = require("claudecode.terminal")
+          local bufnr = term.get_active_terminal_bufnr and term.get_active_terminal_bufnr()
+          if not bufnr or not vim.api.nvim_buf_is_valid(bufnr) then
+            vim.notify("Claude terminal not open", vim.log.levels.WARN)
+            return
+          end
+          local chan = vim.bo[bufnr].channel
+          if not chan or chan == 0 then
+            vim.notify("Claude terminal channel not found", vim.log.levels.WARN)
+            return
+          end
+          vim.fn.chansend(chan, text)
+        end,
+        mode = "n",
+        desc = "Send buffer contents to Claude",
+      },
+      {
+        "<leader>aS",
+        function()
+          -- Capture selection while still in visual mode (marks are live here)
+          local s = vim.fn.line("v")
+          local e = vim.fn.line(".")
+          local cs = vim.fn.col("v")
+          local ce = vim.fn.col(".")
+          local vmode = vim.fn.mode()
+          local bufnr = vim.api.nvim_get_current_buf()
+
+          -- Normalize order
+          if s > e or (s == e and cs > ce) then
+            s, e, cs, ce = e, s, ce, cs
+          end
+
+          local lines = vim.api.nvim_buf_get_lines(bufnr, s - 1, e, false)
+          if #lines == 0 then
+            return
+          end
+          if vmode == "v" then
+            lines[#lines] = lines[#lines]:sub(1, ce)
+            lines[1] = lines[1]:sub(cs)
+          end
+          local text = table.concat(lines, "\n")
+
+          -- Exit visual mode, then send
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+          vim.schedule(function()
+            local term = require("claudecode.terminal")
+            local tbufnr = term.get_active_terminal_bufnr and term.get_active_terminal_bufnr()
+            if not tbufnr or not vim.api.nvim_buf_is_valid(tbufnr) then
+              vim.notify("Claude terminal not open", vim.log.levels.WARN)
+              return
+            end
+            local chan = vim.bo[tbufnr].channel
+            if not chan or chan == 0 then
+              vim.notify("Claude terminal channel not found", vim.log.levels.WARN)
+              return
+            end
+            vim.fn.chansend(chan, text)
+          end)
+        end,
+        mode = "v",
+        desc = "Send raw selected text to Claude",
+      },
     },
   },
   -- {

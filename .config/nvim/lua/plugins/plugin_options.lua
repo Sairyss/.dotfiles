@@ -176,12 +176,44 @@ return {
             end,
             desc = "smart-open-with-trouble",
           },
+          copy_file_path = {
+            action = function(_, item)
+              local path = item and (item.file or item.text)
+              if path then
+                vim.fn.setreg("+", path)
+                vim.fn.setreg('"', path)
+                Snacks.notify(path, { title = "Path copied" })
+              end
+            end,
+            desc = "Copy file path to clipboard",
+          },
+          insert_file_path = {
+            action = function(picker, item)
+              local path = item and (item.file or item.text)
+              if not path then
+                return
+              end
+              picker:close()
+              vim.schedule(function()
+                vim.api.nvim_put({ "@" .. path }, "c", true, true)
+              end)
+            end,
+            desc = "Insert @path into buffer",
+          },
         },
         win = {
           input = {
             keys = {
               ["<c-t>"] = {
                 "trouble_open",
+                mode = { "n", "i" },
+              },
+              ["<c-y>"] = {
+                "copy_file_path",
+                mode = { "n", "i" },
+              },
+              ["<c-p>"] = {
+                "insert_file_path",
                 mode = { "n", "i" },
               },
             },
