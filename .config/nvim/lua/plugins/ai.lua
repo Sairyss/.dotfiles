@@ -57,6 +57,42 @@ return {
         desc = "Send buffer contents to Claude",
       },
       {
+        "<leader>aY",
+        function()
+          local s = vim.fn.line("v")
+          local e = vim.fn.line(".")
+          if s > e then
+            s, e = e, s
+          end
+          local path = vim.fn.expand("%:p")
+          local ref = "@" .. path .. "#L" .. s .. "-" .. e
+          vim.fn.setreg("+", ref)
+          vim.fn.setreg('"', ref)
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+          vim.notify("Copied: " .. ref, vim.log.levels.INFO)
+        end,
+        mode = "v",
+        desc = "Copy file reference with full path and line numbers",
+      },
+      {
+        "<leader>ay",
+        function()
+          local s = vim.fn.line("v")
+          local e = vim.fn.line(".")
+          if s > e then
+            s, e = e, s
+          end
+          local path = vim.fn.expand("%:.")
+          local ref = "@" .. path .. "#L" .. s .. "-" .. e
+          vim.fn.setreg("+", ref)
+          vim.fn.setreg('"', ref)
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+          vim.notify("Copied: " .. ref, vim.log.levels.INFO)
+        end,
+        mode = "v",
+        desc = "Copy file reference with line numbers",
+      },
+      {
         "<leader>aS",
         function()
           -- Capture selection while still in visual mode (marks are live here)

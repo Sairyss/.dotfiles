@@ -66,6 +66,33 @@ return {
           visible = true,
         },
       },
+      window = {
+        mappings = {
+          ["<C-y>"] = {
+            function(state)
+              local node = state.tree:get_node()
+              local path = node:get_id()
+              local rel = vim.fn.fnamemodify(path, ":.")
+              vim.fn.setreg("+", rel)
+              vim.fn.setreg('"', rel)
+              Snacks.notify(rel, { title = "Path copied" })
+            end,
+            desc = "Copy relative path to clipboard",
+          },
+          ["<C-p>"] = {
+            function(state)
+              local node = state.tree:get_node()
+              local path = node:get_id()
+              local rel = vim.fn.fnamemodify(path, ":.")
+              vim.cmd("wincmd p")
+              vim.schedule(function()
+                vim.api.nvim_put({ "@" .. rel }, "c", true, true)
+              end)
+            end,
+            desc = "Insert @path into buffer",
+          },
+        },
+      },
     },
   },
   {
@@ -180,9 +207,10 @@ return {
             action = function(_, item)
               local path = item and (item.file or item.text)
               if path then
-                vim.fn.setreg("+", path)
-                vim.fn.setreg('"', path)
-                Snacks.notify(path, { title = "Path copied" })
+                local rel = vim.fn.fnamemodify(path, ":.")
+                vim.fn.setreg("+", rel)
+                vim.fn.setreg('"', rel)
+                Snacks.notify(rel, { title = "Path copied" })
               end
             end,
             desc = "Copy file path to clipboard",
@@ -193,9 +221,10 @@ return {
               if not path then
                 return
               end
+              local rel = vim.fn.fnamemodify(path, ":.")
               picker:close()
               vim.schedule(function()
-                vim.api.nvim_put({ "@" .. path }, "c", true, true)
+                vim.api.nvim_put({ "@" .. rel }, "c", true, true)
               end)
             end,
             desc = "Insert @path into buffer",
