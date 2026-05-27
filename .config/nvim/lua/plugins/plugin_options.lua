@@ -195,6 +195,30 @@ return {
         },
       },
       picker = {
+        layouts = {
+          telescope = {
+            reverse = false,
+            layout = {
+              box = "horizontal",
+              backdrop = false,
+              width = 0.8,
+              height = 0.9,
+              border = "none",
+              {
+                box = "vertical",
+                { win = "input", height = 1, border = true, title = "{title} {live} {flags}", title_pos = "center" },
+                { win = "list", title = " Results ", title_pos = "center", border = true },
+              },
+              {
+                win = "preview",
+                title = "{preview:Preview}",
+                width = 0.45,
+                border = true,
+                title_pos = "center",
+              },
+            },
+          },
+        },
         actions = {
           -- lazy wrapper: avoids loading trouble+telescope at startup
           trouble_open = {
