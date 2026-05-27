@@ -31,7 +31,7 @@ return {
       update_mode = "manual",
     },
     keys = {
-      { "<leader>cK", "<cmd>DocsViewToggle<cr><cmd>DocsViewUpdate<cr>", desc = "Search Api Doc" },
+      { "<leader>cK", "<cmd>DocsViewToggle<cr><cmd>DocsViewUpdate<cr>", desc = "LSP Docs Preview" },
     },
   },
 }

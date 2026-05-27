@@ -51,4 +51,11 @@ return {
       { "<C-S-k>", "<cmd>Treewalker SwapUp<cr>", silent = true, mode = { "n" } },
     },
   },
+  {
+    "error311/wayfinder.nvim",
+    opts = {},
+    keys = {
+      { "gw", "<cmd>Wayfinder<cr>", silent = true, mode = { "n" } },
+    },
+  },
 }
