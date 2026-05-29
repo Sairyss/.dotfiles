@@ -222,11 +222,31 @@ return {
     "esmuellert/codediff.nvim",
     dependencies = { "MunifTanjim/nui.nvim" },
     cmd = "CodeDiff",
+    opts = {
+      keymaps = {
+        view = {
+          next_hunk = "]h", -- Jump to next change
+          prev_hunk = "[h", -- Jump to previous change
+        },
+      },
+    },
     keys = {
       {
         "<leader>gC",
         ":CodeDiff master<CR>",
         desc = "CodeDiff master",
+        silent = true,
+      },
+      {
+        "<leader>gF",
+        ":CodeDiff file master HEAD<CR>",
+        desc = "CodeDiff file master",
+        silent = true,
+      },
+      {
+        "<leader>gH",
+        ":CodeDiff history<CR>",
+        desc = "CodeDiff history",
         silent = true,
       },
     },

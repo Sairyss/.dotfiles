@@ -140,6 +140,50 @@ return {
       },
     },
   },
+  {
+    "olimorris/codecompanion.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = {
+      -- NOTE: The log_level is in `opts.opts`
+      opts = {
+        log_level = "DEBUG", -- or "TRACE"
+      },
+    },
+    config = function()
+      require("codecompanion").setup({
+        adapters = {
+          claude_code = function()
+            return require("codecompanion.adapters").extend("claude_code", {
+              schema = {
+                model = {
+                  default = "claude-sonnet-4-6",
+                },
+              },
+            })
+          end,
+        },
+        display = {
+          chat = {
+            window = {
+              width = 0.40,
+            },
+          },
+        },
+        strategies = {
+          chat = { adapter = "claude_code" },
+          inline = { adapter = "claude_code" },
+          agent = { adapter = "claude_code" },
+        },
+      })
+    end,
+    keys = {
+      { "<C-p>", "<cmd>CodeCompanionChat Toggle<cr>", mode = { "n" }, desc = "Toggle CodeCompanion" },
+      { "<leader>ap", "<cmd>CodeCompanionActions<cr>", mode = { "n" }, desc = "CodeCompanion Actions" },
+    },
+  },
   -- {
   --   "zbirenbaum/copilot.lua",
   --   enabled = false,
