@@ -149,26 +149,26 @@
   ;; (s d f) @L_leader 50 first-release ()
   ;; (n m) @L_norm 50 first-release ()
   (j k l) @L_norm 50 first-release ()
-  (j k) @L_typing 50 first-release ()
+  ;; (j k) @L_typing 50 first-release ()
 
   ;; app chords
   (d f) @a_editor 25 first-release ()
   (c v) @a_terminal 25 first-release ()
-  (f g) @a_firefox 50 first-release ()
-  (v b) @a_chrome 50 first-release ()
+  ;; (f g) @a_firefox 50 first-release ()
+  ;; (v b) @a_chrome 50 first-release ()
 
   ;; key chords
   ;; (x c) esc 50 first-release () ;; escape easier to reach
   ;; (d f) (multi lalt lctl) 50 first-release () ;; ctrl + alt on home row
 
   ;; chords to type common words quickly
-  (u i)   (macro t h e spc)     50 first-release ()
-  (u i o) (macro t h i s spc)   50 first-release ()
-  (u o)   (macro t h e s e spc) 50 first-release ()
-  (m ,)   (macro a n d spc)     50 first-release ()
-  (y u)   (macro y o u spc)     50 first-release ()
-  (w a)   (macro w a s spc)     50 first-release ()
-  (m , .) (macro n o t spc)     50 first-release ()
+  ;; (u i)   (macro t h e spc)     50 first-release ()
+  ;; (u i o) (macro t h i s spc)   50 first-release ()
+  ;; (u o)   (macro t h e s e spc) 50 first-release ()
+  ;; (m ,)   (macro a n d spc)     50 first-release ()
+  ;; (y u)   (macro y o u spc)     50 first-release ()
+  ;; (w a)   (macro w a s spc)     50 first-release ()
+  ;; (m , .) (macro n o t spc)     50 first-release ()
 
   ;; disabled below (too many accidental presses)
   ;; (i o)   (macro t h a t spc)   50 first-release ()
@@ -192,14 +192,14 @@
   ;; -- Home row mods -- 
   ;; left hand
   f @L_f_ctrl_tog
-  , @L_,_ctrl_tog
   d @L_d_alt_tog
-  m @L_m_alt_tog
-  c @L_c_numbers_tog
+  ;; c @L_c_numbers_tog
   s @L_s_navigation_tog
 
   ;; right hand
   ;; j @L_j_ctrl_tog
+  ;; , @L_,_ctrl_tog
+  ;; m @L_m_alt_tog
 )
 
 (deflayermap (leader)
@@ -629,8 +629,8 @@
   i -
   o S--
   
-  h '
-  j S-'  ;; "
+  j '
+  h S-'  ;; "
   k `
   l S-`  ;; ~
   ; S-\  ;; |
@@ -666,17 +666,21 @@
 
 ;; utility layer for navigation
 (deflayermap (navigation)
-  ;; scroll neovim search history
   h left
   l right
   k up
   j down
+
+  f end
+  d home
+
+  ;; useful for things like scrolling neovim search history with C-up/down
   , C-up
   m C-down
   . C-right
   n C-left
 
-  ;; switch zellij tabs
+  ;; useful for things like switching zellij tabs
   y C-1
   u C-2
   i C-3
