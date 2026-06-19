@@ -280,6 +280,30 @@ keybinds clear-defaults=true {
                 height "1%"
             }
         }
+        bind "Ctrl Alt left" {
+            MoveFocusOrTab "left"
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
+        bind "Ctrl Alt right" {
+            MoveFocusOrTab "right"
+            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
+                floating true
+                hold_on_close false
+                close_on_exit true
+                x "1%"
+                y "1%"
+                width "1%"
+                height "1%"
+            }
+        }
     }
     shared_except "locked" {
         bind "Alt left" { MoveFocusOrTab "left"; }
@@ -404,7 +428,7 @@ plugins {
         is_enabled true
         print_to_log false
         reaction_seconds "0.3"
-        triggers "nvim|vim|git|fzf|zoxide|atuin|tv"
+        triggers "nvim|vim|git|fzf|zoxide|atuin|tv|claude|herdr"
     }
     compact-bar location="zellij:compact-bar"
     configuration location="zellij:configuration"
