@@ -1,0 +1,150 @@
+// Tokyo Night (Moon variant) for Zellij 0.44 component-based theming.
+// Matches the neovim config: bg overridden to #1e2030, accent #04d1f9.
+// Styles the compact-bar tab ribbons, mode indicator and pane frames.
+// Palette (Moon):
+//   bg #1e2030  bg_dark #1b1d2b  bg_highlight #2f334d  terminal_black #444a73
+//   fg #c8d3f5  comment #636da6  accent #04d1f9 (atomic blue)
+//   blue #82aaff  cyan #86e1fc  green #c3e88d  magenta #c099ff
+//   red #ff757f  orange #ff966c  yellow #ffc777
+themes {
+    tokyonight-moon {
+        // --- text styles ---
+        text_unselected {
+            base 200 211 245     // fg #c8d3f5
+            background 30 32 48  // bg #1e2030
+            emphasis_0 255 150 108 // orange
+            emphasis_1 130 170 255 // blue
+            emphasis_2 195 232 141 // green
+            emphasis_3 192 153 255 // magenta
+        }
+        text_selected {
+            base 200 211 245
+            background 47 51 77  // bg_highlight #2f334d
+            emphasis_0 255 150 108
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+
+        // --- inactive tab ribbon (unselected) ---
+        ribbon_unselected {
+            base 200 211 245     // fg
+            background 47 51 77  // bg_highlight
+            emphasis_0 255 117 127 // red
+            emphasis_1 255 150 108 // orange
+            emphasis_2 195 232 141 // green
+            emphasis_3 130 170 255 // blue
+        }
+        // --- active tab ribbon (selected) -> atomic blue accent (#04d1f9) ---
+        ribbon_selected {
+            base 30 32 48          // bg #1e2030 (dark text on bright pill)
+            background 4 209 249   // atomic blue #04d1f9
+            emphasis_0 255 117 127 // red
+            emphasis_1 30 32 48    // bg
+            emphasis_2 192 153 255 // magenta
+            emphasis_3 255 150 108 // orange
+        }
+
+        // --- table / plugin lists (session-manager etc.) ---
+        table_title {
+            base 4 209 249
+            background 0
+            emphasis_0 255 150 108
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+        table_cell_unselected {
+            base 200 211 245
+            background 30 32 48
+            emphasis_0 255 150 108
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+        table_cell_selected {
+            base 200 211 245
+            background 47 51 77
+            emphasis_0 255 150 108
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+
+        // --- lists ---
+        list_unselected {
+            base 200 211 245
+            background 30 32 48
+            emphasis_0 255 150 108
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+        list_selected {
+            base 200 211 245
+            background 47 51 77
+            emphasis_0 255 150 108
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+
+        // --- pane frames ---
+        frame_unselected {
+            base 68 74 115        // terminal_black #444a73
+            background 30 32 48
+            emphasis_0 255 150 108
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+        frame_selected {
+            base 4 209 249        // atomic blue #04d1f9 (matches nvim border accent)
+            background 0
+            emphasis_0 255 199 119 // yellow
+            emphasis_1 4 209 249
+            emphasis_2 134 225 252 // cyan
+            emphasis_3 192 153 255
+        }
+        frame_highlight {
+            base 255 150 108      // orange
+            background 0
+            emphasis_0 255 150 108
+            emphasis_1 255 117 127
+            emphasis_2 255 150 108
+            emphasis_3 255 117 127
+        }
+
+        // --- exit code indicators ---
+        exit_code_success {
+            base 195 232 141      // green
+            background 0
+            emphasis_0 134 225 252
+            emphasis_1 130 170 255
+            emphasis_2 195 232 141
+            emphasis_3 192 153 255
+        }
+        exit_code_error {
+            base 255 117 127      // red
+            background 0
+            emphasis_0 255 199 119
+            emphasis_1 255 117 127
+            emphasis_2 255 199 119
+            emphasis_3 255 117 127
+        }
+
+        // multiplayer user cursor colors
+        multiplayer_user_colors {
+            player_1 130 170 255
+            player_2 255 150 108
+            player_3 0
+            player_4 192 153 255
+            player_5 134 225 252
+            player_6 0
+            player_7 255 117 127
+            player_8 0
+            player_9 0
+            player_10 0
+        }
+    }
+}

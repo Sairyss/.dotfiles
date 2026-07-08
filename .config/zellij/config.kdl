@@ -198,111 +198,30 @@ keybinds clear-defaults=true {
     shared {
         bind "Ctrl 1" {
             GoToTab 1
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl 2" {
             GoToTab 2
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl 3" {
             GoToTab 3
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl 4" {
             GoToTab 4
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl 5" {
             GoToTab 5
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl Alt h" {
             MoveFocusOrTab "left"
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl Alt l" {
             MoveFocusOrTab "right"
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl Alt left" {
             MoveFocusOrTab "left"
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
         bind "Ctrl Alt right" {
             MoveFocusOrTab "right"
-            Run "bash" "-c" "~/.dotfiles/.config/zellij/scripts/clear-zjstatus.sh" {
-                floating true
-                hold_on_close false
-                close_on_exit true
-                x "1%"
-                y "1%"
-                width "1%"
-                height "1%"
-            }
         }
     }
     shared_except "locked" {
@@ -459,13 +378,21 @@ web_client {
 // Options:
 //   - true
 //   - false (Default)
-// 
+//
 // simplified_ui true
  
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
-theme "catppuccin-macchiato"
+theme "tokyonight-moon"
+
+// Soften pane frame corners; hide the session name in the tab bar
+ui {
+    pane_frames {
+        rounded_corners true
+        // hide_session_name true
+    }
+}
  
 // Choose the base input mode of zellij.
 // Default: normal
