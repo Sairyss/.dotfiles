@@ -1,48 +1,48 @@
 -- integrate grapple.nvim with zellij status bar (zjstatus)
-local function update_zellij_status_grapple_buffers()
-  local grapple = require("grapple")
-  local tab_id = vim.api.nvim_get_current_tabpage()
-  local root = vim.loop.cwd()
-  local id = string.format("tab:%s:%d", root, tab_id)
-  local tags = grapple.tags({ id })
-  if tags == nil or #tags == 0 then
-    vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tagged_buffers::'")
-    return
-  end
-
-  -- Truncate to max 4 tags, otherwise zellij statusline overflows
-  if #tags > 4 then
-    local truncated = {}
-    for i = 1, 4 do
-      table.insert(truncated, tags[i])
-    end
-    tags = truncated
-  end
-
-  local current_buf_path = vim.api.nvim_buf_get_name(0)
-  local message = "#[bg=$surface0,fg=$blue] | "
-  for idx, tag in ipairs(tags) do
-    local buf_name = tag.path:match("^.+/(.+)$") or tag.path
-    buf_name = buf_name and #buf_name > 28 and buf_name:sub(1, 25) .. "..." or buf_name
-    local fg_color = tag.path == current_buf_path and "sky" or "overlay2"
-    message = message
-      .. "#[bg=$surface0,fg=$darkblue]"
-      .. "#[bg=$darkblue,fg=$"
-      .. fg_color
-      .. ",bold]"
-      .. "󰐃 "
-      .. idx
-      .. " "
-      .. "#[bg=#282A3A,fg=$"
-      .. fg_color
-      .. ",bold] "
-      .. (buf_name ~= "" and buf_name or ("Buffer #" .. idx))
-      -- .. "#[bg=$surface0]"
-      -- .. " "
-      .. "#[bg=$surface0,fg=#282A3A] "
-  end
-  vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tagged_buffers::" .. message .. "'")
-end
+-- local function update_zellij_status_grapple_buffers()
+--   local grapple = require("grapple")
+--   local tab_id = vim.api.nvim_get_current_tabpage()
+--   local root = vim.loop.cwd()
+--   local id = string.format("tab:%s:%d", root, tab_id)
+--   local tags = grapple.tags({ id })
+--   if tags == nil or #tags == 0 then
+--     vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tagged_buffers::'")
+--     return
+--   end
+--
+--   -- Truncate to max 4 tags, otherwise zellij statusline overflows
+--   if #tags > 4 then
+--     local truncated = {}
+--     for i = 1, 4 do
+--       table.insert(truncated, tags[i])
+--     end
+--     tags = truncated
+--   end
+--
+--   local current_buf_path = vim.api.nvim_buf_get_name(0)
+--   local message = "#[bg=$surface0,fg=$blue] | "
+--   for idx, tag in ipairs(tags) do
+--     local buf_name = tag.path:match("^.+/(.+)$") or tag.path
+--     buf_name = buf_name and #buf_name > 28 and buf_name:sub(1, 25) .. "..." or buf_name
+--     local fg_color = tag.path == current_buf_path and "sky" or "overlay2"
+--     message = message
+--       .. "#[bg=$surface0,fg=$darkblue]"
+--       .. "#[bg=$darkblue,fg=$"
+--       .. fg_color
+--       .. ",bold]"
+--       .. "󰐃 "
+--       .. idx
+--       .. " "
+--       .. "#[bg=#282A3A,fg=$"
+--       .. fg_color
+--       .. ",bold] "
+--       .. (buf_name ~= "" and buf_name or ("Buffer #" .. idx))
+--       -- .. "#[bg=$surface0]"
+--       -- .. " "
+--       .. "#[bg=$surface0,fg=#282A3A] "
+--   end
+--   vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tagged_buffers::" .. message .. "'")
+-- end
 
 return {
   {
@@ -133,16 +133,16 @@ return {
       -- })
 
       -- integrate with zjstatus
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufLeave", "TabEnter", "FocusGained" }, {
-        callback = function()
-          vim.defer_fn(update_zellij_status_grapple_buffers, 0)
-        end,
-      })
-      vim.api.nvim_create_autocmd({ "VimLeave" }, {
-        callback = function()
-          vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tagged_buffers::'")
-        end,
-      })
+      -- vim.api.nvim_create_autocmd({ "BufEnter", "BufLeave", "TabEnter", "FocusGained" }, {
+      --   callback = function()
+      --     vim.defer_fn(update_zellij_status_grapple_buffers, 0)
+      --   end,
+      -- })
+      -- vim.api.nvim_create_autocmd({ "VimLeave" }, {
+      --   callback = function()
+      --     vim.fn.system("zellij pipe 'zjstatus::pipe::pipe_neovim_tagged_buffers::'")
+      --   end,
+      -- })
     end,
     keys = {
       { "<BS>", "<cmd>Grapple toggle_tags<cr>", desc = "Grapple menu (Tags)" },
@@ -152,7 +152,7 @@ return {
         "<CR>m",
         function()
           require("grapple").toggle()
-          update_zellij_status_grapple_buffers()
+          -- update_zellij_status_grapple_buffers()
         end,
         desc = "Mark file (Grapple)",
       },
@@ -161,7 +161,7 @@ return {
         "<leader>gt",
         function()
           require("grapple").use_scope("git_branch")
-          vim.defer_fn(update_zellij_status_grapple_buffers, 0)
+          -- vim.defer_fn(update_zellij_status_grapple_buffers, 0)
         end,
         desc = "Git Tags for Branch (Grapple)",
       },
