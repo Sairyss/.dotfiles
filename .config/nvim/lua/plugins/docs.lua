@@ -10,7 +10,7 @@ return {
     config = function()
       local apidocs = require("apidocs")
       apidocs.setup({ picker = "snacks" })
-      apidocs.ensure_install({ "javascript", "typescript", "node", "man", "docker", "git" })
+      -- apidocs.ensure_install({ "javascript", "typescript", "node", "man", "docker", "git" })
       -- Picker will be auto-detected. To select a picker of your choice explicitly you can set picker by the configuration option 'picker':
       -- require('apidocs').setup({picker = "snacks"})
       -- Possible options are 'ui_select', 'telescope', and 'snacks'
