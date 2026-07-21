@@ -48,6 +48,7 @@
   L_esc_leader_tog (tap-hold-release $tap_timeout $hold_timeout_slow esc (layer-toggle leader))
   L_esc_leader2_tog (tap-hold-press $tap_timeout 1000 esc (layer-toggle leader2))
   L_lsft_leader_shift_tog (tap-hold-release $tap_timeout $hold_timeout lsft (layer-toggle leader_mode_shift_layer))
+  lsft_sticky (tap-hold-press $tap_timeout $hold_timeout (one-shot 1000 lsft) lsft)
 
   ;; Homerow mods tog
   L_f_ctrl_tog (tap-hold-release $tap_timeout_slow $hold_timeout f (layer-toggle ctrl_homerow))
@@ -189,7 +190,9 @@
   spc @L_spc_spc_tog
   esc @L_esc_leader2_tog
 
-  ;; -- Home row mods -- 
+  lsft @lsft_sticky
+
+  ;; -- Home row mods --
   ;; left hand
   f @L_f_ctrl_tog
   d @L_d_alt_tog
