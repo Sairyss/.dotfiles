@@ -12,7 +12,10 @@ export BAT_THEME="TwoDark"
 source $CONFIG_DIR/functions.sh
 source $CONFIG_DIR/aliases.sh
 
-[ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+# do not enable SCM breeze within claude code sessions
+if [[ -z "$CLAUDECODE" ]]; then
+  [ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
+fi
 
 # Atuin
 zvm_after_init_commands+=(eval "$(atuin init zsh --disable-up-arrow)") # https://github.com/atuinsh/atuin/issues/977
