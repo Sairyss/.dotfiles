@@ -111,6 +111,17 @@ keybinds clear-defaults=true {
             SwitchToMode "normal"
         }
         bind "Ctrl o" { SwitchToMode "normal"; }
+        // Nested Zellij: container -> host
+        bind "h" {
+            FocusHostSession
+            SwitchToMode "normal"
+        }
+        // Nested Zellij: host -> container
+        bind "g" {
+            FocusGuestSession
+            ToggleHostFullscreen
+            SwitchToMode "normal"
+        }
         bind "p" {
             LaunchOrFocusPlugin "plugin-manager" {
                 floating true
@@ -347,7 +358,7 @@ plugins {
         is_enabled true
         print_to_log false
         reaction_seconds "0.3"
-        triggers "nvim|vim|git|fzf|zoxide|atuin|tv|claude|herdr"
+        triggers "nvim|vim|git|fzf|zoxide|atuin|tv|claude|herdr|opencode"
     }
     compact-bar location="zellij:compact-bar"
     configuration location="zellij:configuration"
@@ -356,12 +367,18 @@ plugins {
     }
     plugin-manager location="zellij:plugin-manager"
     session-manager location="zellij:session-manager"
+    nested_session_handling "fullscreen"
     status-bar location="zellij:status-bar"
     strider location="zellij:strider"
     tab-bar location="zellij:tab-bar"
     welcome-screen location="zellij:session-manager" {
         welcome_screen true
     }
+    // zj-radar: managed plugin alias begin
+    radar location="file:~/.config/zellij/plugins/zj_radar.wasm" {
+        naming "managed"
+    }
+    // zj-radar: managed plugin alias end
 }
 
 // Plugins to load in the background when a new session starts
