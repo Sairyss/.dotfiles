@@ -211,6 +211,18 @@ keybinds clear-defaults=true {
         bind "Ctrl 5" {
             GoToTab 5
         }
+        bind "Ctrl 6" {
+            FocusHostSession
+            GoToTab 1
+            SwitchToMode "normal"
+        }
+        bind "Ctrl 7" {
+            // switch to tab 6 where guest container and session should be running
+            GoToTab 6
+            FocusGuestSession
+            ToggleHostFullscreen
+            SwitchToMode "normal"
+        }
         bind "Ctrl Alt h" {
             MoveFocusOrTab "left"
         }
@@ -222,17 +234,6 @@ keybinds clear-defaults=true {
         }
         bind "Ctrl Alt right" {
             MoveFocusOrTab "right"
-        }
-        bind "Ctrl y" {
-            FocusHostSession
-            GoToTab 1
-            SwitchToMode "normal"
-        }
-        bind "Ctrl u" {
-            GoToTab 6
-            FocusGuestSession
-            ToggleHostFullscreen
-            SwitchToMode "normal"
         }
     }
     shared_except "locked" {
