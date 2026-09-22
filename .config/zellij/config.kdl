@@ -87,6 +87,10 @@ keybinds clear-defaults=true {
         bind "e" { EditScrollback; SwitchToMode "normal"; }
         bind "s" { SwitchToMode "entersearch"; SearchInput 0; }
         bind "Ctrl s" { SwitchToMode "normal"; }
+        bind "k" { ScrollToPreviousPrompt; }
+        bind "j" { ScrollToNextPrompt; }
+        bind "m" { SelectCommandAtScrollPosition; SwitchToMode "normal"; }
+        bind "c" { CopyLastCommandOutput; SwitchToMode "normal"; }
     }
     search {
         bind "c" { SearchToggleOption "CaseSensitivity"; }

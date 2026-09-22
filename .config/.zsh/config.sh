@@ -34,3 +34,24 @@ bindkey -M vicmd 'j' history-substring-search-down
 
 eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"
+
+# Zellij shell integration: emit OSC 133 prompt markers so zellij can track
+# prompt boundaries (ScrollToPreviousPrompt/NextPrompt, SelectCommandAtScrollPosition,
+# CopyLastCommandOutput). zsh/bash don't emit these on their own (fish does).
+# B must be emitted right where the command line starts (end of PROMPT).
+if [[ -n "$ZELLIJ" ]]; then
+  __zellij_osc133_precmd() {
+    local exit_code=$?
+    [[ -n "$__zellij_osc133_in_cmd" ]] && printf '\e]133;D;%d\a' "$exit_code"
+    unset __zellij_osc133_in_cmd
+    printf '\e]133;A\a'
+  }
+  __zellij_osc133_preexec() {
+    printf '\e]133;C\a'
+    __zellij_osc133_in_cmd=1
+  }
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd __zellij_osc133_precmd
+  add-zsh-hook preexec __zellij_osc133_preexec
+  PROMPT="${PROMPT}"$'%{\e]133;B\a%}'
+fi
