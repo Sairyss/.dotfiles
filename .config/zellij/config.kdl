@@ -225,10 +225,11 @@ keybinds clear-defaults=true {
         }
         bind "Ctrl y" {
             FocusHostSession
+            GoToTab 1
             SwitchToMode "normal"
         }
         bind "Ctrl u" {
-            GoToTab 2
+            GoToTab 6
             FocusGuestSession
             ToggleHostFullscreen
             SwitchToMode "normal"
