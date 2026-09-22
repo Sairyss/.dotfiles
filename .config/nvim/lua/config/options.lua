@@ -16,12 +16,14 @@ vim.api.nvim_create_autocmd("VimLeave", {
 })
 
 -- Use wl-clipboard on Wayland to avoid xsel BadWindow errors
-vim.g.clipboard = {
-  name = "wl-clipboard",
-  copy = { ["+"] = "wl-copy", ["*"] = "wl-copy --primary" },
-  paste = { ["+"] = "wl-paste --no-newline", ["*"] = "wl-paste --no-newline --primary" },
-  cache_enabled = 0,
-}
+if vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1 then
+  vim.g.clipboard = {
+    name = "wl-clipboard",
+    copy = { ["+"] = "wl-copy", ["*"] = "wl-copy --primary" },
+    paste = { ["+"] = "wl-paste --no-newline", ["*"] = "wl-paste --no-newline --primary" },
+    cache_enabled = 0,
+  }
+end
 
 ----- Performance improvements -----
 -- https://github.com/LazyVim/LazyVim/discussions/326
