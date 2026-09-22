@@ -111,17 +111,6 @@ keybinds clear-defaults=true {
             SwitchToMode "normal"
         }
         bind "Ctrl o" { SwitchToMode "normal"; }
-        // Nested Zellij: container -> host
-        bind "h" {
-            FocusHostSession
-            SwitchToMode "normal"
-        }
-        // Nested Zellij: host -> container
-        bind "g" {
-            FocusGuestSession
-            ToggleHostFullscreen
-            SwitchToMode "normal"
-        }
         bind "p" {
             LaunchOrFocusPlugin "plugin-manager" {
                 floating true
@@ -233,6 +222,16 @@ keybinds clear-defaults=true {
         }
         bind "Ctrl Alt right" {
             MoveFocusOrTab "right"
+        }
+        bind "Ctrl y" {
+            FocusHostSession
+            SwitchToMode "normal"
+        }
+        bind "Ctrl u" {
+            GoToTab 2
+            FocusGuestSession
+            ToggleHostFullscreen
+            SwitchToMode "normal"
         }
     }
     shared_except "locked" {
