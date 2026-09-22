@@ -211,17 +211,9 @@ keybinds clear-defaults=true {
         bind "Ctrl 5" {
             GoToTab 5
         }
-        bind "Ctrl 6" {
+        bind "Ctrl Esc" {
             FocusHostSession
-            GoToTab 1
-            SwitchToMode "normal"
-        }
-        bind "Ctrl 7" {
-            // switch to tab 6 where guest container and session should be running
-            GoToTab 6
             FocusGuestSession
-            ToggleHostFullscreen
-            SwitchToMode "normal"
         }
         bind "Ctrl Alt h" {
             MoveFocusOrTab "left"
@@ -359,7 +351,7 @@ plugins {
         is_enabled true
         print_to_log false
         reaction_seconds "0.3"
-        triggers "nvim|vim|git|fzf|zoxide|atuin|tv|claude|herdr|opencode"
+        triggers "nvim|vim|git|fzf|zoxide|atuin|tv|claude|herdr|opencode|incus"
     }
     compact-bar location="zellij:compact-bar"
     configuration location="zellij:configuration"
