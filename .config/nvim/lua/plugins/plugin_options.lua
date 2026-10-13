@@ -275,6 +275,15 @@ return {
       },
     },
     keys = {
+      { "<leader>gd", false }, -- Free <leader>gd for CodeDiff (LazyVim binds it to the snacks git diff picker)
+      -- LazyVim's file history picker moved from <leader>gf (now CodeDiff history) to <leader>gF
+      {
+        "<leader>gF",
+        function()
+          Snacks.picker.git_log_file()
+        end,
+        desc = "Git Current File History (picker)",
+      },
       -- LSP
       {
         "gd",

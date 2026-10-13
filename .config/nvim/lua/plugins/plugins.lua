@@ -222,15 +222,148 @@ return {
     "esmuellert/codediff.nvim",
     dependencies = { "MunifTanjim/nui.nvim" },
     cmd = "CodeDiff",
+    config = function(_, opts)
+      require("codediff").setup(opts)
+
+      -- WORKAROUND for a CodeDiff bug (seen in v4.0.6, commit 09d9ebe): browsing the file list /
+      -- history panel sometimes moves the cursor into the diff pane. In
+      -- lua/codediff/ui/view/side_by_side/update.lua, M.update restores focus inside the render
+      -- callback, but reload_side() runs after it and calls :edit, which focuses the diff pane.
+      -- When the render runs immediately (e.g. untracked files), nothing restores focus afterwards.
+      -- Remove this wrapper once CodeDiff fixes it: comment it out, browse with j/k past an
+      -- untracked file, and check the cursor stays in the list.
+      local view = require("codediff.ui.view")
+      local panel_filetypes = { ["codediff-explorer"] = true, ["codediff-history"] = true }
+      for _, name in ipairs({ "show", "update" }) do
+        local original = view[name]
+        view[name] = function(...)
+          local win = vim.api.nvim_get_current_win()
+          local from_panel = panel_filetypes[vim.bo[vim.api.nvim_win_get_buf(win)].filetype]
+          local result = original(...)
+          if from_panel and vim.api.nvim_win_is_valid(win) and vim.api.nvim_get_current_win() ~= win then
+            vim.api.nvim_set_current_win(win)
+          end
+          return result
+        end
+      end
+    end,
+    init = function()
+      -- "e" in the CodeDiff file list opens the file (same as the built-in gf) at its first hunk
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "codediff-explorer",
+        callback = function(ev)
+          vim.keymap.set("n", "e", function()
+            local session = require("codediff.ui.lifecycle").get_session(vim.api.nvim_get_current_tabpage())
+            local changes = session and session.stored_diff_result and session.stored_diff_result.changes
+            local first_line = changes and changes[1] and changes[1].modified.start_line
+
+            vim.cmd("normal gf")
+
+            if first_line and vim.bo.filetype ~= "codediff-explorer" then
+              first_line = math.max(1, math.min(first_line, vim.api.nvim_buf_line_count(0)))
+              vim.api.nvim_win_set_cursor(0, { first_line, 0 })
+              vim.cmd("normal! zz")
+            end
+          end, { buffer = ev.buf, desc = "CodeDiff: open file at first hunk" })
+
+          -- "Y" copies the selected file's path relative to the git root
+          vim.keymap.set("n", "Y", function()
+            local explorer = require("codediff.ui.lifecycle").get_panel_view(vim.api.nvim_get_current_tabpage())
+            local node = explorer and explorer.tree and explorer.tree:get_node()
+            local path = node and node.data and node.data.path
+            if not path or path == "" then
+              return
+            end
+            vim.fn.setreg("+", path)
+            vim.notify("Copied: " .. path)
+          end, { buffer = ev.buf, desc = "CodeDiff: copy relative path" })
+        end,
+      })
+
+      -- History panel: show the diff for the commit/file under the cursor as you move (no <CR> needed)
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "codediff-history",
+        callback = function(ev)
+          local timer = assert(vim.uv.new_timer())
+          vim.api.nvim_create_autocmd("CursorMoved", {
+            buffer = ev.buf,
+            callback = function()
+              timer:stop()
+              timer:start(
+                80,
+                0,
+                vim.schedule_wrap(function()
+                  local history = require("codediff.ui.lifecycle").get_panel_view(vim.api.nvim_get_current_tabpage())
+                  if not history or history.bufnr ~= vim.api.nvim_get_current_buf() then
+                    return
+                  end
+                  local node = history.tree:get_node()
+                  local data = node and node.data
+                  local current = history.data
+                  if not data then
+                    return
+                  end
+                  if data.type == "commit" and history.is_single_file_mode then
+                    if data.hash ~= current.current_commit then
+                      history.on_file_select({
+                        path = data.file_path or current.opts.file_path,
+                        commit_hash = data.hash,
+                        git_root = current.git_root,
+                      })
+                    end
+                  elseif data.type == "file" then
+                    if data.commit_hash ~= current.current_commit or data.path ~= current.current_file then
+                      history.on_file_select(data)
+                    end
+                  end
+                end)
+              )
+            end,
+          })
+          vim.api.nvim_create_autocmd("BufWipeout", {
+            buffer = ev.buf,
+            once = true,
+            callback = function()
+              timer:stop()
+              timer:close()
+            end,
+          })
+        end,
+      })
+    end,
     opts = {
+      diff = {
+        compact = true, -- Fold unchanged regions, show only hunks + context (toggle with gc)
+        compact_context_lines = 3, -- Context lines around each hunk in compact mode
+        layout = "inline", -- "side-by-side" or "inline"; toggle with t
+        gutter_signs = {
+          insert_text = "＋",
+          delete_text = "－",
+          highlight_numbers = true,
+          changed_priority = 100,
+          unchanged_priority = nil,
+        },
+      },
+      explorer = {
+        position = "left",
+        width = 40,
+        auto_open_on_cursor = true, -- j/k in the file list updates the diff
+      },
       keymaps = {
         view = {
           next_hunk = "]h", -- Jump to next change
           prev_hunk = "[h", -- Jump to previous change
+          close_on_open_in_prev_tab = true, -- close CodeDiff after gf opens the file
         },
       },
     },
     keys = {
+      {
+        "<leader>gd",
+        ":CodeDiff<CR>",
+        desc = "CodeDiff",
+        silent = true,
+      },
       {
         "<leader>gC",
         ":CodeDiff master<CR>",
@@ -238,9 +371,15 @@ return {
         silent = true,
       },
       {
-        "<leader>gF",
+        "<leader>gm",
         ":CodeDiff file master HEAD<CR>",
         desc = "CodeDiff file master",
+        silent = true,
+      },
+      {
+        "<leader>gf",
+        ":CodeDiff history %<CR>",
+        desc = "CodeDiff current file history",
         silent = true,
       },
       {
