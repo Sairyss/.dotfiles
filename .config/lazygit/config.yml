@@ -1,0 +1,4 @@
+git:
+  diffRenderers:
+    # word-level diff highlighting (requires `git-delta`)
+    - command: delta --dark --paging=never --line-numbers --hunk-header-style=omit
