@@ -41,6 +41,16 @@ return {
         virtual_text = false, -- disabled in favor of tiny-inline-diagnostic.nvim
       }
 
+      -- fix crashing lsp on *.js files
+      opts.servers.vtsls = vim.tbl_deep_extend("force", opts.servers.vtsls or {}, {
+        settings = {
+          typescript = {
+            disableAutomaticTypeAcquisition = true,
+            tsserver = { maxTsServerMemory = 8192 },
+          },
+        },
+      })
+
       opts.setup = {
         eslint = function()
           -- automatically fix linting errors on save
@@ -195,6 +205,12 @@ return {
         },
       },
       picker = {
+        sources = {
+          -- include dotfiles by default (gitignored files stay excluded; toggle with <A-h>/<A-i>)
+          files = { hidden = true },
+          grep = { hidden = true },
+          grep_word = { hidden = true },
+        },
         layouts = {
           telescope = {
             reverse = false,
@@ -584,6 +600,7 @@ return {
     -- },
     {
       "mistweaverco/kulala.nvim",
+      enabled = false,
       ft = "http",
       keys = {
         { "<C-M-r>", "<cmd>lua require('kulala').run()<cr>", desc = "Send the request", ft = "http" },
