@@ -2,6 +2,7 @@ return {
   {
     "coder/claudecode.nvim",
     dependencies = { "folke/snacks.nvim" },
+    lazy = false, -- load on startup so the server is running for `/ide` without pressing a key first
     opts = {
       terminal_cmd = "/usr/bin/claude", -- Point to local installation
     },
