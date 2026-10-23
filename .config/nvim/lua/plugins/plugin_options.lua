@@ -178,8 +178,9 @@ return {
         config = {
           os = {
             editPreset = "nvim-remote",
-            edit = 'sh -c \'nvr --nostart --servername "$NVIM" -c "lua require(\\"lazygit-edit\\").open(\\"{{filename}}\\")"\'',
-            editAtLine = 'sh -c \'nvr --nostart --servername "$NVIM" -c "lua require(\\"lazygit-edit\\").open(\\"{{filename}}\\", {{line}})"\'',
+            edit = 'nvim --server "$NVIM" --remote-expr "luaeval(\'require([[lazygit-edit]]).open([[{{filename}}]])\')" >/dev/null',
+            editAtLine = 'nvim --server "$NVIM" --remote-expr "luaeval(\'require([[lazygit-edit]]).open([[{{filename}}]], {{line}})\')" >/dev/null',
+
             editInTerminal = false,
           },
         },

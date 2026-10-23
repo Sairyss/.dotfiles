@@ -15,10 +15,12 @@ vim.api.nvim_create_autocmd("VimLeave", {
   command = "silent !zellij action switch-mode normal",
 })
 
--- Over SSH, copy via OSC 52 so the text lands in the local (e.g. Windows) clipboard.
+-- Over SSH, or without a usable Wayland clipboard (e.g. inside a container), copy via
+-- OSC 52 so the text lands in the host's clipboard through the terminal.
 -- Paste returns the last yank: most terminals don't allow OSC 52 reads.
 -- LazyVim clears 'clipboard' over SSH, so re-enable it to make plain `y` use OSC 52.
-if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
+local has_wl = vim.env.WAYLAND_DISPLAY and vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1
+if vim.env.SSH_TTY or vim.env.SSH_CONNECTION or not has_wl then
   local osc52 = require("vim.ui.clipboard.osc52")
   local last = { {}, "v" }
   local function copy(reg)
@@ -38,7 +40,7 @@ if vim.env.SSH_TTY or vim.env.SSH_CONNECTION then
   }
   vim.opt.clipboard = "unnamedplus"
 -- Use wl-clipboard on Wayland to avoid xsel BadWindow errors
-elseif vim.fn.executable("wl-copy") == 1 and vim.fn.executable("wl-paste") == 1 then
+else
   vim.g.clipboard = {
     name = "wl-clipboard",
     copy = { ["+"] = "wl-copy", ["*"] = "wl-copy --primary" },
