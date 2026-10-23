@@ -93,50 +93,50 @@ return {
         mode = "v",
         desc = "Copy file reference with line numbers",
       },
-      -- {
-      --   -- Send file / visual selection reference to an externally running Claude
-      --   -- (attached via `/ide`), without opening or focusing the embedded terminal
-      --   "<leader>ad",
-      --   function()
-      --     local mode = vim.fn.mode()
-      --     local visual = mode == "v" or mode == "V" or mode == "\22"
-      --     local s, e
-      --     if visual then
-      --       s, e = vim.fn.line("v"), vim.fn.line(".")
-      --       if s > e then
-      --         s, e = e, s
-      --       end
-      --       vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
-      --     end
-      --     local path = vim.fn.expand("%:p")
-      --     if vim.bo.filetype == "neo-tree" then
-      --       -- Buffer name isn't a path; use the node under the cursor (line range is meaningless here)
-      --       local source = vim.b.neo_tree_source or "filesystem"
-      --       local state = require("neo-tree.sources.manager").get_state(source)
-      --       local node = state and state.tree and state.tree:get_node()
-      --       path = node and node:get_id() or ""
-      --       s, e = nil, nil
-      --     end
-      --     if path == "" or vim.uv.fs_stat(path) == nil then
-      --       vim.notify("No file to send", vim.log.levels.WARN)
-      --       return
-      --     end
-      --     local cc = require("claudecode")
-      --     if not cc.is_claude_connected() then
-      --       vim.notify("No Claude connected (run /ide in the other Claude)", vim.log.levels.WARN)
-      --       return
-      --     end
-      --     -- Claude expects 0-indexed lines
-      --     local ok, err = cc._broadcast_at_mention(path, s and s - 1 or nil, e and e - 1 or nil)
-      --     if ok then
-      --       vim.notify("Sent to Claude: " .. vim.fn.fnamemodify(path, ":.") .. (s and (":" .. s .. "-" .. e) or ""))
-      --     else
-      --       vim.notify("Send failed: " .. tostring(err), vim.log.levels.ERROR)
-      --     end
-      --   end,
-      --   mode = { "n", "v" },
-      --   desc = "Send file/selection to connected (external) Claude",
-      -- },
+      {
+        -- Send file / visual selection reference to an externally running Claude
+        -- (attached via `/ide`), without opening or focusing the embedded terminal
+        "<leader>ad",
+        function()
+          local mode = vim.fn.mode()
+          local visual = mode == "v" or mode == "V" or mode == "\22"
+          local s, e
+          if visual then
+            s, e = vim.fn.line("v"), vim.fn.line(".")
+            if s > e then
+              s, e = e, s
+            end
+            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+          end
+          local path = vim.fn.expand("%:p")
+          if vim.bo.filetype == "neo-tree" then
+            -- Buffer name isn't a path; use the node under the cursor (line range is meaningless here)
+            local source = vim.b.neo_tree_source or "filesystem"
+            local state = require("neo-tree.sources.manager").get_state(source)
+            local node = state and state.tree and state.tree:get_node()
+            path = node and node:get_id() or ""
+            s, e = nil, nil
+          end
+          if path == "" or vim.uv.fs_stat(path) == nil then
+            vim.notify("No file to send", vim.log.levels.WARN)
+            return
+          end
+          local cc = require("claudecode")
+          if not cc.is_claude_connected() then
+            vim.notify("No Claude connected (run /ide in the other Claude)", vim.log.levels.WARN)
+            return
+          end
+          -- Claude expects 0-indexed lines
+          local ok, err = cc._broadcast_at_mention(path, s and s - 1 or nil, e and e - 1 or nil)
+          if ok then
+            vim.notify("Sent to Claude: " .. vim.fn.fnamemodify(path, ":.") .. (s and (":" .. s .. "-" .. e) or ""))
+          else
+            vim.notify("Send failed: " .. tostring(err), vim.log.levels.ERROR)
+          end
+        end,
+        mode = { "n", "v" },
+        desc = "Send file/selection to connected (external) Claude",
+      },
       {
         "<leader>aS",
         function()

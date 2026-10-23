@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Yazi
-Comment=Yazi file manager
-Exec=kitty --class yazi_kitty -e yazi
-Icon=/home/user/.dotfiles/.config/yazi/logo.png
-Terminal=false
-Type=Application
-Categories=Utility;Application;
-StartupWMClass=yazi_kitty

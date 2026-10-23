@@ -1,12 +1,8 @@
 [plugin]
 prepend_previewers = [
-  { name = "*.md", run = "glow" },
   { mime = "{image,audio,video}/*", run = "mediainfo" },
   { mime = "application/subrip", run = "mediainfo" },
 ]
 
 [opener]
-edit = [
-  { run = '/usr/bin/nvim "$@"', block = true, for = "unix" },
-  { run = "%EDITOR% %*", block = true, for = "windows" },
-]
+edit = [{ run = '/usr/bin/nvim %s', block = true }]

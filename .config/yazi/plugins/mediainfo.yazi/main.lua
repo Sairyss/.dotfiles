@@ -1,115 +1,216 @@
-local skip_labels = {
-	["Complete name"] = true,
-	["CompleteName_Last"] = true,
-	["Unique ID"] = true,
-	["File size"] = true,
-	["Format/Info"] = true,
-	["Codec ID/Info"] = true,
-	["MD5 of the unencoded content"] = true,
-}
+--- @since 26.5.6
 
 local M = {}
-local suffix = "_mediainfo"
 
-local function read_mediainfo_cached_file(file_path)
-	-- Open the file in read mode
-	local file = io.open(file_path, "r")
+local const = require(".const")
+local utils = require(".utils")
 
-	if file then
-		-- Read the entire file content
-		local content = file:read("*all")
-		file:close()
-		return content
-	end
-end
+local adobe = require(".adobe")
+local audio = require(".audio")
+local image = require(".image")
+local video = require(".video")
+local none_media_preview = require(".none-media-preview")
 
 function M:peek(job)
-	local start, cache_img_url = os.clock(), ya.file_cache(job)
-	if not cache_img_url or self:preload(job) ~= 1 then
+	-- debounce peek
+	local start = os.clock()
+	ya.sleep(math.max(0, rt.preview.image_delay / 1000 + start - os.clock()))
+
+	-- Need mime to decide which module to use
+	if not job.mime then
 		return
 	end
 
-	local cache_img_url_no_skip = ya.file_cache({ file = job.file, skip = 0 })
-	local cache_mediainfo_path = tostring(cache_img_url_no_skip) .. suffix
-	ya.sleep(math.max(0, PREVIEW.image_delay / 1000 + start - os.clock()))
-	local output = read_mediainfo_cached_file(cache_mediainfo_path)
-
-	local lines = {}
-
-	if output then
-		local i = 0
-		for str in output:gmatch("[^\n]*") do
-			local label, value = str:match("(.*[^ ])  +: (.*)")
-			local line
-
-			if label then
-				if not skip_labels[label] then
-					line = ui.Line({
-						ui.Span(label .. ": "):style(ui.Style():bold()),
-						ui.Span(value):style(ui.Style():fg("blue")),
-					})
-				end
-			elseif str ~= "General" then
-				line = ui.Line({ ui.Span(str):style(ui.Style():fg("green")) })
-			end
-
-			if line then
-				if i >= job.skip then
-					table.insert(lines, line)
-				end
-
-				local max_width = math.max(1, job.area.w - 3)
-				i = i + math.max(1, math.ceil(line:width() / max_width))
-			end
-		end
+	local no_metadata_user_cfg = utils.get_state(const.STATE_KEY.no_metadata)
+	if no_metadata_user_cfg ~= nil then
+		job.args.no_metadata = no_metadata_user_cfg
 	end
 
-	local rendered_img_rect = ya.image_show(cache_img_url, job.area)
-	local image_height = rendered_img_rect and rendered_img_rect.h or 0
-	ya.preview_widgets(job, {
-		ui.Text(lines)
-			:area(ui.Rect({
-				x = job.area.x,
-				y = job.area.y + image_height,
-				w = job.area.w,
-				h = job.area.h - image_height,
-			}))
-			:wrap(ui.Text.WRAP),
-	})
+	local no_preview_user_cfg = utils.get_state(const.STATE_KEY.no_preview)
+	if no_preview_user_cfg ~= nil then
+		job.args.no_preview = no_preview_user_cfg
+	end
+
+	utils.set_states(const.STATE_KEY.cached_job_args, tostring(job.file.url), job.args)
+	if job.args.no_preview and job.args.no_metadata then
+		ya.preview_widget(job, {
+			ui.Clear(job.area),
+		})
+		return
+	end
+
+	if job.args.no_preview then
+		return none_media_preview:peek(job)
+	end
+
+	local is_video = string.find(job.mime, "^video/")
+	local is_audio = string.find(job.mime, "^audio/")
+	local is_image = string.find(job.mime, "^image/")
+	local is_adobe = const.seekable_mimes[job.mime]
+
+	if is_adobe then
+		return adobe:peek(job)
+	elseif is_image then
+		return image:peek(job)
+	elseif is_video then
+		return video:peek(job)
+	elseif is_audio then
+		return audio:peek(job)
+	else
+		return none_media_preview:peek(job)
+	end
 end
 
 function M:seek(job)
 	local h = cx.active.current.hovered
 	if h and h.url == job.file.url then
-		ya.manager_emit("peek", {
+		utils.set_state(const.STATE_KEY.units, job.units)
+		ya.emit("peek", {
 			math.max(0, cx.active.preview.skip + job.units),
 			only_if = job.file.url,
 		})
 	end
 end
-
 function M:preload(job)
-	local video = require("video")
-	video = ya.dict_merge(video, { skip = job.skip, file = job.file })
-	local cache_img_status = video:preload(job)
-	if cache_img_status ~= 1 then
-		return cache_img_status
+	local cache_img_url = ya.file_cache({ file = job.file, skip = 0 })
+	if not cache_img_url then
+		ya.dbg("mediainfo", "Can't access yazi cache folder")
+		return true
+	end
+	if not job.mime then
+		return false
 	end
 
-	local cache_img_url_no_skip = ya.file_cache({ file = job.file, skip = 0 })
-	local cache_mediainfo_url = Url(tostring(cache_img_url_no_skip) .. suffix)
-
-	local cha = fs.cha(cache_mediainfo_url)
-	if cha and cha.len > 1000 then
-		return 1
+	local no_metadata_user_cfg = utils.get_state(const.STATE_KEY.no_metadata)
+	if no_metadata_user_cfg ~= nil then
+		job.args.no_metadata = no_metadata_user_cfg
 	end
-	local cmd = "mediainfo"
-	local output, _ = Command(cmd):args({ tostring(job.file.url) }):stdout(Command.PIPED):output()
 
-	return fs.write(
-		cache_mediainfo_url,
-		output and output.stdout or string.format("Failed to start `%s`, Do you have `%s` installed?", cmd, cmd)
-	) and 1 or 2
+	local no_preview_user_cfg = utils.get_state(const.STATE_KEY.no_preview)
+	if no_preview_user_cfg ~= nil then
+		job.args.no_preview = no_preview_user_cfg
+	end
+
+	if job.args.no_preview and job.args.no_metadata then
+		return false, nil
+	end
+	if job.args.no_preview then
+		return none_media_preview:preload(job)
+	end
+
+	local is_video = string.find(job.mime, "^video/")
+	local is_audio = string.find(job.mime, "^audio/")
+	local is_image = string.find(job.mime, "^image/")
+	local is_adobe = const.seekable_mimes[job.mime]
+
+	if is_adobe then
+		return adobe:preload(job)
+	elseif is_image then
+		return image:preload(job)
+	elseif is_video then
+		return video:preload(job)
+	elseif is_audio then
+		return audio:preload(job)
+	else
+		return none_media_preview:preload(job)
+	end
+end
+
+function M:setup(opts)
+	if not opts or type(opts) ~= "table" then
+		return
+	end
+
+	if type(opts.skip_labels) == "table" then
+		opts.skip_labels = utils.tbl_to_set(utils.tbl_unique_strings(opts.skip_labels))
+	end
+
+	if type(opts.skip_section_labels) == "table" then
+		opts.skip_section_labels = utils.tbl_to_set(utils.tbl_unique_strings(opts.skip_section_labels))
+	end
+
+	utils.set_state(
+		const.STATE_KEY.skip_labels,
+		type(opts.skip_labels) == "table" and opts.skip_labels
+			or (opts.skip_labels == false and {} or const.skip_labels)
+	)
+
+	utils.set_state(
+		const.STATE_KEY.skip_section_labels,
+		type(opts.skip_section_labels) == "table" and opts.skip_section_labels or {}
+	)
+end
+
+function M:entry(job)
+	local action = job.args[1]
+	if action == const.ENTRY_ACTION.reset or job.args.reset then
+		utils.set_state(const.STATE_KEY.no_preview, nil)
+		utils.set_state(const.STATE_KEY.no_metadata, nil)
+		ya.emit("peek", {
+			force = true,
+		})
+		return
+	end
+
+	if action == const.ENTRY_ACTION.show_metadata or job.args.show_metadata then
+		utils.set_state(const.STATE_KEY.no_metadata, false)
+		ya.emit("peek", {
+			force = true,
+		})
+	end
+
+	if action == const.ENTRY_ACTION.show_preview or job.args.show_preview then
+		utils.set_state(const.STATE_KEY.no_preview, false)
+		ya.emit("peek", {
+			force = true,
+		})
+	end
+
+	if action == const.ENTRY_ACTION.hide_metadata or job.args.hide_metadata then
+		utils.set_state(const.STATE_KEY.no_metadata, true)
+		ya.emit("peek", {
+			force = true,
+		})
+	end
+	if action == const.ENTRY_ACTION.hide_preview or job.args.hide_preview then
+		utils.set_state(const.STATE_KEY.no_preview, true)
+		ya.emit("peek", {
+			force = true,
+		})
+	end
+
+	job.retry = job.retry or 0
+	if job.retry > 5 then
+		utils.error("Preview data is loading, try again later")
+		return
+	end
+
+	local current_file = utils.current_file()
+	if not current_file then
+		ya.sleep(0.1)
+		job.retry = job.retry + 1
+		return self:entry(job)
+	end
+
+	local job_args = utils.get_states(const.STATE_KEY.cached_job_args, current_file)
+	if not job_args then
+		ya.sleep(0.1)
+		job.retry = job.retry + 1
+		return self:entry(job)
+	end
+
+	if action == const.ENTRY_ACTION.toggle_metadata or job.args.toggle_metadata then
+		utils.set_state(const.STATE_KEY.no_metadata, not job_args.no_metadata)
+		ya.emit("peek", {
+			force = true,
+		})
+	end
+	if action == const.ENTRY_ACTION.toggle_preview or job.args.toggle_preview then
+		utils.set_state(const.STATE_KEY.no_preview, not job_args.no_preview)
+		ya.emit("peek", {
+			force = true,
+		})
+	end
 end
 
 return M
