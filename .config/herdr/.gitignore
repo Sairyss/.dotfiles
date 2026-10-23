@@ -1,0 +1,9 @@
+# runtime state written by the herdr server
+plugins.json
+.plugins.lock
+plugins/
+session.json
+session-snapshots/
+*.sock
+*.sock.agent
+*.log
