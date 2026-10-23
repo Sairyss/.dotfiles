@@ -1,0 +1,382 @@
+# herdr which-key map
+#
+# Copy this file to your plugin config dir to customise it:
+#   cp keys.toml "$(herdr plugin config-dir pradyb.which-key)/keys.toml"
+#
+# Each [[key]] entry:
+#   seq     keys to press, space separated ("w n"). Specials: space tab enter
+#           and ctrl+x style chords.
+#   group   makes this key a sub-menu with that name (no action)
+#   desc    label shown in the popup
+#   run     herdr CLI arguments (herdr is prepended automatically)
+#   shell   any shell command instead of `run`
+#   prompt  ask for text first; available as {input}
+#   default pre-filled text for the prompt
+#   pick    choose from "workspace", "tab" or "agent" first; id is {pick}
+#   stay    true = keep the menu open after running (hydra style, e.g. resize)
+#
+# Other installed plugins appear automatically under P. To use P yourself, define
+# a [[key]] with seq = "P" here and the automatic group is skipped.
+#
+# Placeholders: {pane} {tab} {workspace} {cwd} {workspace_label} {tab_label}
+#               {input} {pick}
+
+[settings]
+title = "herdr"
+# Popup size is not set here: edit width/height on the [[panes]] entry
+# in the plugin's herdr-plugin.toml.
+
+# ---------------------------------------------------------------- top level
+[[key]]
+seq = "|"
+desc = "split right"
+run = "pane split {pane} --direction right --focus"
+
+[[key]]
+seq = "-"
+desc = "split down"
+run = "pane split {pane} --direction down --focus"
+
+[[key]]
+seq = "z"
+desc = "zoom pane"
+run = "pane zoom {pane} --toggle"
+
+[[key]]
+seq = "space"
+desc = "switch workspace"
+pick = "workspace"
+run = "workspace focus {pick}"
+
+[[key]]
+seq = "A"
+desc = "jump to agent"
+pick = "agent"
+run = "agent focus {pick}"
+
+[[key]]
+seq = "R"
+desc = "reload herdr config"
+run = "server reload-config"
+
+[[key]]
+seq = "d"
+desc = "nvim sidebar"
+defer = true
+run = "plugin action invoke toggle --plugin chmarax.herdr-nvim"
+
+[[key]]
+seq = "o"
+desc = "open file from agent output"
+defer = true
+run = "plugin action invoke pick-file --plugin chmarax.herdr-nvim"
+
+[[key]]
+seq = "s"
+desc = "sesh: workspace picker"
+defer = true
+run = "plugin action invoke open-picker --plugin fullerzz.sesh"
+
+[[key]]
+seq = "v"
+desc = "sesh: previous workspace"
+defer = true
+run = "plugin action invoke last --plugin fullerzz.sesh"
+
+# ---------------------------------------------------------------- workspace
+[[key]]
+seq = "w"
+group = "workspace"
+
+[[key]]
+seq = "w n"
+desc = "new workspace"
+run = "workspace create --cwd {cwd} --focus"
+
+[[key]]
+seq = "w N"
+desc = "new named workspace"
+prompt = "Workspace name"
+run = "workspace create --cwd {cwd} --label {input} --focus"
+
+[[key]]
+seq = "w s"
+desc = "switch workspace"
+pick = "workspace"
+run = "workspace focus {pick}"
+
+[[key]]
+seq = "w r"
+desc = "rename workspace"
+prompt = "Rename workspace"
+default = "{workspace_label}"
+run = "workspace rename {workspace} {input}"
+
+[[key]]
+seq = "w x"
+desc = "close workspace"
+run = "workspace close {workspace}"
+
+# ---------------------------------------------------------------- tab
+[[key]]
+seq = "t"
+group = "tab"
+
+[[key]]
+seq = "t n"
+desc = "new tab"
+run = "tab create --workspace {workspace} --cwd {cwd} --focus"
+
+[[key]]
+seq = "t N"
+desc = "new named tab"
+prompt = "Tab name"
+run = "tab create --workspace {workspace} --cwd {cwd} --label {input} --focus"
+
+[[key]]
+seq = "t s"
+desc = "switch tab"
+pick = "tab"
+run = "tab focus {pick}"
+
+[[key]]
+seq = "t r"
+desc = "rename tab"
+prompt = "Rename tab"
+default = "{tab_label}"
+run = "tab rename {tab} {input}"
+
+[[key]]
+seq = "t x"
+desc = "close tab"
+run = "tab close {tab}"
+
+# ---------------------------------------------------------------- pane
+[[key]]
+seq = "p"
+group = "pane"
+
+[[key]]
+seq = "p v"
+desc = "split right"
+run = "pane split {pane} --direction right --focus"
+
+[[key]]
+seq = "p s"
+desc = "split down"
+run = "pane split {pane} --direction down --focus"
+
+[[key]]
+seq = "p z"
+desc = "zoom toggle"
+run = "pane zoom {pane} --toggle"
+
+[[key]]
+seq = "p r"
+desc = "rename pane"
+prompt = "Pane name"
+run = "pane rename {pane} {input}"
+
+[[key]]
+seq = "p x"
+desc = "close pane"
+run = "pane close {pane}"
+
+[[key]]
+seq = "p h"
+desc = "focus left"
+run = "pane focus --direction left --pane {pane}"
+
+[[key]]
+seq = "p j"
+desc = "focus down"
+run = "pane focus --direction down --pane {pane}"
+
+[[key]]
+seq = "p k"
+desc = "focus up"
+run = "pane focus --direction up --pane {pane}"
+
+[[key]]
+seq = "p l"
+desc = "focus right"
+run = "pane focus --direction right --pane {pane}"
+
+[[key]]
+seq = "p H"
+desc = "swap left"
+run = "pane swap --direction left --pane {pane}"
+
+[[key]]
+seq = "p J"
+desc = "swap down"
+run = "pane swap --direction down --pane {pane}"
+
+[[key]]
+seq = "p K"
+desc = "swap up"
+run = "pane swap --direction up --pane {pane}"
+
+[[key]]
+seq = "p L"
+desc = "swap right"
+run = "pane swap --direction right --pane {pane}"
+
+[[key]]
+seq = "p t"
+desc = "move pane to new tab"
+run = "pane move {pane} --new-tab --focus"
+
+# resize: stays open so you can tap h/j/k/l repeatedly, esc to finish
+[[key]]
+seq = "p R"
+group = "resize (repeat)"
+
+[[key]]
+seq = "p R h"
+desc = "grow left"
+stay = true
+run = "pane resize --direction left --amount 0.05 --pane {pane}"
+
+[[key]]
+seq = "p R j"
+desc = "grow down"
+stay = true
+run = "pane resize --direction down --amount 0.05 --pane {pane}"
+
+[[key]]
+seq = "p R k"
+desc = "grow up"
+stay = true
+run = "pane resize --direction up --amount 0.05 --pane {pane}"
+
+[[key]]
+seq = "p R l"
+desc = "grow right"
+stay = true
+run = "pane resize --direction right --amount 0.05 --pane {pane}"
+
+# ---------------------------------------------------------------- git worktree
+[[key]]
+seq = "g"
+group = "worktree"
+
+[[key]]
+seq = "g n"
+desc = "new worktree (branch)"
+prompt = "Branch"
+run = "worktree create --workspace {workspace} --branch {input} --focus"
+
+# ----------------------------------------------------------------- annotate
+[[key]]
+seq = "a"
+group = "annotate"
+
+[[key]]
+seq = "a a"
+desc = "annotate selection"
+defer = true
+run = "plugin action invoke capture --plugin annotate"
+
+[[key]]
+seq = "a y"
+desc = "copy annotations as context"
+defer = true
+run = "plugin action invoke copy-context --plugin annotate"
+
+[[key]]
+seq = "a Y"
+desc = "copy annotations as context and archive"
+defer = true
+run = "plugin action invoke copy-archive --plugin annotate"
+
+[[key]]
+seq = "a p"
+desc = "paste annotations into agent prompt and archive"
+defer = true
+run = "plugin action invoke paste-archive --plugin annotate"
+
+[[key]]
+seq = "a s"
+desc = "send annotations to agent and archive"
+defer = true
+run = "plugin action invoke send-archive --plugin annotate"
+
+[[key]]
+seq = "a m"
+desc = "manage annotations"
+defer = true
+run = "plugin action invoke manage --plugin annotate"
+
+[[key]]
+seq = "a o"
+desc = "review documents in this folder"
+defer = true
+run = "plugin action invoke open --plugin annotate"
+
+[[key]]
+seq = "a l"
+desc = "review agent's last reply"
+defer = true
+run = "plugin action invoke last --plugin annotate"
+
+[[key]]
+seq = "a L"
+desc = "review agent's newest reply"
+defer = true
+run = "plugin action invoke last-newest --plugin annotate"
+
+# ------------------------------------------- herdr defaults, one key from the top
+
+[[key]]
+seq = "c"
+desc = "new tab"
+run = "tab create --workspace {workspace} --cwd {cwd} --focus"
+
+[[key]]
+seq = "n"
+desc = "next tab"
+shell = "herdr tab list --workspace {workspace} | jq -r --arg cur {tab} '.result.tabs as $t | ($t|map(.tab_id)|index($cur)) as $i | $t[($i+1)%($t|length)].tab_id' | xargs -r herdr tab focus"
+
+[[key]]
+seq = "N"
+desc = "previous tab"
+shell = "herdr tab list --workspace {workspace} | jq -r --arg cur {tab} '.result.tabs as $t | ($t|map(.tab_id)|index($cur)) as $i | $t[($i-1+($t|length))%($t|length)].tab_id' | xargs -r herdr tab focus"
+
+[[key]]
+seq = "x"
+desc = "close pane"
+run = "pane close {pane}"
+
+[[key]]
+seq = "X"
+desc = "close tab"
+run = "tab close {tab}"
+
+[[key]]
+seq = "r"
+group = "resize (repeat)"
+
+[[key]]
+seq = "r h"
+desc = "grow left"
+stay = true
+run = "pane resize --direction left --amount 0.05 --pane {pane}"
+
+[[key]]
+seq = "r j"
+desc = "grow down"
+stay = true
+run = "pane resize --direction down --amount 0.05 --pane {pane}"
+
+[[key]]
+seq = "r k"
+desc = "grow up"
+stay = true
+run = "pane resize --direction up --amount 0.05 --pane {pane}"
+
+[[key]]
+seq = "r l"
+desc = "grow right"
+stay = true
+run = "pane resize --direction right --amount 0.05 --pane {pane}"

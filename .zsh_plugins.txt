@@ -34,3 +34,6 @@ zsh-users/zsh-autosuggestions
 zdharma-continuum/fast-syntax-highlighting kind:defer
 zsh-users/zsh-history-substring-search
 
+
+# herdr shell integration (slow-command reporting, hsplit/htab/... helpers)
+robbyrussell/herdr-ohmyzsh

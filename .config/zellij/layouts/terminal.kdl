@@ -5,4 +5,14 @@ layout {
         }
         children
     }
+
+    tab name="Backend" focus=true {
+        pane
+    }
+    tab name="DevContainer" {
+        pane
+    }
+    tab name="Misc" {
+        pane
+    }
 }

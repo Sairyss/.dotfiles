@@ -1,0 +1,77 @@
+onboarding = false
+
+[theme]
+name = "tokyo-night"
+
+[ui.toast]
+delivery = "herdr"
+
+[ui]
+pane_borders = "off"
+pane_outer_borders = false
+pane_gaps = false
+
+[theme.custom]
+# overlay0 = "#181926"
+# accent = "#2fc77f"
+
+[keys]
+prefix = "ctrl+g"
+copy_mode = "prefix+y"
+previous_workspace = "alt+k"
+next_workspace = "alt+j"
+split_vertical = "prefix+|"
+settings = "prefix+shift+s"
+
+# which-key leader, tree in which-key/keys.toml
+[[keys.command]]
+key = "ctrl+b"
+type = "plugin_action"
+command = "pradyb.which-key.open"
+description = "which-key"
+
+# herdr nvim
+[[keys.command]]
+key = "prefix+d"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.pick-file"
+description = "open file from agent output"
+
+# vim-herdr-navigation (local, alt-based)
+[[keys.command]]
+key = "alt+h"
+type = "plugin_action"
+command = "vim-herdr-navigation.left"
+description = "navigate left (vim/herdr)"
+
+[[keys.command]]
+key = "alt+l"
+type = "plugin_action"
+command = "vim-herdr-navigation.right"
+description = "navigate right (vim/herdr)"
+
+# annotate capture also directly on prefix+a (works from copy mode); full set via which-key
+[[keys.command]]
+key = "prefix+a"
+type = "plugin_action"
+command = "annotate.capture"
+description = "annotate text"
+
+# sesh
+[[keys.command]]
+key = "prefix+s"
+type = "plugin_action"
+command = "fullerzz.sesh.open-picker"
+description = "sesh workspace picker"
+
+[[keys.command]]
+key = "prefix+v"
+type = "plugin_action"
+command = "fullerzz.sesh.last"
+description = "sesh: previous workspace"

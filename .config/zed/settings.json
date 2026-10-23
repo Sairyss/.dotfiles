@@ -7,6 +7,11 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
   "project_panel": {
     "dock": "left"
   },
@@ -16,6 +21,10 @@
   "collaboration_panel": {
     "dock": "left"
   },
+  // Controls the font size for the agent's markdown responses
+  "agent_ui_font_size": 16,
+  // Controls the font size for your user message prompts and code blocks
+  "agent_buffer_font_size": 14,
   "agent": {
     "dock": "right",
     "favorite_models": [],
@@ -24,15 +33,20 @@
   "git_panel": {
     "dock": "left"
   },
-  "icon_theme": "Colored Zed Icons Theme Dark",
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Colored Zed Icons Theme Dark",
+    "dark": "Colored Zed Icons Theme Dark"
+  },
   "tab_bar": {
     "show": true
   },
   "vim_mode": true,
   "ui_font_size": 15,
   "buffer_font_size": 15,
+  "soft_wrap": "editor_width",
   "theme": {
-    "mode": "system",
+    "mode": "dark",
     "light": "One Light",
     "dark": "Tokyo Night"
   },
