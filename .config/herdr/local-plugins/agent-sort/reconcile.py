@@ -2,7 +2,7 @@
 
 - nvim panes (terminal title "<file> (<dir>[ claude:<state>]) - Nvim", see nvim/lua/config/title.lua) are
   registered as agent `nvim` with the pane token kind=nvim. The claude:<idle|working|blocked> part is the
-  state of the claude running inside that nvim: it becomes the agent state and the display name "nvim (claude)".
+  state of the claude running inside that nvim: it becomes the agent state (the name stays "nvim").
   The registration is released when the title stops looking like nvim (exit, crash, closed window).
 - slow-command entries reported by herdr-ohmyzsh are tagged kind=job. A job is any reported agent that
   herdr doesn't know as a coding agent and that isn't nvim.
@@ -58,7 +58,7 @@ for p in panes:
 
     if NVIM.search(title) or title.startswith("nvim ") or title == "nvim":  # the latter: older nvim config
         m = CLAUDE.search(title)
-        want = [m.group(1) if m else "idle", "nvim (claude)" if m else ""]
+        want = [m.group(1) if m else "idle", ""]
         status = {"done": "idle"}.get(p.get("agent_status"), p.get("agent_status"))
         if agent == "nvim" and status == want[0] and known.get(pid) == want and tokens.get("kind") == "nvim":
             continue

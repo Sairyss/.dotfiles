@@ -20,7 +20,6 @@ rows = [
   [
     "state_icon",
     { token = "agent", fg = "#c0caf5", rules = [
-      { starts_with = "nvim (claude", fg = "#ff9e64", bold = true },
       { equals = "nvim", fg = "#bb9af7", bold = true },
       { starts_with = "claude", fg = "#ff9e64" },
     ] },
@@ -31,7 +30,16 @@ rows = [
 
 # workspaces panel: "<workspace> › <app>" (the title token is set by local-plugins/agent-sort)
 [ui.sidebar.spaces]
-rows = [["state_icon", { token = "$title", fg = "#c0caf5" }], ["branch", "git_status"]]
+rows = [
+  [
+    "state_icon",
+    { token = "$title", fg = "#c0caf5" },
+  ],
+  [
+    "branch",
+    "git_status",
+  ],
+]
 
 [theme.custom]
 # overlay0 = "#181926"
