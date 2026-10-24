@@ -46,8 +46,9 @@ vim_re='^g?(view|l?n?vim?x?)(diff)?$'
 # ERE matched against the lower-cased process name. Empty (default) forwards only Vim.
 passthrough_re="${HERDR_NAV_PASSTHROUGH_RE:-}"
 
-# The herdr-nvim sidebar is an `nvim --remote-ui` client of a vanilla daemon that has no
-# navigation mapping, so it is excluded above and treated like any other pane.
+# The herdr-nvim sidebar (`nvim --remote-ui` client of a daemon running our nvim config) is
+# treated like any other nvim pane: keys are forwarded to the daemon, whose HERDR_PANE_ID is
+# the sidebar pane, so plugins/herdr/navigation.lua hands off from the right pane at a split edge.
 forward=0
 # HERDR_NAV_NO_FORWARD=1 (set by the nvim mapping when it hit a split edge) skips the
 # Vim hand-off so we go straight to herdr movement and cannot bounce back into Vim.
@@ -55,7 +56,6 @@ if [ "${HERDR_NAV_NO_FORWARD:-0}" != "1" ] && [ -n "$pane" ] && command -v jq >/
   if "$herdr" pane process-info --pane "$pane" 2>/dev/null \
     | jq -e --arg vim "$vim_re" --arg pass "$passthrough_re" \
         '.result.process_info.foreground_processes[]?
-         | select((.cmdline // "") | contains("/herdr-nvim/") | not)
          | .name
          | ascii_downcase
          | select(test($vim) or ($pass != "" and (try test($pass) catch false)))' >/dev/null 2>&1; then

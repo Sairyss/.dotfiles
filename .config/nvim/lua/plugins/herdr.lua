@@ -7,7 +7,9 @@ return {
       vim.g.tmux_navigator_no_mappings = 1
     end,
     config = function()
-      require("herdr_navigation")
+      -- custom <M-h/l> navigation between nvim splits (incl. neo-tree / terminal) and herdr panes;
+      -- calls ~/.dotfiles/.config/herdr/local-plugins/vim-herdr-navigation/navigate.sh at a split edge
+      require("plugins.herdr.navigation")
     end,
   },
 }

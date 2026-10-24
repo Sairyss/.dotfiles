@@ -39,9 +39,19 @@ local function nav(wincmd, dir)
 end
 
 local function map(lhs, wincmd, dir, desc)
-  vim.keymap.set("n", lhs, function()
+  local function go()
     nav(wincmd, dir)
-  end, { silent = true, noremap = true, desc = desc })
+  end
+  vim.keymap.set("n", lhs, go, { silent = true, noremap = true, desc = desc })
+  -- Terminal buffers (claude, shell): <M-h/l> would otherwise go to the program inside
+  vim.keymap.set("t", lhs, go, { silent = true, noremap = true, desc = desc })
+  -- neo-tree: buffer-local so it wins over global mappings (e.g. treewalker's <M-h/l>)
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = "neo-tree",
+    callback = function(ev)
+      vim.keymap.set("n", lhs, go, { buffer = ev.buf, silent = true, noremap = true, desc = desc })
+    end,
+  })
 end
 
 map("<M-h>", "h", "left", "Navigate left (vim/herdr)")

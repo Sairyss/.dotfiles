@@ -78,6 +78,12 @@ return {
       },
       window = {
         mappings = {
+          ["<leader>ai"] = {
+            function(state)
+              require("plugins.herdr.neotree_ref").send(state)
+            end,
+            desc = "Send file path to agent (herdr)",
+          },
           ["<C-y>"] = {
             function(state)
               local node = state.tree:get_node()
