@@ -43,10 +43,10 @@ return {
       highlight = true, -- default is false
     },
     keys = {
-      { "<M-h>", ":Treewalker Left<CR>zz", silent = true, mode = { "n" } },
-      { "<M-j>", ":Treewalker Down<CR>zz", silent = true, mode = { "n" } },
-      { "<M-k>", ":Treewalker Up<CR>zz", silent = true, mode = { "n" } },
-      { "<M-l>", ":Treewalker Right<CR>zz", silent = true, mode = { "n" } },
+      -- { "<M-h>", ":Treewalker Left<CR>zz", silent = true, mode = { "n" } }, -- taken by plugins/herdr/navigation.lua
+      -- { "<M-j>", ":Treewalker Down<CR>zz", silent = true, mode = { "n" } }, -- taken by plugins/herdr/navigation.lua
+      -- { "<M-k>", ":Treewalker Up<CR>zz", silent = true, mode = { "n" } }, -- taken by plugins/herdr/navigation.lua
+      -- { "<M-l>", ":Treewalker Right<CR>zz", silent = true, mode = { "n" } }, -- taken by plugins/herdr/navigation.lua
       { "<C-S-j>", "<cmd>Treewalker SwapDown<cr>", silent = true, mode = { "n" } },
       { "<C-S-k>", "<cmd>Treewalker SwapUp<cr>", silent = true, mode = { "n" } },
     },

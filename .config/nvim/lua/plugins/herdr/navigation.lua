@@ -45,7 +45,7 @@ local function map(lhs, wincmd, dir, desc)
   vim.keymap.set("n", lhs, go, { silent = true, noremap = true, desc = desc })
   -- Terminal buffers (claude, shell): <M-h/l> would otherwise go to the program inside
   vim.keymap.set("t", lhs, go, { silent = true, noremap = true, desc = desc })
-  -- neo-tree: buffer-local so it wins over global mappings (e.g. treewalker's <M-h/l>)
+  -- neo-tree: buffer-local so it wins over global mappings (e.g. other <M-h/l> mappings)
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "neo-tree",
     callback = function(ev)
@@ -56,3 +56,5 @@ end
 
 map("<M-h>", "h", "left", "Navigate left (vim/herdr)")
 map("<M-l>", "l", "right", "Navigate right (vim/herdr)")
+map("<M-j>", "j", "down", "Navigate down (vim/herdr)")
+map("<M-k>", "k", "up", "Navigate up (vim/herdr)")
