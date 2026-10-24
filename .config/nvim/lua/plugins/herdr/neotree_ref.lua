@@ -9,13 +9,21 @@ function M.send(state)
     return
   end
   local path = node.path
-  local agents = require("herdr-nvim.agents")
+  local ok_mod, agents = pcall(require, "herdr-nvim.agents")
+  if not ok_mod then
+    vim.notify("herdr-nvim: not running inside herdr", vim.log.levels.WARN)
+    return
+  end
   local dispatch = require("herdr-nvim.dispatch")
   local prompt = require("herdr-nvim.prompt")
 
   local list, err = agents.list()
   if not list then
-    vim.notify("herdr-nvim: " .. err, vim.log.levels.ERROR)
+    vim.notify("herdr-nvim: " .. err, vim.log.levels.WARN)
+    return
+  end
+  if #list == 0 then
+    vim.notify("herdr-nvim: no herdr agent running in this workspace", vim.log.levels.WARN)
     return
   end
   local function deliver(agent)

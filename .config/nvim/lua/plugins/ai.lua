@@ -4,7 +4,9 @@ return {
     dependencies = { "folke/snacks.nvim" },
     lazy = false, -- load on startup so the server is running for `/ide` without pressing a key first
     opts = {
-      terminal_cmd = "/usr/bin/claude", -- Point to local installation
+      -- Point to local installation. Inside herdr, HERDR_ENV is unset so claude's herdr hook doesn't claim the pane:
+      -- nvim owns it: the nvim terminal title carries claude's state (config/title.lua) for the agent-sort herdr plugin
+      terminal_cmd = (vim.env.HERDR_ENV and "env -u HERDR_ENV " or "") .. "/usr/bin/claude",
     },
     config = true,
     keys = {

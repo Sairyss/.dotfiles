@@ -7,9 +7,31 @@ name = "tokyo-night"
 delivery = "herdr"
 
 [ui]
+# new tabs get named by herdr-auto-title instead of prompting (a typed name counts as manual)
+prompt_new_tab_name = false
 pane_borders = "off"
 pane_outer_borders = false
 pane_gaps = false
+
+# agents panel: one line per agent (name · machine · workspace dir); nvim instances
+# (registered by local-plugins/agent-sort from the nvim terminal title) get a bold purple name, claude is orange, others light
+[ui.sidebar.agents]
+rows = [
+  [
+    "state_icon",
+    { token = "agent", fg = "#c0caf5", rules = [
+      { starts_with = "nvim (claude", fg = "#ff9e64", bold = true },
+      { equals = "nvim", fg = "#bb9af7", bold = true },
+      { starts_with = "claude", fg = "#ff9e64" },
+    ] },
+    "workspace",
+    "machine",
+  ],
+]
+
+# workspaces panel: "<workspace> › <app>" (the title token is set by local-plugins/agent-sort)
+[ui.sidebar.spaces]
+rows = [["state_icon", { token = "$title", fg = "#c0caf5" }], ["branch", "git_status"]]
 
 [theme.custom]
 # overlay0 = "#181926"

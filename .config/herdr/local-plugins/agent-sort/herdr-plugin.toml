@@ -1,0 +1,26 @@
+id = "agent-sort"
+name = "Agent Sort"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Agents panel: registers nvim panes (from their terminal title) and tags slow-command jobs; order is jobs, nvim, agents"
+platforms = ["linux", "macos"]
+
+# Agent views are transient (lost when the server exits), so reapply on startup.
+[[startup]]
+command = ["python3", "-I", "apply.py"]
+
+# detached watcher: subscribes to pane events and runs reconcile.py (see watcher.py)
+[[startup]]
+command = ["setsid", "-f", "python3", "-I", "watcher.py"]
+
+[[actions]]
+id = "reconcile"
+title = "Reconcile nvim/job entries now"
+contexts = ["global"]
+command = ["python3", "-I", "reconcile.py"]
+
+[[actions]]
+id = "apply"
+title = "Reapply agents panel sort"
+contexts = ["global"]
+command = ["python3", "-I", "apply.py"]

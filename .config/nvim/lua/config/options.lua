@@ -64,3 +64,6 @@ vim.g.matchparen_insert_timeout = 2
 -- vim.o.spell = false
 
 ----- end performance improvements -----
+
+-- terminal title (read by herdr)
+require("config.title")
