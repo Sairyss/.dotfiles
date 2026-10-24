@@ -390,6 +390,46 @@ return {
       },
     },
   },
+  {
+    "emrearmagan/atlas.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons", -- optional but recommended
+      "esmuellert/codediff.nvim", -- optional (PullRequest diff)
+    },
+    keys = {
+      { "<leader>A", group = "Atlas" },
+      { "<leader>Aj", "<cmd>Atlas issues jira<CR>", desc = "Jira issues" },
+      { "<leader>Ai", ":Atlas open ", desc = "Open Jira issue / PR (key, URL, number)" },
+      { "<leader>Ac", "<cmd>Atlas create issue jira<CR>", desc = "Create Jira issue" },
+      { "<leader>Ap", "<cmd>Atlas pulls bitbucket<CR>", desc = "Bitbucket PRs" },
+      { "<leader>Ao", "<cmd>Atlas open .<CR>", desc = "Open current branch PR" },
+      { "<leader>Ar", "<cmd>Atlas review .<CR>", desc = "Review current branch PR" },
+      { "<leader>AC", "<cmd>Atlas create pr<CR>", desc = "Create PR" },
+      { "<leader>As", "<cmd>Atlas search<CR>", desc = "Search PRs / issues" },
+      { "<leader>Ab", "<cmd>Atlas browse .<CR>", desc = "Browse repository" },
+    },
+    -- See Configuration below
+    ---@type AtlasConfig
+    opts = {
+      providers = {
+        bitbucket = {
+          user = os.getenv("BITBUCKET_USER"),
+          token = os.getenv("BITBUCKET_TOKEN"),
+          cache_ttl = 300, -- Set to 0 to disable caching.
+        },
+        ---@type AtlasJiraConfig
+        jira = {
+          base_url = os.getenv("JIRA_URL"),
+          email = os.getenv("JIRA_EMAIL"), -- Required for basic authentication only.
+          --- See: https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
+          token = os.getenv("JIRA_TOKEN"),
+          auth_method = "basic", -- "basic" or "bearer", defaults to "basic". If using bearer, set `token` to your API token.
+          api_type = "cloud", -- either "cloud" or "server", defaults to "cloud". Cloud API is v3, server API is v2
+          cache_ttl = 300, -- Set to 0 to disable caching.
+        },
+      },
+    },
+  },
   -- {
   --   "obsidian-nvim/obsidian.nvim",
   --   version = "*", -- recommended, use latest release instead of latest commit

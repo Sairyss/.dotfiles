@@ -77,6 +77,7 @@ return {
         },
       },
       window = {
+        width = 35,
         mappings = {
           ["<leader>ai"] = {
             function(state)

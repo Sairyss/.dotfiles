@@ -44,6 +44,8 @@ next_workspace = "alt+j"
 split_vertical = "prefix+|"
 settings = "prefix+shift+s"
 open_notification_target = "prefix+o" # jump to the agent that finished / needs attention
+next_agent = "alt+u"
+previous_agent = "alt+i"
 
 # which-key leader, tree in which-key/keys.toml
 [[keys.command]]
