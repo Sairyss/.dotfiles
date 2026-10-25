@@ -1,5 +1,10 @@
 [plugin]
 prepend_previewers = [
+  { url = "*/", run = 'piper -- eza -TL=3 --color=always --icons=always --group-directories-first --no-quotes "$1"' },
+  { url = "*.tar*", run = 'piper --format=url -- tar tf "$1"' },
+  { url = "*.md", run = 'piper -- bat -p --color=always -l md "$1"' },
+  { url = "*.csv", run = 'piper -- bat -p --color=always "$1"' },
+  { mime = "application/sqlite3", run = 'piper -- sqlite3 "$1" ".schema --indent"' },
   { mime = "{image,audio,video}/*", run = "mediainfo" },
   { mime = "application/subrip", run = "mediainfo" },
 ]
