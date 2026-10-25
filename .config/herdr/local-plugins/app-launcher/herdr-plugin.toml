@@ -1,0 +1,51 @@
+id = "app-launcher"
+name = "App Launcher"
+version = "1.1.0-local"
+min_herdr_version = "0.7.0"
+description = "Open yazi, neovim and lazygit in the current pane if its shell is idle, else in a new tab"
+platforms = ["linux", "macos"]
+
+[[build]]
+command = ["bash", "-c", "command -v yazi >/dev/null 2>&1 || { [ \"$(uname -s)\" = \"Darwin\" ] && command -v brew >/dev/null 2>&1 && exec brew install yazi; echo \"Yazi is required. Install it from https://yazi-rs.github.io/docs/installation\" >&2; exit 1; }"]
+
+[[panes]]
+id = "explorer"
+title = "Explorer"
+placement = "split"
+command = ["bash", "-c", "exec yazi"]
+
+[[panes]]
+id = "nvim"
+title = "Neovim"
+placement = "tab"
+command = ["bash", "-c", "exec nvim ."]
+
+[[panes]]
+id = "lazygit"
+title = "Lazygit"
+placement = "tab"
+command = ["bash", "-c", "exec lazygit"]
+
+[[actions]]
+id = "open"
+title = "Open file explorer"
+contexts = ["workspace"]
+command = ["bash", "-c", "DIR=\"$(bash \"$HERDR_PLUGIN_ROOT/bin/resolve-dir.sh\")\"; exec \"${HERDR_BIN_PATH:-herdr}\" plugin pane open --plugin app-launcher --entrypoint explorer --placement split --focus --cwd \"$DIR\""]
+
+[[actions]]
+id = "open-tab"
+title = "Open file explorer (here if idle, else new tab)"
+contexts = ["workspace"]
+command = ["bash", "bin/open-tab.sh", "explorer", "yazi"]
+
+[[actions]]
+id = "open-nvim"
+title = "Open neovim (here if idle, else new tab)"
+contexts = ["workspace"]
+command = ["bash", "bin/open-tab.sh", "nvim", "nvim"]
+
+[[actions]]
+id = "open-lazygit"
+title = "Open lazygit (here if idle, else new tab)"
+contexts = ["workspace"]
+command = ["bash", "bin/open-tab.sh", "lazygit", "lazygit -p"]

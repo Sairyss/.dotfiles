@@ -99,3 +99,59 @@ key = "prefix+v"
 type = "plugin_action"
 command = "fullerzz.sesh.last"
 description = "sesh: previous workspace"
+
+# Apps
+[[keys.command]] # open in a split pane
+key = "prefix+F"
+type = "plugin_action"
+command = "app-launcher.open"
+description = "open file explorer"
+
+[[keys.command]] # open in a new tab
+key = "prefix+f"
+type = "plugin_action"
+command = "app-launcher.open-tab"
+description = "open file explorer in a new tab"
+
+[[keys.command]] # neovim here if the shell is idle, else in a new tab
+key = "prefix+n"
+type = "plugin_action"
+command = "app-launcher.open-nvim"
+description = "open neovim"
+
+[[keys.command]] # lazygit here if the shell is idle, else in a new tab
+key = "prefix+l"
+type = "plugin_action"
+command = "app-launcher.open-lazygit"
+description = "open lazygit"
+
+# Tabs
+[[keys.command]]
+key = "ctrl+1"
+type = "plugin_action"
+command = "tab-jump.tab-1"
+description = "go to tab 1"
+
+[[keys.command]]
+key = "ctrl+2"
+type = "plugin_action"
+command = "tab-jump.tab-2"
+description = "go to tab 2"
+
+[[keys.command]]
+key = "ctrl+3"
+type = "plugin_action"
+command = "tab-jump.tab-3"
+description = "go to tab 3"
+
+[[keys.command]]
+key = "ctrl+4"
+type = "plugin_action"
+command = "tab-jump.tab-4"
+description = "go to tab 4"
+
+[[keys.command]]
+key = "ctrl+5"
+type = "plugin_action"
+command = "tab-jump.tab-5"
+description = "go to tab 5"

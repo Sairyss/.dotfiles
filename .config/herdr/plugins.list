@@ -9,3 +9,5 @@ github kryptamine/herdr-auto-title e7fbd5717cc4293d2768a8792d7b331f69595474
 github pradyb/herdr-which-key cd760c7d03a32dc2f8cfa40eaab3cc9beeac116b
 local vim-herdr-navigation
 local agent-sort
+local app-launcher
+local tab-jump
