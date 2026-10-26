@@ -53,15 +53,23 @@ dir=
 trap '[[ -z $dir ]] || rm -rf "$dir"; [[ -z $pane ]] || clear_meta' EXIT
 trap 'exit 0' INT # Ctrl-C while waiting: close now (exit status 0), like in the countdown
 
+release() { "$herdr" pane release-agent "$pane" --source ohmyzsh --agent "$label" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
+
 hold() {
   [[ -n $pane ]] || return 0
   local took=$(($(date +%s) - start)) state=idle
   if ((rc != 0)); then
     state=blocked # a failure is shown whatever its duration
-  else
-    ((took >= ${HERDR_OMZ_THRESHOLD:-10})) || return 0
+  elif ((took < ${HERDR_OMZ_THRESHOLD:-10})); then
+    release; return 0 # too quick to be worth showing
   fi
-  focused && return 0 # being watched: nothing to hold
+  # herdr-ohmyzsh marked the entry working and only clears that when the prompt comes back, which is after
+  # this script (the linger countdown), so an entry we don't hold has to be dropped here.
+  # herdr itself knows when a finished command was seen, also when it runs inside another terminal that
+  # you switched away from (its own focus flag stays true then), so a success is always reported and the
+  # wait below ends when herdr stops showing it as done. A failure (blocked) has no seen state: it is only
+  # skipped when the pane is focused, which is when you are looking at it.
+  if [[ $state == blocked ]] && focused; then release; return 0; fi
 
   "$herdr" pane report-agent "$pane" --source ohmyzsh --agent "$label" --state "$state" \
     --message "$cmd (exit $rc, took ${took}s)" --seq "$(date +%s%6N)" >/dev/null 2>&1 || return 0
@@ -74,13 +82,23 @@ hold() {
   # the waiting process is a copy of bash under the entry's name
   dir="$(mktemp -d)" || return 0
   ln -s "$(command -v bash)" "$dir/$label"
-  # shellcheck disable=SC2016
-  "$dir/$label" -c '
-    until [[ "$("$1" pane get "$2" 2>/dev/null)" == *"\"focused\":true"* ]] ||
-          { (($3 > 0)) && (($(date +%s) >= $3)); }; do sleep 1; done
-  ' "$label" "$herdr" "$pane" "$deadline"
+  # waits until herdr shows a done entry as seen, or for blocked until the pane is focused, or the linger is over
+  cat >"$dir/wait.sh" <<'WAIT'
+herdr="$1" pane="$2" deadline="$3" state="$4"
+while :; do
+  info="$("$herdr" pane get "$pane" 2>/dev/null)"
+  if [[ $state == blocked ]]; then
+    [[ $info == *'"focused":true'* ]] && break
+  else
+    [[ $info == *'"agent_status":"done"'* ]] || break
+  fi
+  ((deadline > 0)) && (($(date +%s) >= deadline)) && break
+  sleep 1
+done
+WAIT
+  "$dir/$label" "$dir/wait.sh" "$herdr" "$pane" "$deadline" "$state"
   # the wait is over (focused, or the linger ran out): remove the entry now instead of leaving it to herdr
-  "$herdr" pane release-agent "$pane" --source ohmyzsh --agent "$label" --seq "$(date +%s%6N)" >/dev/null 2>&1
+  release
 }
 
 hold
