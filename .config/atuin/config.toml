@@ -104,6 +104,9 @@ history_filter = [
   "^git commit -m",
   "^git checkout -b",
   "^git merge",
+  # lines launch.sh types into a pane (herdr/scripts/launch.sh, launch-hold.sh, launch-linger.sh)
+  "herdr/scripts/launch",
+  "1004h.; stty -echo$",
 ]
 
 ## prevent commands run with cwd matching any of these regexes from being written

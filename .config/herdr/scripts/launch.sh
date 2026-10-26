@@ -130,7 +130,7 @@ name_pane() {
   local name="$cmd"
   if ((${#name} > 80)); then name="${name:0:79}…"; fi
   hc pane report-metadata "$1" --source launch --agent "$(label_of "$cmd")" --applies-to-source ohmyzsh \
-    --display-agent "$name" --token "cmd=$name" --seq "$(date +%s%6N)" >/dev/null || true
+    --display-agent "$name" --token "cmd=$name" --token "start=$(date +%s)" --seq "$(date +%s%6N)" >/dev/null || true
 }
 
 # hc ARGS...: a herdr call that changes something (printed instead of run with --dry-run).
@@ -178,7 +178,7 @@ if [[ -n $keep || -n $linger ]]; then
   # reads it back from the entry's display name)
   here="$(cd "$(dirname "$0")" && pwd)"
   if [[ $here == "$HOME"/* ]]; then hold="~/$(q "${here#"$HOME"/}/launch-hold.sh")"; else hold="$(q "$here/launch-hold.sh")"; fi
-  hold_args="$(q "$(label_of "$cmd")") $(date +%s) \$rc"
+  hold_args="$(q "$(label_of "$cmd")") \$rc"
   if [[ -n $linger ]]; then
     snippet+="; if $hold --linger $(q "$linger") $hold_args; then exit \$rc; fi"
   else
@@ -186,8 +186,15 @@ if [[ -n $keep || -n $linger ]]; then
   fi
 fi
 
-# focus_events PANE: with --keep/--linger launch-hold.sh needs to know whether you were away from the terminal
-# when the command ended, so turn the terminal's focus events on (and stop them being echoed) before the command
+# focus_events PANE: with --keep/--linger, launch-hold.sh has to know whether you were away from the terminal
+# when the command ended (see the header of launch-hold.sh for why herdr's own focus flag can't tell). The
+# terminal reports that as escape codes once DEC mode 1004 is on: ESC[O when you leave, ESC[I when you come
+# back; herdr forwards them to the pane. They have to be switched on BEFORE the command starts, because the
+# switch-away usually happens while it runs; they then wait in the tty input until launch-hold.sh reads them.
+#  - printf ...1004h  switches the reports on (launch-hold.sh switches them off again)
+#  - stty -echo       stops the tty echoing those codes into the command's output as ^[[O / ^[[I
+# It is a separate typed line, not a prefix of the command line, because herdr-ohmyzsh labels the sidebar
+# entry with the first word of the line, which must be the command itself (so no `printf ...; cmd`).
 focus_events() {
   [[ -n $keep || -n $linger ]] || return 0
   hc pane run "$1" "printf '\\033[?1004h'; stty -echo" >/dev/null

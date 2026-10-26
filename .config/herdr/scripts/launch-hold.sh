@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Usage: launch-hold.sh [--linger DURATION] LABEL START_EPOCH EXIT_CODE [COMMAND...]
-# (COMMAND defaults to the `cmd` pane token launch.sh set when the command started.)
+# Usage: launch-hold.sh [--linger DURATION] LABEL EXIT_CODE [COMMAND...]
+# (COMMAND and the start time default to the `cmd` and `start` pane tokens launch.sh set when the command
+# started. They are not arguments so the line typed into the shell is the same every time and shell history
+# (atuin) doesn't fill up with one-off lines.)
 # Called by launch.sh when a --keep/--linger command has finished. Two jobs:
 #
 # 1. Sidebar entry, for a pane you are not looking at. A command that succeeded and ran at least
@@ -24,14 +26,16 @@ set -uo pipefail
 
 linger=
 if [[ ${1:-} == --linger ]]; then linger="${2:?duration}"; shift 2; fi
-label="${1:?label}" start="${2:?start epoch}" rc="${3:?exit code}"; shift 3
+label="${1:?label}" rc="${2:?exit code}"; shift 2
 cmd="$*"
 herdr="${HERDR_BIN_PATH:-herdr}"
 pane="${HERDR_PANE_ID:-}"
-if [[ -z $cmd && -n $pane ]]; then
-  cmd="$("$herdr" pane get "$pane" 2>/dev/null | grep -o '"cmd":"[^"]*"' | head -n1 | cut -d'"' -f4)" # the token launch.sh set
-fi
+start= info=
+[[ -z $pane ]] || info="$("$herdr" pane get "$pane" 2>/dev/null)"
+[[ -n $cmd ]] || cmd="$(grep -o '"cmd":"[^"]*"' <<<"$info" | head -n1 | cut -d'"' -f4)" # the tokens launch.sh set
+start="$(grep -o '"start":"[0-9]*"' <<<"$info" | head -n1 | cut -d'"' -f4)"
 [[ -n $cmd ]] || cmd="$label"
+[[ -n $start ]] || start="$(date +%s)"
 here="$(dirname "$(readlink -f "$0")")"
 
 # the moment the linger is over, counted from now (the command just finished)
@@ -52,7 +56,7 @@ fi
 meta() { "$herdr" pane report-metadata "$pane" --source launch --agent "$label" --applies-to-source ohmyzsh \
   "$@" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
 # everything launch.sh/this script put on the entry besides the state itself
-clear_meta() { meta --clear-display-agent --clear-state-labels --clear-token result --clear-token cmd; }
+clear_meta() { meta --clear-display-agent --clear-state-labels --clear-token result --clear-token cmd --clear-token start; }
 focused() { [[ "$("$herdr" pane get "$pane" 2>/dev/null)" == *'"focused":true'* ]]; }
 dir=
 trap '[[ -z $dir ]] || rm -rf "$dir"; [[ -z $pane ]] || clear_meta' EXIT
