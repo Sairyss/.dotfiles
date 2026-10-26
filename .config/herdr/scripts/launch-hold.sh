@@ -12,6 +12,11 @@
 #    (that is why it used to vanish when the command finished). It keeps it while a process named like
 #    the entry is in the foreground, so this waits as a process with that name.
 #
+#    Whether you are away is read from the terminal's focus events (launch.sh turns them on when it types the
+#    command): herdr's own focus flag stays true when herdr runs inside another terminal (an ssh/incus
+#    session) and you switch away from that terminal, and herdr's API never reports "done" (its sidebar works
+#    that out per client from the same events).
+#
 # 2. With --linger: the countdown (launch-linger.sh) to DURATION after the command finished, whether or
 #    not the pane was focused. Exit status: 0 = close the pane, 1 = you pressed the keep key.
 #    Without --linger the exit status is always 0.
@@ -55,6 +60,19 @@ trap 'exit 0' INT # Ctrl-C while waiting: close now (exit status 0), like in the
 
 release() { "$herdr" pane release-agent "$pane" --source ohmyzsh --agent "$label" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
 
+# focus events from the terminal, if launch.sh turned them on (ESC [ I = focus in, ESC [ O = focus out)
+outer_out=0
+have_tty() { { : </dev/tty; } 2>/dev/null; }
+drain_events() {
+  local c r
+  while IFS= read -rsn1 -t 0.05 c </dev/tty 2>/dev/null; do
+    [[ $c == $'\e' ]] || continue
+    IFS= read -rsn2 -t 0.05 r </dev/tty 2>/dev/null
+    case $r in '[O') outer_out=1 ;; '[I') outer_out=0 ;; esac
+  done
+}
+release() { "$herdr" pane release-agent "$pane" --source ohmyzsh --agent "$label" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
+
 hold() {
   [[ -n $pane ]] || return 0
   local took=$(($(date +%s) - start)) state=idle
@@ -65,11 +83,11 @@ hold() {
   fi
   # herdr-ohmyzsh marked the entry working and only clears that when the prompt comes back, which is after
   # this script (the linger countdown), so an entry we don't hold has to be dropped here.
-  # herdr itself knows when a finished command was seen, also when it runs inside another terminal that
-  # you switched away from (its own focus flag stays true then), so a success is always reported and the
-  # wait below ends when herdr stops showing it as done. A failure (blocked) has no seen state: it is only
-  # skipped when the pane is focused, which is when you are looking at it.
-  if [[ $state == blocked ]] && focused; then release; return 0; fi
+  local away=0 by=outer
+  have_tty && drain_events
+  ((outer_out)) && away=1
+  focused || { away=1; by=flag; } # you switched to another tab/workspace of this herdr
+  if ((!away)); then release; return 0; fi # you are looking at it
 
   "$herdr" pane report-agent "$pane" --source ohmyzsh --agent "$label" --state "$state" \
     --message "$cmd (exit $rc, took ${took}s)" --seq "$(date +%s%6N)" >/dev/null 2>&1 || return 0
@@ -82,26 +100,32 @@ hold() {
   # the waiting process is a copy of bash under the entry's name
   dir="$(mktemp -d)" || return 0
   ln -s "$(command -v bash)" "$dir/$label"
-  # waits until herdr shows a done entry as seen, or for blocked until the pane is focused, or the linger is over
+  # ends when you are back (a focus-in event, or the pane is focused when you were away inside herdr) or the
+  # linger is over
   cat >"$dir/wait.sh" <<'WAIT'
-herdr="$1" pane="$2" deadline="$3" state="$4"
+herdr="$1" pane="$2" deadline="$3" by="$4"
+tty=0; { : </dev/tty; } 2>/dev/null && tty=1
 while :; do
-  info="$("$herdr" pane get "$pane" 2>/dev/null)"
-  if [[ $state == blocked ]]; then
-    [[ $info == *'"focused":true'* ]] && break
+  if [[ $by == flag ]]; then
+    [[ "$("$herdr" pane get "$pane" 2>/dev/null)" == *'"focused":true'* ]] && break
+    sleep 1
+  elif ((tty)); then
+    if IFS= read -rsn1 -t 1 c </dev/tty && [[ $c == $'\e' ]]; then
+      IFS= read -rsn2 -t 0.05 r </dev/tty
+      [[ $r == '[I' ]] && break
+    fi
   else
-    [[ $info == *'"agent_status":"done"'* ]] || break
+    sleep 1
   fi
   ((deadline > 0)) && (($(date +%s) >= deadline)) && break
-  sleep 1
 done
 WAIT
-  "$dir/$label" "$dir/wait.sh" "$herdr" "$pane" "$deadline" "$state"
-  # the wait is over (focused, or the linger ran out): remove the entry now instead of leaving it to herdr
+  "$dir/$label" "$dir/wait.sh" "$herdr" "$pane" "$deadline" "$by"
   release
 }
 
 hold
+if have_tty; then printf '\033[?1004l' >/dev/tty; stty echo </dev/tty 2>/dev/null; fi # focus events off again
 [[ -z $pane ]] || clear_meta # the entry is gone now; don't leave the name or labels behind
 
 if [[ -n $linger ]]; then

@@ -186,6 +186,13 @@ if [[ -n $keep || -n $linger ]]; then
   fi
 fi
 
+# focus_events PANE: with --keep/--linger launch-hold.sh needs to know whether you were away from the terminal
+# when the command ended, so turn the terminal's focus events on (and stop them being echoed) before the command
+focus_events() {
+  [[ -n $keep || -n $linger ]] || return 0
+  hc pane run "$1" "printf '\\033[?1004h'; stty -echo" >/dev/null
+}
+
 # typed into a new pane's shell: close it when done unless --keep/--linger. (Without them
 # the command takes the fast path below and never gets here, so rc is always set when needed.)
 if [[ -n $keep || -n $linger ]]; then run="$snippet"; else run="$snippet; exit \$rc"; fi
@@ -218,6 +225,7 @@ if [[ $mode == split ]]; then
   out="$(hc pane split --pane "$pane" --direction right --cwd "$cwd" --focus)" || exit 1; check "$out"
   new="$(jstr pane_id "$out")"
   [[ -n $new || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
+  focus_events "${new:-<new-pane>}"
   hc pane run "${new:-<new-pane>}" "$run" >/dev/null
   name_pane "${new:-<new-pane>}"
   exit 0
@@ -247,5 +255,6 @@ fi
 out="$(hc tab create --cwd "$cwd" --focus)" || exit 1; check "$out"
 root="$(jstr pane_id "$out")"
 [[ -n $root || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
+focus_events "${root:-<new-pane>}"
 hc pane run "${root:-<new-pane>}" "$run" >/dev/null
 name_pane "${root:-<new-pane>}"
