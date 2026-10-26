@@ -6,7 +6,7 @@ set -euo pipefail
 list="$(dirname "$(readlink -f "$0")")/plugins.list"
 target="${1:-}"
 
-h() { if [[ -n $target ]]; then ssh "$target" herdr "$@"; else herdr "$@"; fi; }
+h() { if [[ -n $target ]]; then ssh -n "$target" herdr "$@"; else herdr "$@"; fi; }
 
 installed="$(h plugin list)"
 
@@ -26,7 +26,7 @@ while read -r kind src ref; do
       else
         echo "link    local:$src"
         dir=".dotfiles/.config/herdr/local-plugins/$src"
-        if [[ -n $target ]]; then ssh "$target" 'herdr plugin link "$HOME/'"$dir"'"'; else herdr plugin link "$HOME/$dir"; fi
+        if [[ -n $target ]]; then ssh -n "$target" 'herdr plugin link "$HOME/'"$dir"'"'; else herdr plugin link "$HOME/$dir"; fi
       fi ;;
   esac
 done <"$list"
