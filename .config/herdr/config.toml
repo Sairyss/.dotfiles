@@ -47,6 +47,9 @@ open_notification_target = "prefix+o" # jump to the agent that finished / needs 
 next_agent = "alt+u"
 previous_agent = "alt+i"
 
+[keys.indexed]
+tabs = "ctrl" # ctrl+1..9 jump to the n-th tab
+
 # which-key leader, tree in which-key/keys.toml
 [[keys.command]]
 key = "ctrl+b"
@@ -100,58 +103,35 @@ type = "plugin_action"
 command = "fullerzz.sesh.last"
 description = "sesh: previous workspace"
 
-# Apps
-[[keys.command]] # open in a split pane
+# Apps: launch.sh [--tab|--split] <cmd> (modes and popup example: see scripts/launch.sh)
+[[keys.command]] # split pane
 key = "prefix+F"
-type = "plugin_action"
-command = "app-launcher.open"
-description = "open file explorer"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/launch.sh --split yazi"
+description = "yazi in a split"
 
-[[keys.command]] # open in a new tab
+[[keys.command]]
 key = "prefix+f"
-type = "plugin_action"
-command = "app-launcher.open-tab"
-description = "open file explorer in a new tab"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/launch.sh yazi"
+description = "yazi"
 
-[[keys.command]] # neovim here if the shell is idle, else in a new tab
+[[keys.command]]
 key = "prefix+n"
-type = "plugin_action"
-command = "app-launcher.open-nvim"
-description = "open neovim"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/launch.sh nvim ."
+description = "neovim"
 
-[[keys.command]] # lazygit here if the shell is idle, else in a new tab
+[[keys.command]]
 key = "prefix+l"
-type = "plugin_action"
-command = "app-launcher.open-lazygit"
-description = "open lazygit"
+type = "shell"
+command = "$HOME/.config/herdr/scripts/launch.sh lazygit"
+description = "lazygit"
 
-# Tabs
-[[keys.command]]
-key = "ctrl+1"
-type = "plugin_action"
-command = "tab-jump.tab-1"
-description = "go to tab 1"
-
-[[keys.command]]
-key = "ctrl+2"
-type = "plugin_action"
-command = "tab-jump.tab-2"
-description = "go to tab 2"
-
-[[keys.command]]
-key = "ctrl+3"
-type = "plugin_action"
-command = "tab-jump.tab-3"
-description = "go to tab 3"
-
-[[keys.command]]
-key = "ctrl+4"
-type = "plugin_action"
-command = "tab-jump.tab-4"
-description = "go to tab 4"
-
-[[keys.command]]
-key = "ctrl+5"
-type = "plugin_action"
-command = "tab-jump.tab-5"
-description = "go to tab 5"
+[[keys.command]] # popup in the middle of the screen
+key = "prefix+t"
+type = "popup"
+command = "tv channels"
+width = "80%"
+height = "80%"
+description = "television"

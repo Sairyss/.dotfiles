@@ -24,16 +24,16 @@ shell = "bash"
 mode = "execute"
 
 [actions.run-tab]
-description = "Run the selected npm script in a new herdr tab (tab closes 1 minute after it exits); `test` asks for extra arguments first"
-command = "$HOME/.config/herdr/scripts/launch.sh --tab --notify --linger 1m --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
+description = "Run the selected npm script in a new herdr tab; the tab closes 1 minute after it exits (a long-running script stays, marked done, until you focus it); a failure shows as blocked in the sidebar; `test` asks for extra arguments first"
+command = "$HOME/.config/herdr/scripts/launch.sh --tab --linger 1m --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
 mode = "execute"
 
 [actions.run-tab-keep]
-description = "Run the selected npm script in a new herdr tab (tab stays open after it exits); `test` asks for extra arguments first"
-command = "$HOME/.config/herdr/scripts/launch.sh --tab --notify --keep --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
+description = "Run the selected npm script in a new herdr tab that stays open after it exits (a long-running script is marked done until you focus it); a failure shows as blocked in the sidebar; `test` asks for extra arguments first"
+command = "$HOME/.config/herdr/scripts/launch.sh --tab --keep --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
 mode = "execute"
 
 [actions.run-tab-args]
-description = "Run the selected npm script in a new herdr tab, asking for extra arguments first"
-command = "$HOME/.config/herdr/scripts/launch.sh --tab --notify --linger 1m --ask \"npm run '{split:\\t:0}'\""
+description = "Run the selected npm script in a new herdr tab like `run-tab`, but always ask for extra arguments first"
+command = "$HOME/.config/herdr/scripts/launch.sh --tab --linger 1m --ask \"npm run '{split:\\t:0}'\""
 mode = "execute"

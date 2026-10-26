@@ -1,0 +1,251 @@
+#!/usr/bin/env bash
+# Usage: launch.sh [options] <command...>
+#
+# Where it runs:
+#   (default)  in the focused pane if its shell is idle, else in a new tab
+#   --tab      always in a new tab
+#   --split    always in a new split pane next to the focused one
+#   --cwd DIR  run in DIR instead of the focused pane's directory (an idle pane is only
+#              reused when it is already in DIR, otherwise a new tab is opened)
+#
+# What happens around it (new tabs/splits; --ask also applies to an idle pane):
+#   --keep     leave the shell open when <command> exits (default: the pane closes),
+#              e.g. to read the output of a failed build
+#              For commands that ran at least 10s (herdr-ohmyzsh's threshold), --keep/--linger also keep
+#              the command's sidebar entry as "done" until you focus the pane (see launch-hold.sh);
+#              with --linger that wait ends when the linger is over.
+#   --linger D keep the pane open for D (e.g. 90, 90s, 1m) after <command> exits, then close it, even if
+#              you never looked at it, so output stays readable but the tab doesn't pile up. While it counts down:
+#              Ctrl-C closes now, `k` (LAUNCH_KEEP_KEY) cancels the linger and keeps the tab open
+#   --ask      prompt for extra arguments (in this terminal) and append them to <command>;
+#              an empty answer runs it as is, Ctrl-D / Ctrl-C cancels. Needs a terminal.
+#   --ask-if R like --ask, but only when <command> matches the (bash ERE) regex R,
+#              e.g. --ask-if "run 'test'$" prompts only for `npm run 'test'`
+#
+# Other:
+#   --dry-run  print what would be done (mode, directory, the exact herdr calls) and exit
+#   -h, --help this text
+#   --         end of options (for a command that starts with a dash)
+#
+# Pass a command with quoting as one argument: launch.sh --tab "npm run 'build:dev'"
+# Outside herdr (no herdr env in an interactive terminal, or no reachable herdr server)
+# the command just runs as is, so the same bindings/actions work anywhere.
+# Failures (a missing tab id, a herdr error, bad options) are appended to
+# ${XDG_STATE_HOME:-~/.local/state}/herdr/launch.log and shown as a herdr notification,
+# because key bindings run this detached and would otherwise fail silently.
+#
+# A centered popup is not a mode of this script: herdr only opens popups from a native
+# key binding, so use `type = "popup"` in config.toml instead, e.g.
+#   [[keys.command]]
+#   key = "prefix+t"
+#   type = "popup"
+#   command = "tv"
+#   width = "80%"
+#   height = "80%"
+#
+# No dependencies beyond bash, grep, cut, head and date: herdr's replies are compact one-line
+# JSON with sorted keys, so the few fields needed are pulled out with grep (see jstr/jnum).
+set -Eeuo pipefail
+
+herdr="${HERDR_BIN_PATH:-herdr}"
+log="${XDG_STATE_HOME:-$HOME/.local/state}/herdr/launch.log"
+
+# fail MESSAGE [EXIT_CODE]: key bindings are detached, so leave a trace and a toast
+fail() {
+  local msg="$1" code="${2:-1}"
+  { mkdir -p "$(dirname "$log")" && printf '%s %s\n' "$(date '+%F %T')" "$msg" >>"$log"; } 2>/dev/null || true
+  echo "launch.sh: $msg" >&2
+  "$herdr" notification show "launch.sh failed: ${msg:0:80}" --sound request >/dev/null 2>&1 || true
+  exit "$code"
+}
+trap 'fail "line $LINENO: $BASH_COMMAND"' ERR
+
+# jstr KEY JSON / jnum KEY JSON: first value of "KEY" in a JSON string (empty if absent)
+jstr() { grep -o "\"$1\":\"[^\"]*\"" <<<"$2" | head -n1 | cut -d'"' -f4 || true; }
+jnum() { grep -o "\"$1\":[0-9]*" <<<"$2" | head -n1 | cut -d: -f2 || true; }
+
+# label_of COMMAND: the sidebar label herdr-ohmyzsh gives a command (its first real word, sanitized)
+label_of() {
+  local words w
+  read -ra words <<<"$1"
+  for w in "${words[@]}"; do
+    case $w in
+      *=*|-*|sudo|doas|command|builtin|exec|nohup|time|nice|env|caffeinate) continue ;;
+    esac
+    w="${w##*/}"; w="${w,,}"; w="${w//[^a-z0-9_-]/-}"
+    [[ $w == [a-z]* ]] || w=shell
+    echo "${w:0:32}"; return 0
+  done
+  echo shell
+}
+
+mode=
+keep= linger= ask= ask_if= dry= opt_cwd=
+set_mode() { [[ -z $mode || $mode == "$1" ]] || fail "--tab and --split conflict" 2; mode=$1; }
+while (($#)); do
+  case $1 in
+    -h|--help) sed -n '2,/^set -/p' "$0" | sed '$d; s/^# \{0,1\}//'; exit 0 ;;
+    --tab) set_mode tab ;;
+    --split) set_mode split ;;
+    --keep) keep=1 ;;
+    --ask) ask=1 ;;
+    --dry-run) dry=1 ;;
+    --ask-if) ask_if="${2:?--ask-if needs a regex}"; shift ;;
+    --cwd) opt_cwd="${2:?--cwd needs a directory}"; shift ;;
+    --linger)
+      linger="${2:?--linger needs a duration}"; shift
+      [[ $linger =~ ^[0-9]+[smhd]?$ ]] || fail "bad --linger duration: $linger" 2 ;;
+    --) shift; break ;;
+    -*) fail "unknown option: $1 (see --help)" 2 ;;
+    *) break ;;
+  esac
+  shift
+done
+mode="${mode:-auto}"
+cmd="$*"
+[[ -n $cmd ]] || fail "no command given (see --help)" 2
+[[ -z $keep || -z $linger ]] || fail "--keep and --linger conflict" 2
+if [[ -n $opt_cwd ]]; then
+  [[ -d $opt_cwd ]] || fail "--cwd: no such directory: $opt_cwd" 2
+  opt_cwd="$(cd "$opt_cwd" && pwd)"
+fi
+
+[[ -n $ask_if && $cmd =~ $ask_if ]] && ask=1
+if [[ -n $ask ]]; then
+  if [[ -n $dry ]]; then
+    echo "would ask for extra arguments: $cmd ›"
+  # tv's `execute` mode may not give us a tty on stdin, so talk to the controlling terminal directly
+  elif { : </dev/tty; } 2>/dev/null; then
+    read -e -r -p "$cmd › " extra </dev/tty >/dev/tty || exit 0 # Ctrl-D cancels
+    [[ -n $extra ]] && cmd+=" $extra"
+  else
+    echo "launch.sh: --ask needs a terminal, running without extra arguments" >&2
+  fi
+fi
+
+# name_pane PANE: show the whole command (not just the label, "npm") as the pane's sidebar name while it
+# runs, if herdr-ohmyzsh registers it. The same text goes in a `cmd` pane token, which stays readable
+# when no sidebar entry exists, so launch-hold.sh can recover the command. It clears both again.
+name_pane() {
+  local name="$cmd"
+  if ((${#name} > 80)); then name="${name:0:79}…"; fi
+  hc pane report-metadata "$1" --source launch --agent "$(label_of "$cmd")" --applies-to-source ohmyzsh \
+    --display-agent "$name" --token "cmd=$name" --seq "$(date +%s%6N)" >/dev/null || true
+}
+
+# hc ARGS...: a herdr call that changes something (printed instead of run with --dry-run).
+# Reports its own failure (with herdr's message), so call sites in $(...) add `|| exit 1`
+# to stop without reporting it a second time.
+hc() {
+  if [[ -n $dry ]]; then
+    { printf 'would run: herdr'; printf ' %q' "$@"; printf '\n'; } >&2
+    return 0
+  fi
+  local out rc=0
+  out="$("$herdr" "$@" 2>&1)" || rc=$?
+  ((rc == 0)) || fail "herdr $1 $2 failed ($rc): ${out:0:100}"
+  printf '%s\n' "$out"
+}
+# a herdr call that fails with exit 0 still prints {"error":...}
+check() {
+  [[ $1 != *'"error":'* ]] || fail "herdr: $(jstr message "$1")"
+}
+
+# Not in herdr: run the command as is. A herdr key binding runs detached without a tty, so
+# "no tty" counts as "in herdr"; an interactive terminal without herdr env does not.
+if ! command -v "$herdr" >/dev/null 2>&1 ||
+   { [[ -t 0 && -z ${HERDR_PANE_ID:-}${HERDR_SOCKET_PATH:-} ]]; } ||
+   ! "$herdr" pane list >/dev/null 2>&1; then
+  if [[ -n $dry ]]; then echo "not in herdr: would run: bash -c $(printf '%q' "$cmd")${opt_cwd:+ (in $opt_cwd)}"; exit 0; fi
+  [[ -z $opt_cwd ]] || cd "$opt_cwd"
+  exec bash -c "$cmd"
+fi
+
+# <cmd> as a shell snippet, optionally followed by a linger.
+# It is typed into the pane's own shell (not `bash -c`) and starts with <cmd> itself, so shell
+# integrations that label a pane by the first word of the line (herdr-ohmyzsh) show the real command.
+q() { printf '%q' "$1"; }
+snippet="$cmd"
+idle_run="$snippet" # current pane's shell: no linger, and the shell stays open
+if [[ -n $keep || -n $linger ]]; then
+  # herdr drops the sidebar entry as soon as the shell is the foreground process again; launch-hold.sh marks
+  # it done and keeps it (as a process of the same name) until the pane is focused. With --linger it also
+  # runs the countdown (started now, whether or not you look at the pane): it exits non-zero when you
+  # press the keep key, then the line ends without `exit` and the tab stays open.
+  snippet+="; rc=\$?"
+  # typed into the terminal, so keep it short: the path as it was called (not resolved through the dotfiles
+  # symlinks), written with ~ when it is under $HOME; the command itself is not repeated (launch-hold.sh
+  # reads it back from the entry's display name)
+  here="$(cd "$(dirname "$0")" && pwd)"
+  if [[ $here == "$HOME"/* ]]; then hold="~/$(q "${here#"$HOME"/}/launch-hold.sh")"; else hold="$(q "$here/launch-hold.sh")"; fi
+  hold_args="$(q "$(label_of "$cmd")") $(date +%s) \$rc"
+  if [[ -n $linger ]]; then
+    snippet+="; if $hold --linger $(q "$linger") $hold_args; then exit \$rc; fi"
+  else
+    snippet+="; $hold $hold_args"
+  fi
+fi
+
+# typed into a new pane's shell: close it when done unless --keep/--linger. (Without them
+# the command takes the fast path below and never gets here, so rc is always set when needed.)
+if [[ -n $keep || -n $linger ]]; then run="$snippet"; else run="$snippet; exit \$rc"; fi
+
+# The focused pane: everything after its "focused":true marker up to its last key ("workspace_id").
+list="$("$herdr" pane list)"
+after="${list##*\"focused\":true}"
+[[ $after != "$list" ]] || { [[ -n $dry ]] && echo "no focused pane: would run: bash -c $(printf '%q' "$cmd")" && exit 0; exec bash -c "$cmd"; }
+focused="${after%%\"workspace_id\"*}"
+pane="$(jstr pane_id "$focused")"
+pane_cwd="$(jstr foreground_cwd "$focused")"
+[[ -n $pane_cwd ]] || pane_cwd="$(jstr cwd "$focused")"
+[[ -n $pane ]] || fail "could not find the focused pane in: ${list:0:120}"
+cwd="${opt_cwd:-$pane_cwd}"
+[[ -z $dry ]] || echo "mode=$mode pane=$pane cwd=$cwd"
+
+# Fast path: nothing to wrap (no linger/keep), so start the command directly in a plugin
+# pane instead of typing it into a freshly started shell, which has to finish starting up first.
+fast=
+[[ -z $linger && -z $keep ]] && fast=1
+
+if [[ $mode == split && -n $fast ]]; then
+  out="$(hc plugin pane open --plugin launch --entrypoint run --placement split \
+    --target-pane "$pane" --direction right --cwd "$cwd" --env "LAUNCH_CMD=$cmd" --focus)" || exit 1
+  check "$out"
+  exit 0
+fi
+
+if [[ $mode == split ]]; then
+  out="$(hc pane split --pane "$pane" --direction right --cwd "$cwd" --focus)" || exit 1; check "$out"
+  new="$(jstr pane_id "$out")"
+  [[ -n $new || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
+  hc pane run "${new:-<new-pane>}" "$run" >/dev/null
+  name_pane "${new:-<new-pane>}"
+  exit 0
+fi
+
+if [[ $mode == auto && ( -z $opt_cwd || $opt_cwd == "$pane_cwd" ) ]]; then
+  info="$("$herdr" pane process-info --pane "$pane")"
+  fg="$(jnum foreground_process_group_id "$info")"; sh_pid="$(jnum shell_pid "$info")"
+  if [[ -n $fg && $fg == "$sh_pid" ]]; then # the shell itself is the foreground process group
+    [[ -z $dry ]] || echo "idle pane: typing into it"
+    hc pane run "$pane" "$idle_run" >/dev/null
+    exit 0
+  fi
+fi
+
+if [[ -n $fast ]]; then
+  out="$(hc plugin pane open --plugin launch --entrypoint run --placement tab \
+    --cwd "$cwd" --env "LAUNCH_CMD=$cmd" --focus)" || exit 1
+  check "$out"
+  tab="$(jstr tab_id "$out")"
+  [[ -n $tab || -n $dry ]] || fail "no tab id in herdr reply: ${out:0:120}"
+  # --focus alone doesn't switch tabs. A very short command may already have closed its tab: not an error.
+  if [[ -n $dry ]]; then hc tab focus "<new-tab>"; else "$herdr" tab focus "$tab" >/dev/null 2>&1 || true; fi
+  exit 0
+fi
+
+out="$(hc tab create --cwd "$cwd" --focus)" || exit 1; check "$out"
+root="$(jstr pane_id "$out")"
+[[ -n $root || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
+hc pane run "${root:-<new-pane>}" "$run" >/dev/null
+name_pane "${root:-<new-pane>}"
