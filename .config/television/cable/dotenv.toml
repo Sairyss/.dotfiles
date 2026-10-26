@@ -1,18 +1,18 @@
 [metadata]
 name = "dotenv"
 description = "Search environment variables in .env* files"
-requirements = ["rg", "bat"]
+requirements = ["rg", "bat", "wl-copy"]
 
 [source]
 # Output format: file:line:KEY=VALUE
-command = "rg --no-heading --with-filename --line-number --hidden -g '.env*' '^[A-Z_][A-Z0-9_]*=.*'"
-display = "{split:\\::2} [{split:\\::0}:{split:\\::1}]"
-# output = "{split:\\::0}:{split:\\::1}:{split:\\::2}"
+# No matches: a single placeholder entry (file ".") explaining why the list is empty
+command = "rg --no-heading --with-filename --line-number --hidden -g '.env*' '^[A-Z_][A-Z0-9_]*=.*' 2>/dev/null || echo \".:0:⚠ No .env* files with variables found in $(pwd)\""
+display = "{split:\\::2} [{split:\\::0}]"
 output = "{split:=:1..}"
 
 [preview]
 # Show the file with the target line highlighted
-command = "bat --style=numbers --color=always {split:\\::0}"
+command = "bat --style=numbers --color=always '{split:\\::0}' 2>/dev/null || echo 'Nothing to preview. Run this from a directory containing .env files.'"
 offset = "{split:\\::1}"
 env = { BAT_THEME = "Catppuccin Mocha" }
 
@@ -25,3 +25,11 @@ header = "{split:\\::0}:{split:\\::1}"
 
 [keybindings]
 shortcut = "f3"
+enter = "actions:copy"
+
+[actions.copy]
+description = "Copy the selected variable's value to the clipboard"
+# Read the value from the file (safe for any quoting), strip one pair of surrounding quotes.
+# Placeholder entry (not a file) copies nothing.
+command = "[ -f '{split:\\::0}' ] && sed -n '{split:\\::1}p' '{split:\\::0}' | sed -E 's/^[^=]*=//; s/^\"(.*)\"$/\\1/; s/^'\"'\"'(.*)'\"'\"'$/\\1/' | tr -d '\\n' | wl-copy"
+mode = "execute"

@@ -1,0 +1,39 @@
+[metadata]
+name = "npm-scripts"
+description = "List and run npm scripts from package.json"
+requirements = ["jq"]
+
+[source]
+command = "jq -r '.scripts | to_entries[] | \"\\(.key)\\t\\(.value)\"' package.json 2>/dev/null"
+display = "{split:\\t:0}"
+
+[preview]
+command = "jq -r '.scripts[\"{split:\\t:0}\"]' package.json"
+
+[ui.preview_panel]
+size = 30
+
+[keybindings]
+enter = "actions:run-tab"
+ctrl-f = "actions:run-tab-args"
+
+[actions.run]
+description = "Run the selected npm script; `test` asks for extra arguments first"
+command = "n='{split:\\t:0}'; a=; if [ \"$n\" = test ]; then read -e -r -p \"npm run $n › \" a </dev/tty || exit 0; fi; eval \"npm run '$n' $a\""
+shell = "bash"
+mode = "execute"
+
+[actions.run-tab]
+description = "Run the selected npm script in a new herdr tab (tab closes 1 minute after it exits); `test` asks for extra arguments first"
+command = "$HOME/.config/herdr/scripts/launch.sh --tab --notify --linger 1m --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
+mode = "execute"
+
+[actions.run-tab-keep]
+description = "Run the selected npm script in a new herdr tab (tab stays open after it exits); `test` asks for extra arguments first"
+command = "$HOME/.config/herdr/scripts/launch.sh --tab --notify --keep --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
+mode = "execute"
+
+[actions.run-tab-args]
+description = "Run the selected npm script in a new herdr tab, asking for extra arguments first"
+command = "$HOME/.config/herdr/scripts/launch.sh --tab --notify --linger 1m --ask \"npm run '{split:\\t:0}'\""
+mode = "execute"
