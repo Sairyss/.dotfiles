@@ -135,6 +135,12 @@ type = "shell"
 command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run claude --dangerously-skip-permissions"
 description = "claude (skip permissions)"
 
+[[keys.command]]
+key = "prefix+m"
+type = "shell"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run btop"
+description = "btop"
+
 [[keys.command]] # popup in the middle of the screen
 key = "prefix+t"
 type = "popup"

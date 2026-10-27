@@ -22,6 +22,15 @@ in `DIR`, otherwise a new tab opens there.
 
 Only one of `--tab`/`--job`, `--split`, `--workspace`, `--work-dir` and `--here` may be given.
 
+## Done and failed marks
+
+With `--keep` or `--linger`, a command that finishes while you are looking
+elsewhere stays in herdr's sidebar and notifications as "done" (or "failed")
+until you focus its pane, so you can jump to it later. This works the same when
+the command is typed into an idle pane as in a new tab. The difference is the
+end: a new tab closes after the linger, an idle pane (your own shell) always
+stays open, so `--linger` only affects new tabs, splits and workspaces.
+
 ## Jumping to a directory (`--workspace`, `--work-dir`)
 
 For commands that have to run in a given directory (the tests of a project, a Claude session).

@@ -20,7 +20,8 @@
 #   --cwd DIR  run in DIR instead of the focused pane's directory (an idle pane is only
 #              reused when it is already in DIR, otherwise a new tab is opened)
 #
-# What happens around it (new tabs/splits; --ask also applies to an idle pane):
+# What happens around it (new tabs/splits/workspaces; --ask and the done/failed mark of --keep/--linger also
+# apply to an idle pane, which always stays open: there only the mark is kept, there is no countdown):
 #   --keep     leave the shell open when <command> exits (default: the pane closes),
 #              e.g. to read the output of a failed build
 #              For commands that ran at least 10s (herdr-ohmyzsh's threshold), --keep/--linger also keep
@@ -212,7 +213,7 @@ fi
 # integrations that label a pane by the first word of the line (herdr-ohmyzsh) show the real command.
 q() { printf '%q' "$1"; }
 snippet="$cmd"
-idle_run="$snippet" # current pane's shell: no linger, and the shell stays open
+idle_run="$snippet" # an idle pane's shell: no linger (the shell stays open), see run_idle
 if [[ -n $keep || -n $linger ]]; then
   # herdr drops the sidebar entry as soon as the shell is the foreground process again; herdr-run-hold marks
   # it done and keeps it (as a process of the same name) until the pane is focused. With --linger it also
@@ -228,6 +229,9 @@ if [[ -n $keep || -n $linger ]]; then
   elif [[ $here == "$HOME"/* ]]; then hold="~/$(q "${here#"$HOME"/}/herdr-run-hold")"
   else hold="$(q "$here/herdr-run-hold")"; fi
   hold_args="$(q "$(label_of "$cmd")") \$rc"
+  # in an idle pane the shell must stay open, so there is no countdown, but the "done"/"failed" mark is
+  # kept the same way (until you focus the pane)
+  idle_run="$snippet; $hold $hold_args"
   if [[ -n $linger ]]; then
     snippet+="; if $hold --linger $(q "$linger") $hold_args; then exit \$rc; fi"
   else
@@ -247,6 +251,15 @@ fi
 focus_events() {
   [[ -n $keep || -n $linger ]] || return 0
   hc pane run "$1" "printf '\\033[?1004h'; stty -echo" >/dev/null
+}
+
+# run_idle PANE: type the command into the idle pane's own shell. With --keep/--linger it is set up like a
+# new tab (focus events, sidebar name), so that herdr-run-hold keeps the "done"/"failed" mark in the sidebar
+# once the command finishes, instead of it vanishing as soon as the shell is the foreground process again.
+run_idle() {
+  focus_events "$1"
+  hc pane run "$1" "$idle_run" >/dev/null
+  [[ -z $keep && -z $linger ]] || name_pane "$1"
 }
 
 # typed into a new pane's shell: close it when done unless --keep/--linger. (Without them
@@ -302,7 +315,7 @@ if [[ $mode == workspace ]]; then
   if [[ -n $fg && $fg == "$sh_pid" && -z $pinned ]]; then # idle: go to the directory (own line, so the command stays the line's first word)
     [[ -z $dry ]] || echo "idle pane: typing into it"
     [[ $cwd == "$pane_cwd" ]] || hc pane run "$pane" "cd $(q "$cwd")" >/dev/null
-    hc pane run "$pane" "$idle_run" >/dev/null
+    run_idle "$pane"
     exit 0
   fi
   # A workspace already open in $cwd (some pane of it is there, or below it) is reused instead of opening a
@@ -340,7 +353,7 @@ if [[ $mode == workspace ]]; then
     hc workspace focus "$idle_ws" >/dev/null
     hc tab focus "$idle_tab" >/dev/null
     [[ -z $idle_cd ]] || hc pane run "$idle_pane" "cd $(q "$cwd")" >/dev/null
-    hc pane run "$idle_pane" "$idle_run" >/dev/null
+    run_idle "$idle_pane"
     exit 0
   fi
   if [[ -n $ws_id ]]; then
@@ -363,7 +376,7 @@ if [[ $mode == auto && ( -z $opt_cwd || $opt_cwd == "$pane_cwd" ) ]]; then
   fg="$(jnum foreground_process_group_id "$info")"; sh_pid="$(jnum shell_pid "$info")"
   if [[ -n $fg && $fg == "$sh_pid" ]]; then # the shell itself is the foreground process group
     [[ -z $dry ]] || echo "idle pane: typing into it"
-    hc pane run "$pane" "$idle_run" >/dev/null
+    run_idle "$pane"
     exit 0
   fi
 fi
