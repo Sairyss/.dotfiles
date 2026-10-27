@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+# Usage: project-tests list | preview <file> <root> | run <file> <root>
+# Finds node, rust, go and python projects (the current directory or git root, else the top zoxide
+# directories, see lib/scope-dirs.sh) and lists their test files, or previews/runs one of them
+# from its project root. `list` prints: name, path relative to the root, root, display label.
+set -euo pipefail
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/scope-dirs.sh"
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/herdr-run.sh"
+
+# kind_of DIR: prints the project type of DIR, fails if it is none of the supported ones
+kind_of() {
+  local dir=$1
+  if   [[ -f $dir/package.json ]]; then echo node
+  elif [[ -f $dir/Cargo.toml ]]; then echo rust
+  elif [[ -f $dir/go.mod ]]; then echo go
+  elif [[ -f $dir/pyproject.toml || -f $dir/setup.py || -f $dir/setup.cfg || -f $dir/pytest.ini || -f $dir/requirements.txt ]]; then echo python
+  else return 1; fi
+}
+is_project() { kind_of "$1" >/dev/null; }
+
+list() {
+  case $kind in
+    node)   fd -t f --strip-cwd-prefix -E node_modules -E dist '\.(spec|test|steps|e2e-spec)\.[cm]?[jt]sx?$' ;;
+    go)     fd -t f --strip-cwd-prefix -E vendor '_test\.go$' ;;
+    python) fd -t f --strip-cwd-prefix -E .venv -E venv '^(test_.*|.*_test)\.py$' ;;
+    rust)   { fd -t f -E target -e rs . tests 2>/dev/null || true
+              rg -l --glob '*.rs' --glob '!target' '#\[(cfg\(test\)|test|tokio::test)\]' . | sed 's|^\./||'; } | sort -u ;;
+  esac
+}
+
+# rust: tests/foo.rs is an integration test, anything else is filtered by its module path
+rust_cmd() {
+  local f=$1 mod
+  if [[ $f == tests/* ]]; then
+    f=${f#tests/}; f=${f%.rs}
+    printf "cargo test --test '%s'" "${f%%/*}"
+  else
+    mod=${f#src/}; mod=${mod%.rs}; mod=${mod%/mod}; mod=${mod//\//::}
+    [[ $mod == lib || $mod == main ]] && printf 'cargo test' || printf "cargo test '%s'" "$mod"
+  fi
+}
+
+command_for() {
+  local f=$1
+  case $kind in
+    node)   printf "npm run test -- '%s'" "$f" ;;
+    go)     printf "go test './%s'" "$(dirname "$f")" ;;
+    python) printf "python -m pytest '%s'" "$f" ;;
+    rust)   rust_cmd "$f" ;;
+  esac
+}
+
+# node: show the matching some-test.feature (same directory first, then anywhere) instead of the steps/spec file
+preview() {
+  local f=$1 base feature
+  base=$(basename "$f" | sed -E 's/\.(spec|test|steps?|e2e-spec)\.[cm]?[jt]sx?$//')
+  if [[ $kind == node && $base != "$(basename "$f")" ]]; then
+    feature=$(ls -- "$(dirname "$f")/$base.feature" 2>/dev/null || fd -t f -g "$base.feature" | head -n 1)
+    [[ -n $feature ]] && { head -n 100 -- "$feature"; return; }
+  fi
+  head -n 100 -- "$f"
+}
+
+# list_all: the test files of every project in scope
+list_all() {
+  local dirs=() dir
+  while IFS= read -r dir; do dirs+=("$dir"); done < <(scope_dirs is_project 10)
+  ((${#dirs[@]})) || { echo "project-tests: no node, rust, go or python project found" >&2; return 0; }
+  for dir in "${dirs[@]}"; do
+    # with several projects the label is prefixed with the project's name
+    ( cd "$dir" && kind=$(kind_of .) && list ) |
+      awk -F/ -v root="$dir" -v pre="$( ((${#dirs[@]} > 1)) && echo "$(basename "$dir")/" )" \
+        '{ print $NF "\t" $0 "\t" root "\t" pre $0 }'
+  done
+}
+
+case ${1:-} in
+  list)    list_all ;;
+  preview) cd "$3"; kind=$(kind_of .); preview "$2" ;;
+  run)     cd "$3"; kind=$(kind_of .); exec "$(herdr_run_bin)" --work-dir "$3" --linger 1m "$(command_for "$2")" ;;
+  *)       echo "usage: project-tests list | preview <file> <root> | run <file> <root>" >&2; exit 2 ;;
+esac

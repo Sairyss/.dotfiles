@@ -1,0 +1,26 @@
+[metadata]
+name = "herdr-tabs"
+description = "List and switch between herdr workspaces/tabs"
+requirements = ["herdr", "jq"]
+
+[source]
+command = '''herdr tab list | jq -r --argjson w "$(herdr workspace list)" '($w.result.workspaces | map({(.workspace_id): .label}) | add) as $m | .result.tabs[] | "\(.tab_id)\t\($m[.workspace_id])\t\(.label)"' '''
+display = "{split:\t:1} - {split:\t:2}"
+output = "{split:\t:0}"
+
+[preview]
+command = '''herdr pane list | jq -r --arg t '{split:\t:0}' '[.result.panes[] | select(.tab_id == $t)][0].pane_id // empty' | xargs -r herdr pane read 2>/dev/null || echo 'No preview available' '''
+
+[keybindings]
+enter = "actions:select"
+ctrl-x = "actions:close"
+
+[actions.select]
+description = "Switch to the selected workspace/tab"
+command = "herdr tab focus '{split:\t:0}'"
+mode = "execute"
+
+[actions.close]
+description = "Close the selected tab"
+command = "herdr tab close '{split:\t:0}'"
+mode = "fork"

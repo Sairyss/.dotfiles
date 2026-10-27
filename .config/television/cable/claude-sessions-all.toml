@@ -1,0 +1,33 @@
+[metadata]
+name = "claude-sessions-all"
+description = "Browse and resume Claude Code sessions of all projects (with --dangerously-skip-permissions)"
+requirements = ["claude", "jq"]
+
+[source]
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/claude-sessions list-all"
+display = "{split:\t:1}  ({split:\t:2})"
+output = "{split:\t:0}"
+
+[preview]
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/claude-sessions preview '{split:\t:0}'"
+
+[ui]
+layout = "landscape"
+[ui.preview_panel]
+size = 60
+header = "Session: {split:\t:1}"
+border_type = "rounded"
+
+[keybindings]
+enter = "actions:resume"
+ctrl-d = "actions:delete"
+
+[actions.resume]
+description = "Resume the session from its directory: in this pane if idle (cd first if needed), else in the workspace already open there, else a new workspace"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/claude-sessions resume '{split:\t:0}'"
+mode = "execute"
+
+[actions.delete]
+description = "Delete session"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/claude-sessions delete '{split:\t:0}'"
+mode = "execute"

@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Usage: claude-sessions list | list-all | preview <id> | resume <id> | delete <id>
+# Browses Claude Code sessions stored in ~/.claude/projects/<project>/<id>.jsonl.
+set -euo pipefail
+
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/herdr-run.sh"
+
+dir=${CLAUDE_CONFIG_DIR:-$HOME/.claude}/projects
+
+find_file() { ls -- "$dir"/*/"$1".jsonl 2>/dev/null | head -n 1; }
+
+# prints: title, cwd, nothing for sessions without prompts (title = custom title, else AI title, else the first prompt)
+meta() {
+  jq -rs '
+    def text: if type == "string" then . else (map(.text? // empty) | join(" ")) end;
+    ([.[] | select(.type == "custom-title") | .customTitle] | last) as $custom
+    | ([.[] | select(.type == "ai-title") | .aiTitle] | last) as $ai
+    | ([.[] | select(.type == "user" and (.isMeta | not)) | .message.content | text
+        | select(length > 0 and (startswith("<") | not))] | first) as $prompt
+    | ([.[] | .cwd? // empty] | first) as $cwd
+    | select($prompt != null)
+    | "\($custom // $ai // $prompt | gsub("\\s+"; " ") | .[:100])\t\($cwd // "")"' -- "$1"
+}
+
+case ${1:-} in
+  list|list-all)
+    # list: only sessions of the current directory; list-all: every project. Newest first;
+    # sub-agent transcripts live deeper and are not matched
+    enc=${PWD//[^a-zA-Z0-9]/-}; glob="$dir/$enc/*.jsonl"
+    [[ $1 == list-all ]] && glob="$dir/*/*.jsonl"
+    while IFS= read -r f; do
+      id=$(basename "$f" .jsonl)
+      IFS=$'\t' read -r title cwd < <(meta "$f") || continue
+      [[ $1 == list-all || $cwd == "$PWD" ]] && [[ -n $cwd ]] && printf '%s\t%s\t%s\n' "$id" "$title" "$cwd"
+    done < <(ls -t -- $glob 2>/dev/null || true) ;;
+  preview)
+    f=$(find_file "$2")
+    IFS=$'\t' read -r title cwd < <(meta "$f")
+    printf 'TITLE:     %s\nID:        %s\nDIRECTORY: %s\nUPDATED:   %s\n\nLAST PROMPTS:\n' \
+      "$title" "$2" "$cwd" "$(date -r "$f" '+%Y-%m-%d %H:%M:%S')"
+    jq -r 'select(.type == "user" and (.isMeta | not)) | .message.content
+           | if type == "string" then . else (map(.text? // empty) | join(" ")) end
+           | select(length > 0 and (startswith("<") | not)) | gsub("\\s+"; " ") | "- " + .[:200]' -- "$f" | tail -n 8 ;;
+  resume)
+    f=$(find_file "$2")
+    IFS=$'\t' read -r _ cwd < <(meta "$f")
+    exec "$(herdr_run_bin)" --work-dir "$cwd" "claude --dangerously-skip-permissions --resume '$2'" ;;
+  delete)
+    f=$(find_file "$2")
+    read -r -p "Delete $(basename "$f")? [y/N]: " conf
+    [[ $conf == y ]] && rm -- "$f" ;;
+  *) echo "usage: claude-sessions list | list-all | preview <id> | resume <id> | delete <id>" >&2; exit 2 ;;
+esac

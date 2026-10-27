@@ -1,0 +1,19 @@
+[metadata]
+name = "project-tests"
+description = "List and run tests of the current node, rust, go or python project, or of the top zoxide projects"
+requirements = ["fd", "rg", "zoxide"]
+
+[source]
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-tests list"
+display = "{split:\t:0}  ({split:\t:3})"
+
+[preview]
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-tests preview '{split:\t:1}' '{split:\t:2}'"
+
+[keybindings]
+enter = "actions:run"
+
+[actions.run]
+description = "Run the selected test from its project directory (cd there, or a new workspace if the pane is busy)"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-tests run '{split:\t:1}' '{split:\t:2}'"
+mode = "execute"
