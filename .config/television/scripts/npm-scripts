@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Usage: npm-scripts list | preview <script> <root> | run <here|job|job-args> <script> <root>
+# Lists the npm scripts of the package.json in the current directory or git root, else of the top zoxide
+# directories that have one (see lib/scope-dirs.sh). `list` prints: script, project root, display label;
+# scripts found through zoxide are labelled "[project] npm run <script>".
+# run: here = in this terminal, job = from the project root in herdr (herdr-run --work-dir: this pane if idle,
+# else the workspace open there or a new one) lingering a minute after it exits, job-args = like job but
+# always asks for extra arguments first. `test` asks for them in every mode.
+set -euo pipefail
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/scope-dirs.sh"
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/herdr-run.sh"
+
+has_scripts() { jq -e '(.scripts // {}) | length > 0' "$1/package.json" >/dev/null 2>&1; }
+
+list() {
+  local top dir label
+  top="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+  while IFS= read -r dir; do
+    label=
+    [[ $dir == "$PWD" || $dir == "$top" ]] || label="[$(basename "$dir")] npm run "
+    jq -r --arg root "$dir" --arg label "$label" \
+      '.scripts // {} | to_entries[] | "\(.key)\t\($root)\t\($label)\(.key)"' "$dir/package.json"
+  done < <(scope_dirs has_scripts 10)
+}
+
+case ${1:-} in
+  list)    list ;;
+  preview) jq -r --arg s "$2" '.scripts[$s]' "$3/package.json" ;;
+  run)
+    cmd="npm run '$3'"
+    case $2 in
+      here)     exec "$(herdr_run_bin)" --here --cwd "$4" --ask-if "run 'test'\$" "$cmd" ;;
+      job)      exec "$(herdr_run_bin)" --work-dir "$4" --linger "${HERDR_RUN_LINGER:-1m}" --ask-if "run 'test'\$" "$cmd" ;;
+      job-args) exec "$(herdr_run_bin)" --work-dir "$4" --linger "${HERDR_RUN_LINGER:-1m}" --ask "$cmd" ;;
+      *)        echo "npm-scripts: unknown run mode: $2" >&2; exit 2 ;;
+    esac ;;
+  *) echo "usage: npm-scripts list | preview <script> <root> | run <here|job|job-args> <script> <root>" >&2; exit 2 ;;
+esac

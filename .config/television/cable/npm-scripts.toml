@@ -1,14 +1,15 @@
 [metadata]
 name = "npm-scripts"
-description = "List and run npm scripts from package.json"
-requirements = ["jq"]
+description = "List and run npm scripts of the package.json in the current directory or git root, else of the top zoxide projects"
+requirements = ["jq", "zoxide"]
 
 [source]
-command = "jq -r '.scripts | to_entries[] | \"\\(.key)\\t\\(.value)\"' package.json 2>/dev/null"
-display = "{split:\\t:0}"
+# Output format: script<TAB>project root<TAB>label (the label of a script found through zoxide is prefixed)
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts list"
+display = "{split:\\t:2}"
 
 [preview]
-command = "jq -r '.scripts[\"{split:\\t:0}\"]' package.json"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts preview '{split:\\t:0}' '{split:\\t:1}'"
 
 [ui.preview_panel]
 size = 30
@@ -18,15 +19,15 @@ enter = "actions:run-job"
 
 [actions.run]
 description = "Run the selected npm script; `test` asks for extra arguments first"
-command = "herdr-run --here --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts run here '{split:\\t:0}' '{split:\\t:1}'"
 mode = "execute"
 
 [actions.run-job]
-description = "Run the selected npm script in a new herdr tab; the tab closes 1 minute after it exits (a long-running script stays, marked done, until you focus it); a failure shows as blocked in the sidebar; `test` asks for extra arguments first"
-command = "herdr-run --job --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
+description = "Run the selected npm script from its project directory in herdr: in this pane if idle, else in the workspace open there (new tab) or a new workspace; a tab closes 1 minute after it exits (a long-running script stays, marked done, until you focus it); a failure shows as blocked in the sidebar; `test` asks for extra arguments first"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts run job '{split:\\t:0}' '{split:\\t:1}'"
 mode = "execute"
 
 [actions.run-job-args]
-description = "Run the selected npm script in a new herdr tab like `run-tab`, but always ask for extra arguments first"
-command = "herdr-run --job --ask \"npm run '{split:\\t:0}'\""
+description = "Run the selected npm script like `run-job`, but always ask for extra arguments first"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts run job-args '{split:\\t:0}' '{split:\\t:1}'"
 mode = "execute"

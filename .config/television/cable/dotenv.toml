@@ -1,12 +1,13 @@
 [metadata]
 name = "dotenv"
-description = "Search environment variables in .env* files"
-requirements = ["rg", "bat", "wl-copy"]
+description = "Search environment variables in .env* files of the current directory or the top zoxide directories"
+requirements = ["rg", "bat", "wl-copy", "zoxide"]
 
 [source]
 # Output format: file:line:KEY=VALUE
-# No matches: a single placeholder entry (file ".") explaining why the list is empty
-command = "rg --no-heading --with-filename --line-number --hidden -g '.env*' '^[A-Z_][A-Z0-9_]*=.*' 2>/dev/null || echo \".:0:⚠ No .env* files with variables found in $(pwd)\""
+# The current directory (or git root) if it has .env* files, else the top zoxide directories that do.
+# Nothing found: a single placeholder entry (file ".") explaining why the list is empty
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/dotenv-vars"
 display = "{split:\\::2} [{split:\\::0}]"
 output = "{split:=:1..}"
 

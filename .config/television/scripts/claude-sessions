@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Usage: claude-sessions list | list-all | preview <id> | resume <id> | delete <id>
+# `list`/`list-all` print: id, title, directory, display label (the title, plus the directory for list-all).
 # Browses Claude Code sessions stored in ~/.claude/projects/<project>/<id>.jsonl.
 set -euo pipefail
 
@@ -28,11 +29,11 @@ case ${1:-} in
     # list: only sessions of the current directory; list-all: every project. Newest first;
     # sub-agent transcripts live deeper and are not matched
     enc=${PWD//[^a-zA-Z0-9]/-}; glob="$dir/$enc/*.jsonl"
-    [[ $1 == list-all ]] && glob="$dir/*/*.jsonl"
+    all=; [[ $1 == list-all ]] && { glob="$dir/*/*.jsonl"; all=1; }
     while IFS= read -r f; do
       id=$(basename "$f" .jsonl)
       IFS=$'\t' read -r title cwd < <(meta "$f") || continue
-      [[ $1 == list-all || $cwd == "$PWD" ]] && [[ -d $cwd ]] && printf '%s\t%s\t%s\n' "$id" "$title" "$cwd"
+      [[ $1 == list-all || $cwd == "$PWD" ]] && [[ -d $cwd ]] && printf '%s\t%s\t%s\t%s\n' "$id" "$title" "$cwd" "$title${all:+  ($cwd)}"
     done < <(ls -t -- $glob 2>/dev/null || true) ;;
   preview)
     f=$(find_file "$2")

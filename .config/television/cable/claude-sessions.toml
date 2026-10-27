@@ -1,11 +1,15 @@
 [metadata]
 name = "claude-sessions"
-description = "Browse and resume Claude Code sessions of the current directory (with --dangerously-skip-permissions)"
+description = "Browse and resume Claude Code sessions: this directory first, all projects second (with --dangerously-skip-permissions)"
 requirements = ["claude", "jq"]
 
 [source]
-command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/claude-sessions list"
-display = "{split:\t:1}"
+# Output format: id<TAB>title<TAB>directory<TAB>display label
+command = [
+  { name = "All projects", run = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/claude-sessions list-all" },
+  { name = "This directory", run = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/claude-sessions list" },
+]
+display = "{split:\t:3}"
 output = "{split:\t:0}"
 
 [preview]

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Usage: dotenv-vars
+# Lists the variables of the .env* files below the current directory (or the git root), else below the top
+# zoxide directories that have any (see lib/scope-dirs.sh). One entry per variable: file:line:KEY=VALUE,
+# with paths relative to the current directory when that is where they were found, else absolute.
+# Prints a single placeholder entry (file ".") when there is nothing, so the channel explains the empty list.
+set -euo pipefail
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/scope-dirs.sh"
+
+pattern='^[A-Z_][A-Z0-9_]*=.*'
+depth=4 # bounds the search of directories that are not the current one, which can be huge
+
+search() { rg --no-heading --with-filename --line-number --hidden --max-depth "$depth" -g '.env*' "$@" 2>/dev/null; }
+has_env() { search --quiet "$pattern" "$1"; }
+
+found=
+while IFS= read -r dir; do
+  # always give rg a path: without one it reads stdin when that is not a terminal (as in a channel)
+  if [[ $dir == "$PWD" ]]; then search "$pattern" . | sed 's|^\./||' || true; else search "$pattern" "$dir" || true; fi
+  found=1
+done < <(scope_dirs has_env 10)
+
+[[ -n $found ]] || echo ".:0:⚠ No .env* files with variables found in $PWD or the top zoxide directories"
