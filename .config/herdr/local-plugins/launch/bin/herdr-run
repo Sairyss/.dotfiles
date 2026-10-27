@@ -7,6 +7,12 @@
 #   (default)  in the focused pane if its shell is idle, else in a new tab
 #   --tab      always in a new tab
 #   --split    always in a new split pane next to the focused one
+#   --workspace  in the focused pane if its shell is idle (cd'ing it to --cwd first when it is elsewhere),
+#              else in a new workspace opened in --cwd (or the focused pane's directory). A workspace already
+#              open there is reused: its idle pane runs the command, a busy one gets a new tab
+#   --work-dir DIR  like the default, but for a command that has to run in DIR. In DIR already: exactly the
+#              default (idle pane: typed into it, busy pane: new tab). Elsewhere: an idle pane is cd'ed to
+#              DIR first, a busy one gets a workspace opened in DIR (an existing one is reused, see --workspace)
 #   --here     run in this very terminal (no new tab or pane), e.g. in a popup; --ask/--ask-if still apply
 #   --job      shortcut for a long-running command: --tab --linger 1m (HERDR_RUN_LINGER changes the 1m).
 #              A --keep or --linger after it replaces the linger, e.g. `--job --keep`, `--job --linger 10m`
@@ -86,14 +92,21 @@ label_of() {
 
 mode=
 keep= linger= job= ask= ask_if= dry= opt_cwd=
-set_mode() { [[ -z $mode || $mode == "$1" ]] || fail "--tab and --split conflict" 2; mode=$1; }
+mode_flag=
+# set_mode MODE FLAG: --tab/--job, --split, --workspace and --here pick where to run, so only one mode may be given
+set_mode() {
+  [[ -z $mode || $mode == "$1" ]] || fail "$mode_flag and $2 conflict (pick one of --tab/--job, --split, --workspace, --work-dir, --here)" 2
+  mode=$1; mode_flag=$2
+}
 while (($#)); do
   case $1 in
     -h|--help) sed -n '2,/^set -/p' "$0" | sed '$d; s/^# \{0,1\}//'; exit 0 ;;
-    --tab) set_mode tab ;;
-    --job) set_mode tab; job=1 ;;
-    --split) set_mode split ;;
-    --here) set_mode here ;;
+    --tab) set_mode tab --tab ;;
+    --job) set_mode tab --job; job=1 ;;
+    --split) set_mode split --split ;;
+    --workspace) set_mode workspace --workspace ;;
+    --work-dir) set_mode workdir --work-dir; opt_cwd="${2:?--work-dir needs a directory}"; shift ;;
+    --here) set_mode here --here ;;
     --keep) keep=1 ;;
     --ask) ask=1 ;;
     --dry-run) dry=1 ;;
@@ -231,6 +244,10 @@ pane_cwd="$(jstr foreground_cwd "$focused")"
 [[ -n $pane_cwd ]] || pane_cwd="$(jstr cwd "$focused")"
 [[ -n $pane ]] || fail "could not find the focused pane in: ${list:0:120}"
 cwd="${opt_cwd:-$pane_cwd}"
+# --work-dir: already there means the default behaviour, elsewhere it is --workspace's
+if [[ $mode == workdir ]]; then
+  if [[ "$(cd "$cwd" && pwd -P)" == "$(cd "$pane_cwd" 2>/dev/null && pwd -P)" ]]; then mode=auto; opt_cwd=; else mode=workspace; fi
+fi
 [[ -z $dry ]] || echo "mode=$mode pane=$pane cwd=$cwd"
 
 # Fast path: nothing to wrap (no linger/keep), so start the command directly in a plugin
@@ -252,6 +269,55 @@ if [[ $mode == split ]]; then
   focus_events "${new:-<new-pane>}"
   hc pane run "${new:-<new-pane>}" "$run" >/dev/null
   name_pane "${new:-<new-pane>}"
+  exit 0
+fi
+
+if [[ $mode == workspace ]]; then
+  info="$("$herdr" pane process-info --pane "$pane")"
+  fg="$(jnum foreground_process_group_id "$info")"; sh_pid="$(jnum shell_pid "$info")"
+  if [[ -n $fg && $fg == "$sh_pid" ]]; then # idle: go to the directory (own line, so the command stays the line's first word)
+    [[ -z $dry ]] || echo "idle pane: typing into it"
+    [[ $cwd == "$pane_cwd" ]] || hc pane run "$pane" "cd $(q "$cwd")" >/dev/null
+    hc pane run "$pane" "$idle_run" >/dev/null
+    exit 0
+  fi
+  # A workspace already open in $cwd (some pane of it is there) is reused instead of opening a duplicate:
+  # an idle pane of it runs the command, else it gets a new tab.
+  phys="$(cd "$cwd" && pwd -P)"
+  ws_id= idle_pane= idle_tab= idle_ws=
+  while IFS= read -r rec; do
+    for d in "$(jstr foreground_cwd "$rec")" "$(jstr cwd "$rec")"; do
+      [[ -n $d && ( $d == "$cwd" || $d == "$phys" ) ]] && break
+      d=
+    done
+    [[ -n $d ]] || continue
+    ws_id="${ws_id:-$(jstr workspace_id "$rec")}"
+    info="$("$herdr" pane process-info --pane "$(jstr pane_id "$rec")")"
+    fg="$(jnum foreground_process_group_id "$info")"; sh_pid="$(jnum shell_pid "$info")"
+    if [[ -n $fg && $fg == "$sh_pid" ]]; then
+      idle_pane="$(jstr pane_id "$rec")"; idle_tab="$(jstr tab_id "$rec")"; idle_ws="$(jstr workspace_id "$rec")"
+      break
+    fi
+  done < <(sed 's/"workspace_id":"[^"]*"}/&\n/g' <<<"$list")
+  if [[ -n $idle_pane ]]; then
+    [[ -z $dry ]] || echo "idle pane $idle_pane of the workspace already open in $cwd: typing into it"
+    hc workspace focus "$idle_ws" >/dev/null
+    hc tab focus "$idle_tab" >/dev/null
+    hc pane run "$idle_pane" "$idle_run" >/dev/null
+    exit 0
+  fi
+  if [[ -n $ws_id ]]; then
+    [[ -z $dry ]] || echo "workspace $ws_id is open in $cwd but busy: new tab in it"
+    out="$(hc tab create --workspace "$ws_id" --cwd "$cwd" --focus)" || exit 1; check "$out"
+    hc workspace focus "$ws_id" >/dev/null
+  else
+    out="$(hc workspace create --cwd "$cwd" --label "$(basename "$cwd")" --focus)" || exit 1; check "$out"
+  fi
+  root="$(jstr pane_id "$out")"
+  [[ -n $root || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
+  focus_events "${root:-<new-pane>}"
+  hc pane run "${root:-<new-pane>}" "$run" >/dev/null
+  name_pane "${root:-<new-pane>}"
   exit 0
 fi
 
