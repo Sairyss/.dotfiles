@@ -31,6 +31,13 @@ the command is typed into an idle pane as in a new tab. The difference is the
 end: a new tab closes after the linger, an idle pane (your own shell) always
 stays open, so `--linger` only affects new tabs, splits and workspaces.
 
+`prefix+o` (herdr's own `open_notification_target`) only works while the
+notification toast is on screen. `bin/herdr-jump-done`, bound to `prefix+O`,
+works for as long as the mark is in the sidebar: it focuses the agent or job
+that has been done or failed the longest, and again for the next one. It looks
+at this machine first and only then asks the saved SSH machines
+(`herdr machine list`), focusing the entry there with `herdr --machine`.
+
 ## Jumping to a directory (`--workspace`, `--work-dir`)
 
 For commands that have to run in a given directory (the tests of a project, a Claude session).

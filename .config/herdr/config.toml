@@ -141,6 +141,14 @@ type = "shell"
 command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run btop"
 description = "btop"
 
+# like prefix+o (open_notification_target), but not limited to the time the toast is visible: focuses the
+# job/agent that has been done or failed the longest (see herdr-jump-done)
+[[keys.command]]
+key = "prefix+O"
+type = "shell"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-jump-done"
+description = "jump to the oldest finished/failed job"
+
 [[keys.command]] # popup in the middle of the screen
 key = "prefix+t"
 type = "popup"

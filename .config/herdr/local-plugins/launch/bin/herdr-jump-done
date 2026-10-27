@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Usage: herdr-jump-done
+# Focuses the agent or job that has been waiting the longest: one marked done or blocked ("failed") that is not
+# the focused pane. Unlike herdr's open_notification_target (prefix+o), which only works while the toast is on
+# screen, this works for as long as the entry is in the sidebar (see herdr-run-hold). Run it again for the next one.
+# This machine's agents come first; only when none is waiting are the saved SSH machines asked (herdr --machine),
+# in the order of `herdr machine list`, since asking them takes a moment. Entries of one server are ordered by
+# its state_change_seq, which is not comparable between servers.
+# Key bindings run this detached, so it needs no tty. No dependencies beyond bash, grep, sed, cut and sort.
+set -euo pipefail
+
+herdr="${HERDR_BIN_PATH:-herdr}"
+remote_timeout="${HERDR_JUMP_TIMEOUT:-5}" # seconds to wait for each machine
+
+# oldest [MACHINE]: prints the pane id of the longest waiting done/blocked agent of this machine (or of MACHINE)
+oldest() {
+  local args=()
+  [[ -z ${1:-} ]] || args=(--machine "$1")
+  local rec seq pane
+  while IFS= read -r rec; do # one agent per line, split after each one's last key ("workspace_id")
+    case $(grep -o '"agent_status":"[^"]*"' <<<"$rec" | head -n1) in
+      '"agent_status":"done"'|'"agent_status":"blocked"') ;;
+      *) continue ;;
+    esac
+    [[ $rec != *'"focused":true'* ]] || continue
+    seq="$(grep -o '"state_change_seq":[0-9]*' <<<"$rec" | head -n1 | cut -d: -f2)"
+    pane="$(grep -o '"pane_id":"[^"]*"' <<<"$rec" | head -n1 | cut -d'"' -f4)"
+    [[ -n $seq && -n $pane ]] && printf '%s %s\n' "$seq" "$pane"
+  done < <(
+    if [[ -n ${1:-} ]]; then timeout "$remote_timeout" "$herdr" "${args[@]}" agent list 2>/dev/null || true
+    else "$herdr" agent list; fi | sed 's/"workspace_id":"[^"]*"}/&\n/g'
+  ) | sort -n | head -n 1 | cut -d' ' -f2
+}
+
+target="$(oldest)"
+if [[ -n $target ]]; then
+  "$herdr" agent focus "$target" >/dev/null
+  exit 0
+fi
+
+# the machine's label is the second column of `herdr machine list`, "enabled"/"disabled" the last
+while IFS=$'\t' read -r _ label _ _ state; do
+  [[ $state == enabled ]] || continue
+  target="$(oldest "$label")"
+  if [[ -n $target ]]; then
+    "$herdr" --machine "$label" agent focus "$target" >/dev/null
+    exit 0
+  fi
+done < <("$herdr" machine list 2>/dev/null || true)
+
+"$herdr" notification show "Nothing finished waiting" >/dev/null 2>&1 || true
