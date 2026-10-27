@@ -1,15 +1,28 @@
 # Dotfiles
 
-My configs, neovim/vscode plugins, tools for development.
-
 ![terminal-screenshot](screenshot.png)
 
 ### Configs
 
+Keyboard-first configs and tools for the terminal and desktop. Every common
+action has a shortcut, and every repetitive task is scripted and automated.
+
 ### Vim-like motions in your Desktop Environment
 
-I remapped my keyboard to use specific hotkeys and Vim-like motions in my entire DE
-using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.config/kanata/README.md) to find out more.
+I remapped my keyboard to use specific hotkeys and Vim-like motions in my desktop
+environment using [kanata](https://github.com/jtroo/kanata).
+Check out the [readme](./.config/kanata/README.md) to find out more.
+
+### Terminal workflow using Herdr and Television
+
+I work in [herdr](https://herdr.dev): a workspace per project, tabs per task. Everything is a keypress away:
+`alt+j/k` switches workspaces, `ctrl+1..9` tabs, `alt+h/l` moves between panes
+and nvim splits, `alt+u/i` jumps between agents.
+Apps (yazi, nvim, lazygit, Claude) start with `prefix+f/n/l/i`,
+and `prefix+t` opens a [television](https://github.com/alexpasmantier/television) fuzzy finder popup which lets me jump to
+tabs and sessions, run apps/jobs/tests putting them into correct tab/workspace automatically from anywhere.
+`herdr-run` decides where each command goes ([readme](./.config/herdr/local-plugins/launch/README.md)).
+Every task/job executing in the terminal is tracked in the agents sidebar, with notifications on finish.
 
 ## List of tools
 
@@ -42,7 +55,8 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 
 #### Search
 
-- [fzf](https://github.com/junegunn/fzf) - command-line fuzzy finder
+- [television](https://github.com/alexpasmantier/television) - terminal fuzzy finder. Check my [config](./.config/television/) for task automations using television
+- [fzf](https://github.com/junegunn/fzf) - terminal fuzzy finder
 - [ripgrep](https://github.com/BurntSushi/ripgrep) - `grep` alternative
 - [fd](https://github.com/sharkdp/fd) - find files and folders. same as `find` but better
 
@@ -60,16 +74,18 @@ using [kanata](https://github.com/jtroo/kanata). Check out the [readme](./.confi
 
 #### Other terminal tools
 
-- [aichat](https://github.com/sigoden/aichat) - AI in terminal. Supports handy command completion/generation on hotkey press (`alt+e`)
+- [herdr](https://herdr.dev/) - terminal multiplexer with AI agents tracking. Check my [config and plugins](./.config/herdr/) for task automation in herdr.
 - [tmux](https://github.com/tmux/tmux) - terminal multiplexer
 - [.tmux](https://github.com/gpakosz/.tmux) - tmux config
 - [zellij](https://github.com/zellij-org/zellij) - modern tmux replacement
+- [lazygit](https://github.com/jesseduffield/lazygit) - terminal UI for git
 - [lazydocker](https://github.com/jesseduffield/lazydocker) - terminal UI for docker
 - [htop](https://github.com/htop-dev/htop) - interactive process viewer
 - [xclip](https://github.com/astrand/xclip) - cli clipboard
 - [yank](https://github.com/mptre/yank) - copy terminal output to clipboard
 - [jq](https://github.com/stedolan/jq) - command-line JSON processor
 - [jnv](https://github.com/ynqa/jnv) - interactive JSON navigation
+- [aichat](https://github.com/sigoden/aichat) - AI in terminal. Supports handy command completion/generation on hotkey press (`alt+e`)
 - [hyperfine](https://github.com/sharkdp/hyperfine) - terminal benchmarking tool
 - [mprocs](https://github.com/pvolok/mprocs) - runs multiple commands in parallel and shows output of each command separately
 
