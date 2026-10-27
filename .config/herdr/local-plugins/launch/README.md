@@ -34,9 +34,10 @@ stays open, so `--linger` only affects new tabs, splits and workspaces.
 `prefix+o` (herdr's own `open_notification_target`) only works while the
 notification toast is on screen. `bin/herdr-jump-done`, bound to `prefix+O`,
 works for as long as the mark is in the sidebar: it focuses the agent or job
-that has been done or failed the longest, and again for the next one. It looks
-at this machine first and only then asks the saved SSH machines
-(`herdr machine list`), focusing the entry there with `herdr --machine`.
+that has been done or failed the longest, and again for the next one. It only
+looks at the machine where it runs. It never touches other machines' marks (the API
+can only move that server's focus, not this client's view, and it would clear
+the mark): switch to that machine and press `prefix+O` there.
 
 ## Jumping to a directory (`--workspace`, `--work-dir`)
 
