@@ -27,17 +27,25 @@ Only one of `--tab`/`--job`, `--split`, `--workspace`, `--work-dir` and `--here`
 For commands that have to run in a given directory (the tests of a project, a Claude session).
 
 1. **The focused pane is idle**: it is `cd`'ed to the directory (on its own line, so herdr's sidebar
-   still labels it by the command) and the command is typed into it.
-2. **The focused pane is busy**: look for a workspace that already has a pane in the directory
-   (the pane's shell directory or the directory of its foreground process, symlinks resolved).
-   - an **idle pane** there: focus its workspace and tab, and type the command into it;
-   - only **busy panes** there: open a new tab in that workspace and run the command in it;
-   - **no such workspace**: create a new workspace in the directory (named after it) and run it there.
+   still labels it by the command) and the command is typed into it. Not if the
+   workspace was renamed by hand, i.e. its name is not the name of the pane's
+   directory or of any directory above it (so a workspace named after the
+   directory it was opened in, like sesh does, still counts after a `cd` into a
+   subfolder): such a workspace stays where it is and the command goes to
+   another workspace (step 2).
+2. **The focused pane is busy**: look for a workspace that already has a pane in
+   the directory or below it (the pane's shell directory or the directory of its
+   foreground process, symlinks resolved). A workspace renamed by hand is
+   skipped when its pane is only below the directory.
+   - an **idle pane** there: focus its workspace and tab, `cd` it to the
+     directory if it is below it, and type the command into it;
+   - only **busy panes** there: open a new tab in that workspace and run the
+     command in it;
+   - **no such workspace**: create a new workspace in the directory (named after
+     it) and run it there.
 
 `--work-dir DIR` adds one shortcut in front of this: when the focused pane is already in `DIR` it
 behaves exactly like the default mode (idle: typed in, busy: new tab), so no other workspace is touched.
-
-A pane that is only in a subdirectory of `DIR` does not count as being in `DIR`.
 
 ## Used by
 

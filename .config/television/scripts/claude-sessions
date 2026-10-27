@@ -24,6 +24,7 @@ meta() {
 
 case ${1:-} in
   list|list-all)
+    # sessions whose directory no longer exists are skipped (they could not be resumed).
     # list: only sessions of the current directory; list-all: every project. Newest first;
     # sub-agent transcripts live deeper and are not matched
     enc=${PWD//[^a-zA-Z0-9]/-}; glob="$dir/$enc/*.jsonl"
@@ -31,7 +32,7 @@ case ${1:-} in
     while IFS= read -r f; do
       id=$(basename "$f" .jsonl)
       IFS=$'\t' read -r title cwd < <(meta "$f") || continue
-      [[ $1 == list-all || $cwd == "$PWD" ]] && [[ -n $cwd ]] && printf '%s\t%s\t%s\n' "$id" "$title" "$cwd"
+      [[ $1 == list-all || $cwd == "$PWD" ]] && [[ -d $cwd ]] && printf '%s\t%s\t%s\n' "$id" "$title" "$cwd"
     done < <(ls -t -- $glob 2>/dev/null || true) ;;
   preview)
     f=$(find_file "$2")
