@@ -9,6 +9,9 @@ export VISUAL=nvim
 
 export BAT_THEME="TwoDark"
 
+# herdr launch plugin: `herdr-run`, `herdr-run-hold` on PATH (see the file for details)
+source $CONFIG_DIR/../herdr/local-plugins/launch/shell.sh
+
 source $CONFIG_DIR/functions.sh
 source $CONFIG_DIR/aliases.sh
 

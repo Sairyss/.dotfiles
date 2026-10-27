@@ -103,30 +103,37 @@ type = "plugin_action"
 command = "fullerzz.sesh.last"
 description = "sesh: previous workspace"
 
-# Apps: launch.sh [--tab|--split] <cmd> (modes and popup example: see scripts/launch.sh)
+# Apps: herdr-run [--tab|--split] <cmd> (modes and popup example: see local-plugins/launch/bin/herdr-run).
+# Key bindings don't have your shell's PATH, so the plugin's bin/ is spelled out.
 [[keys.command]] # split pane
 key = "prefix+F"
 type = "shell"
-command = "$HOME/.config/herdr/scripts/launch.sh --split yazi"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --split yazi"
 description = "yazi in a split"
 
 [[keys.command]]
 key = "prefix+f"
 type = "shell"
-command = "$HOME/.config/herdr/scripts/launch.sh yazi"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run yazi"
 description = "yazi"
 
 [[keys.command]]
 key = "prefix+n"
 type = "shell"
-command = "$HOME/.config/herdr/scripts/launch.sh nvim ."
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run nvim ."
 description = "neovim"
 
 [[keys.command]]
 key = "prefix+l"
 type = "shell"
-command = "$HOME/.config/herdr/scripts/launch.sh lazygit"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run lazygit"
 description = "lazygit"
+
+[[keys.command]]
+key = "prefix+i"
+type = "shell"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run claude --dangerously-skip-permissions"
+description = "claude (skip permissions)"
 
 [[keys.command]] # popup in the middle of the screen
 key = "prefix+t"

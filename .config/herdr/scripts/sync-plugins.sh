@@ -35,10 +35,10 @@ done <"$list"
 link_keys='ln -sfn "$HOME/.dotfiles/.config/herdr/which-key/keys.toml" "$(herdr plugin config-dir pradyb.which-key)/keys.toml"'
 if [[ -n $target ]]; then ssh -n "$target" "$link_keys"; else bash -c "$link_keys"; fi
 
-# key bindings call ~/.config/herdr/scripts/launch.sh; ~/.config/herdr is a real dir on this machine
-# (runtime state), so link it. On the remote ~/.config is already one symlink into the dotfiles.
-if [[ -z $target && ! -e $HOME/.config/herdr/scripts ]]; then
-  ln -s ../../.dotfiles/.config/herdr/scripts "$HOME/.config/herdr/scripts"
+# key bindings call ~/.config/herdr/local-plugins/launch/bin/herdr-run; ~/.config/herdr is a real dir on this
+# machine (runtime state), so link it. On the remote ~/.config is already one symlink into the dotfiles.
+if [[ -z $target && ! -e $HOME/.config/herdr/local-plugins ]]; then
+  ln -s ../../.dotfiles/.config/herdr/local-plugins "$HOME/.config/herdr/local-plugins"
 fi
 
 h server reload-config >/dev/null

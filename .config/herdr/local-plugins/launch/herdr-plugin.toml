@@ -2,7 +2,7 @@ id = "launch"
 name = "Launch"
 version = "0.1.0"
 min_herdr_version = "0.9.5"
-description = "Generic pane that runs $LAUNCH_CMD directly, without waiting for the shell; used by scripts/launch.sh"
+description = "Generic pane that runs $LAUNCH_CMD directly, without waiting for the shell; used by bin/herdr-run"
 platforms = ["linux", "macos"]
 
 # Placement (tab/split) is chosen by the caller. The command string comes from the environment,

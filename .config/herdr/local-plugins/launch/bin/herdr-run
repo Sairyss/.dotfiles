@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-# Usage: launch.sh [options] <command...>
+# Usage: herdr-run [options] <command...>
+# (the launch plugin's bin/ is on PATH in your shell after sourcing ../shell.sh; key bindings and other
+# places that don't use your shell's PATH call it by its full path)
 #
 # Where it runs:
 #   (default)  in the focused pane if its shell is idle, else in a new tab
 #   --tab      always in a new tab
 #   --split    always in a new split pane next to the focused one
+#   --here     run in this very terminal (no new tab or pane), e.g. in a popup; --ask/--ask-if still apply
+#   --job      shortcut for a long-running command: --tab --linger 1m (HERDR_RUN_LINGER changes the 1m).
+#              A --keep or --linger after it replaces the linger, e.g. `--job --keep`, `--job --linger 10m`
 #   --cwd DIR  run in DIR instead of the focused pane's directory (an idle pane is only
 #              reused when it is already in DIR, otherwise a new tab is opened)
 #
@@ -12,7 +17,7 @@
 #   --keep     leave the shell open when <command> exits (default: the pane closes),
 #              e.g. to read the output of a failed build
 #              For commands that ran at least 10s (herdr-ohmyzsh's threshold), --keep/--linger also keep
-#              the command's sidebar entry as "done" until you focus the pane (see launch-hold.sh);
+#              the command's sidebar entry as "done" until you focus the pane (see herdr-run-hold);
 #              with --linger that wait ends when the linger is over.
 #   --linger D keep the pane open for D (e.g. 90, 90s, 1m) after <command> exits, then close it, even if
 #              you never looked at it, so output stays readable but the tab doesn't pile up. While it counts down:
@@ -27,11 +32,11 @@
 #   -h, --help this text
 #   --         end of options (for a command that starts with a dash)
 #
-# Pass a command with quoting as one argument: launch.sh --tab "npm run 'build:dev'"
+# Pass a command with quoting as one argument: herdr-run --tab "npm run 'build:dev'"
 # Outside herdr (no herdr env in an interactive terminal, or no reachable herdr server)
 # the command just runs as is, so the same bindings/actions work anywhere.
 # Failures (a missing tab id, a herdr error, bad options) are appended to
-# ${XDG_STATE_HOME:-~/.local/state}/herdr/launch.log and shown as a herdr notification,
+# ${XDG_STATE_HOME:-~/.local/state}/herdr/herdr-run.log and shown as a herdr notification,
 # because key bindings run this detached and would otherwise fail silently.
 #
 # A centered popup is not a mode of this script: herdr only opens popups from a native
@@ -48,14 +53,14 @@
 set -Eeuo pipefail
 
 herdr="${HERDR_BIN_PATH:-herdr}"
-log="${XDG_STATE_HOME:-$HOME/.local/state}/herdr/launch.log"
+log="${XDG_STATE_HOME:-$HOME/.local/state}/herdr/herdr-run.log"
 
 # fail MESSAGE [EXIT_CODE]: key bindings are detached, so leave a trace and a toast
 fail() {
   local msg="$1" code="${2:-1}"
   { mkdir -p "$(dirname "$log")" && printf '%s %s\n' "$(date '+%F %T')" "$msg" >>"$log"; } 2>/dev/null || true
-  echo "launch.sh: $msg" >&2
-  "$herdr" notification show "launch.sh failed: ${msg:0:80}" --sound request >/dev/null 2>&1 || true
+  echo "herdr-run: $msg" >&2
+  "$herdr" notification show "herdr-run failed: ${msg:0:80}" --sound request >/dev/null 2>&1 || true
   exit "$code"
 }
 trap 'fail "line $LINENO: $BASH_COMMAND"' ERR
@@ -80,13 +85,15 @@ label_of() {
 }
 
 mode=
-keep= linger= ask= ask_if= dry= opt_cwd=
+keep= linger= job= ask= ask_if= dry= opt_cwd=
 set_mode() { [[ -z $mode || $mode == "$1" ]] || fail "--tab and --split conflict" 2; mode=$1; }
 while (($#)); do
   case $1 in
     -h|--help) sed -n '2,/^set -/p' "$0" | sed '$d; s/^# \{0,1\}//'; exit 0 ;;
     --tab) set_mode tab ;;
+    --job) set_mode tab; job=1 ;;
     --split) set_mode split ;;
+    --here) set_mode here ;;
     --keep) keep=1 ;;
     --ask) ask=1 ;;
     --dry-run) dry=1 ;;
@@ -102,6 +109,7 @@ while (($#)); do
   shift
 done
 mode="${mode:-auto}"
+[[ -z $job || -n $keep || -n $linger ]] || linger="${HERDR_RUN_LINGER:-1m}" # --job
 cmd="$*"
 [[ -n $cmd ]] || fail "no command given (see --help)" 2
 [[ -z $keep || -z $linger ]] || fail "--keep and --linger conflict" 2
@@ -119,13 +127,19 @@ if [[ -n $ask ]]; then
     read -e -r -p "$cmd › " extra </dev/tty >/dev/tty || exit 0 # Ctrl-D cancels
     [[ -n $extra ]] && cmd+=" $extra"
   else
-    echo "launch.sh: --ask needs a terminal, running without extra arguments" >&2
+    echo "herdr-run: --ask needs a terminal, running without extra arguments" >&2
   fi
+fi
+
+if [[ $mode == here ]]; then
+  if [[ -n $dry ]]; then echo "here: would run: bash -c $(printf '%q' "$cmd")${opt_cwd:+ (in $opt_cwd)}"; exit 0; fi
+  [[ -z $opt_cwd ]] || cd "$opt_cwd"
+  exec bash -c "$cmd"
 fi
 
 # name_pane PANE: show the whole command (not just the label, "npm") as the pane's sidebar name while it
 # runs, if herdr-ohmyzsh registers it. The same text goes in a `cmd` pane token, which stays readable
-# when no sidebar entry exists, so launch-hold.sh can recover the command. It clears both again.
+# when no sidebar entry exists, so herdr-run-hold can recover the command. It clears both again.
 name_pane() {
   local name="$cmd"
   if ((${#name} > 80)); then name="${name:0:79}…"; fi
@@ -168,16 +182,19 @@ q() { printf '%q' "$1"; }
 snippet="$cmd"
 idle_run="$snippet" # current pane's shell: no linger, and the shell stays open
 if [[ -n $keep || -n $linger ]]; then
-  # herdr drops the sidebar entry as soon as the shell is the foreground process again; launch-hold.sh marks
+  # herdr drops the sidebar entry as soon as the shell is the foreground process again; herdr-run-hold marks
   # it done and keeps it (as a process of the same name) until the pane is focused. With --linger it also
   # runs the countdown (started now, whether or not you look at the pane): it exits non-zero when you
   # press the keep key, then the line ends without `exit` and the tab stays open.
   snippet+="; rc=\$?"
-  # typed into the terminal, so keep it short: the path as it was called (not resolved through the dotfiles
-  # symlinks), written with ~ when it is under $HOME; the command itself is not repeated (launch-hold.sh
-  # reads it back from the entry's display name)
+  # typed into the terminal, so keep it short: `herdr-run-hold` when the shell finds it on PATH (the pane's
+  # shell has the same PATH as this one, see ../shell.sh), else its path written with ~ when under $HOME.
+  # The command itself is not repeated (herdr-run-hold reads it back from a pane token).
   here="$(cd "$(dirname "$0")" && pwd)"
-  if [[ $here == "$HOME"/* ]]; then hold="~/$(q "${here#"$HOME"/}/launch-hold.sh")"; else hold="$(q "$here/launch-hold.sh")"; fi
+  if [[ "$(readlink -f "$(command -v herdr-run-hold 2>/dev/null)" 2>/dev/null)" == "$(readlink -f "$here/herdr-run-hold")" ]]; then
+    hold=herdr-run-hold
+  elif [[ $here == "$HOME"/* ]]; then hold="~/$(q "${here#"$HOME"/}/herdr-run-hold")"
+  else hold="$(q "$here/herdr-run-hold")"; fi
   hold_args="$(q "$(label_of "$cmd")") \$rc"
   if [[ -n $linger ]]; then
     snippet+="; if $hold --linger $(q "$linger") $hold_args; then exit \$rc; fi"
@@ -186,12 +203,12 @@ if [[ -n $keep || -n $linger ]]; then
   fi
 fi
 
-# focus_events PANE: with --keep/--linger, launch-hold.sh has to know whether you were away from the terminal
-# when the command ended (see the header of launch-hold.sh for why herdr's own focus flag can't tell). The
+# focus_events PANE: with --keep/--linger, herdr-run-hold has to know whether you were away from the terminal
+# when the command ended (see the header of herdr-run-hold for why herdr's own focus flag can't tell). The
 # terminal reports that as escape codes once DEC mode 1004 is on: ESC[O when you leave, ESC[I when you come
 # back; herdr forwards them to the pane. They have to be switched on BEFORE the command starts, because the
-# switch-away usually happens while it runs; they then wait in the tty input until launch-hold.sh reads them.
-#  - printf ...1004h  switches the reports on (launch-hold.sh switches them off again)
+# switch-away usually happens while it runs; they then wait in the tty input until herdr-run-hold reads them.
+#  - printf ...1004h  switches the reports on (herdr-run-hold switches them off again)
 #  - stty -echo       stops the tty echoing those codes into the command's output as ^[[O / ^[[I
 # It is a separate typed line, not a prefix of the command line, because herdr-ohmyzsh labels the sidebar
 # entry with the first word of the line, which must be the command itself (so no `printf ...; cmd`).

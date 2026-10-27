@@ -14,26 +14,19 @@ command = "jq -r '.scripts[\"{split:\\t:0}\"]' package.json"
 size = 30
 
 [keybindings]
-enter = "actions:run-tab"
-ctrl-f = "actions:run-tab-args"
+enter = "actions:run-job"
 
 [actions.run]
 description = "Run the selected npm script; `test` asks for extra arguments first"
-command = "n='{split:\\t:0}'; a=; if [ \"$n\" = test ]; then read -e -r -p \"npm run $n › \" a </dev/tty || exit 0; fi; eval \"npm run '$n' $a\""
-shell = "bash"
+command = "herdr-run --here --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
 mode = "execute"
 
-[actions.run-tab]
+[actions.run-job]
 description = "Run the selected npm script in a new herdr tab; the tab closes 1 minute after it exits (a long-running script stays, marked done, until you focus it); a failure shows as blocked in the sidebar; `test` asks for extra arguments first"
-command = "$HOME/.config/herdr/scripts/launch.sh --tab --linger 1m --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
+command = "herdr-run --job --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
 mode = "execute"
 
-[actions.run-tab-keep]
-description = "Run the selected npm script in a new herdr tab that stays open after it exits (a long-running script is marked done until you focus it); a failure shows as blocked in the sidebar; `test` asks for extra arguments first"
-command = "$HOME/.config/herdr/scripts/launch.sh --tab --keep --ask-if \"run 'test'$\" \"npm run '{split:\\t:0}'\""
-mode = "execute"
-
-[actions.run-tab-args]
+[actions.run-job-args]
 description = "Run the selected npm script in a new herdr tab like `run-tab`, but always ask for extra arguments first"
-command = "$HOME/.config/herdr/scripts/launch.sh --tab --linger 1m --ask \"npm run '{split:\\t:0}'\""
+command = "herdr-run --job --ask \"npm run '{split:\\t:0}'\""
 mode = "execute"
