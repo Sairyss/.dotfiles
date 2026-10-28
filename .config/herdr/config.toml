@@ -28,9 +28,19 @@ rows = [
   ],
 ]
 
-# workspaces panel: "<workspace>› <app>" and the tab count, muted (both tokens are set by local-plugins/agent-sort)
+# workspaces panel: "<workspace> · <app>", git status and the tab count (the $app and $tabs tokens are set by
+# local-plugins/agent-sort; the $title token it also sets holds the old single-token "<workspace>·<app>" form)
 [ui.sidebar.spaces]
-rows = [["state_icon", { token = "$title", fg = "#c0caf5" }, "git_status", { token = "$tabs", fg = "#9aa5ce", dim = false }], []]
+rows = [[
+  "state_icon",
+  { token = "workspace", fg = "#c0caf5" },
+  { token = "$app", fg = "#7dcfff", rules = [
+    { equals = "nvim", fg = "#bb9af7", bold = true },
+    { starts_with = "claude", fg = "#ff9e64" },
+  ] },
+  "git_status",
+  { token = "$tabs", fg = "#9aa5ce", dim = false },
+], []]
 
 [theme.custom]
 # overlay0 = "#181926"
