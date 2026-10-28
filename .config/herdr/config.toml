@@ -103,30 +103,22 @@ type = "plugin_action"
 command = "fullerzz.sesh.last"
 description = "sesh: previous workspace"
 
-# Apps: herdr-run [--tab|--split] <cmd> (modes and popup example: see local-plugins/launch/bin/herdr-run).
-# Key bindings don't have your shell's PATH, so the plugin's bin/ is spelled out.
-[[keys.command]] # split pane
-key = "prefix+F"
-type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --split yazi"
-description = "yazi in a split"
-
 [[keys.command]]
 key = "prefix+f"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run yazi"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse yazi"
 description = "yazi"
 
 [[keys.command]]
 key = "prefix+n"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run nvim ."
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse nvim ."
 description = "neovim"
 
 [[keys.command]]
 key = "prefix+l"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run lazygit"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse lazygit"
 description = "lazygit"
 
 [[keys.command]]
@@ -138,7 +130,7 @@ description = "claude (skip permissions)"
 [[keys.command]]
 key = "prefix+m"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run btop"
+command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse btop"
 description = "btop"
 
 # like prefix+o (open_notification_target), but not limited to the time the toast is visible: focuses the

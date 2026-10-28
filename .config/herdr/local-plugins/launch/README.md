@@ -22,6 +22,13 @@ in `DIR`, otherwise a new tab opens there.
 
 Only one of `--tab`/`--job`, `--split`, `--workspace`, `--work-dir` and `--here` may be given.
 
+`--reuse` is for commands that should be open once per workspace (such as
+lazygit). If a pane of the focused workspace already runs exactly that command
+line in the foreground, herdr-run jumps to its tab instead of starting another.
+Quotes and the program's directory are ignored when comparing, so `nvim .`
+matches `nvim .` but not `nvim file`. It applies to the default and `--tab`
+modes. Without it, every call opens a new tab (such as claude).
+
 ## Done and failed marks
 
 With `--keep` or `--linger`, a command that finishes while you are looking

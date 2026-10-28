@@ -20,6 +20,10 @@
 #   --cwd DIR  run in DIR instead of the focused pane's directory (an idle pane is only
 #              reused when it is already in DIR, otherwise a new tab is opened)
 #
+#   --reuse    for an app that should only be open once per workspace (e.g. lazygit): when a pane of the
+#              focused workspace already runs exactly <command> (compared without quotes) as its foreground
+#              process, jump to its tab instead of starting another. Only for the default and --tab modes; without it every call opens one
+#
 # What happens around it (new tabs/splits/workspaces; --ask and the done/failed mark of --keep/--linger also
 # apply to an idle pane, which always stays open: there only the mark is kept, there is no countdown):
 #   --keep     leave the shell open when <command> exits (default: the pane closes),
@@ -111,7 +115,7 @@ label_of() {
 }
 
 mode=
-keep= linger= job= ask= ask_if= dry= opt_cwd=
+keep= linger= job= reuse= ask= ask_if= dry= opt_cwd=
 mode_flag=
 # set_mode MODE FLAG: --tab/--job, --split, --workspace and --here pick where to run, so only one mode may be given
 set_mode() {
@@ -127,6 +131,7 @@ while (($#)); do
     --workspace) set_mode workspace --workspace ;;
     --work-dir) set_mode workdir --work-dir; opt_cwd="${2:?--work-dir needs a directory}"; shift ;;
     --here) set_mode here --here ;;
+    --reuse) reuse=1 ;;
     --keep) keep=1 ;;
     --ask) ask=1 ;;
     --dry-run) dry=1 ;;
@@ -208,6 +213,16 @@ if ! command -v "$herdr" >/dev/null 2>&1 ||
   exec bash -c "$cmd"
 fi
 
+# is_idle INFO: the pane's shell is its foreground process group. A fast-path pane (see the launch plugin)
+# has no shell: the command is exec'd, so it is its own "shell_pid" and would look idle without the name check.
+is_idle() {
+  local fg sh_pid name
+  fg="$(jnum foreground_process_group_id "$1")"; sh_pid="$(jnum shell_pid "$1")"
+  name="$(jstr name "$1")"
+  [[ -n $fg && $fg == "$sh_pid" ]] || return 1
+  case ${name#-} in bash|zsh|sh|dash|fish|ksh|nu|elvish|xonsh|tcsh|csh) return 0 ;; *) return 1 ;; esac
+}
+
 # <cmd> as a shell snippet, optionally followed by a linger.
 # It is typed into the pane's own shell (not `bash -c`) and starts with <cmd> itself, so shell
 # integrations that label a pane by the first word of the line (herdr-ohmyzsh) show the real command.
@@ -282,6 +297,27 @@ if [[ $mode == workdir ]]; then
 fi
 [[ -z $dry ]] || echo "mode=$mode pane=$pane cwd=$cwd"
 
+# --reuse: a command already running in this workspace is jumped to, not started a second time. Matched on
+# the whole command line of a pane's foreground process (`nvim .` and `nvim file` are different). Both sides
+# are compared without quotes, extra blanks and the program's directory, because the shell has already
+# removed them from what actually runs.
+norm_cmd() {
+  sed -e "s/[\\\\'\"]//g" -e 's/[[:space:]][[:space:]]*/ /g' -e 's/^ //; s/ $//' -e 's#^[^ ]*/##' <<<"$1"
+}
+if [[ -n $reuse && ( $mode == auto || $mode == tab ) ]]; then
+  want="$(norm_cmd "$cmd")"
+  ws="$(jstr workspace_id "$after")"
+  while IFS= read -r rec; do
+    [[ "$(jstr workspace_id "$rec")" == "$ws" ]] || continue
+    info="$("$herdr" pane process-info --pane "$(jstr pane_id "$rec")")"
+    running="$(grep -o '"cmdline":"\([^"\\]\|\\.\)*"' <<<"$info" | head -n1 | cut -d'"' -f4- || true)"
+    [[ -n $running && "$(norm_cmd "${running%\"}")" == "$want" ]] || continue
+    hc tab focus "$(jstr tab_id "$rec")" >/dev/null
+    [[ -z $dry ]] || echo "already running in tab $(jstr tab_id "$rec"): jumping to it"
+    exit 0
+  done < <(sed 's/"workspace_id":"[^"]*"}/&\n/g' <<<"$list")
+fi
+
 # Fast path: nothing to wrap (no linger/keep), so start the command directly in a plugin
 # pane instead of typing it into a freshly started shell, which has to finish starting up first.
 fast=
@@ -306,13 +342,12 @@ fi
 
 if [[ $mode == workspace ]]; then
   info="$("$herdr" pane process-info --pane "$pane")"
-  fg="$(jnum foreground_process_group_id "$info")"; sh_pid="$(jnum shell_pid "$info")"
   pinned=
   if [[ $cwd != "$pane_cwd" ]] && named_by_hand "$(ws_label "$(jstr workspace_id "$after")")" "$pane_cwd"; then
     pinned=1
     [[ -z $dry ]] || echo "the focused workspace is named by hand: not cd'ing it"
   fi
-  if [[ -n $fg && $fg == "$sh_pid" && -z $pinned ]]; then # idle: go to the directory (own line, so the command stays the line's first word)
+  if is_idle "$info" && [[ -z $pinned ]]; then # idle: go to the directory (own line, so the command stays the line's first word)
     [[ -z $dry ]] || echo "idle pane: typing into it"
     [[ $cwd == "$pane_cwd" ]] || hc pane run "$pane" "cd $(q "$cwd")" >/dev/null
     run_idle "$pane"
@@ -337,8 +372,7 @@ if [[ $mode == workspace ]]; then
     if [[ -n $exact ]]; then exact_ws="${exact_ws:-$w}"; else below_ws="${below_ws:-$w}"; fi
     [[ -n $exact || -z $sub_pane ]] || continue # one idle candidate below $cwd is enough
     info="$("$herdr" pane process-info --pane "$(jstr pane_id "$rec")")"
-    fg="$(jnum foreground_process_group_id "$info")"; sh_pid="$(jnum shell_pid "$info")"
-    if [[ -n $fg && $fg == "$sh_pid" ]]; then
+    if is_idle "$info"; then
       if [[ -n $exact ]]; then
         idle_pane="$(jstr pane_id "$rec")"; idle_tab="$(jstr tab_id "$rec")"; idle_ws=$w
         break
@@ -373,8 +407,7 @@ fi
 
 if [[ $mode == auto && ( -z $opt_cwd || $opt_cwd == "$pane_cwd" ) ]]; then
   info="$("$herdr" pane process-info --pane "$pane")"
-  fg="$(jnum foreground_process_group_id "$info")"; sh_pid="$(jnum shell_pid "$info")"
-  if [[ -n $fg && $fg == "$sh_pid" ]]; then # the shell itself is the foreground process group
+  if is_idle "$info"; then # the shell itself is the foreground process group
     [[ -z $dry ]] || echo "idle pane: typing into it"
     run_idle "$pane"
     exit 0
