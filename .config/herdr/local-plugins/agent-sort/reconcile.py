@@ -97,13 +97,39 @@ def cmd_of(p):
     return t.split()[0].rstrip(":").lower()
 
 
-# workspace row title "<workspace> › <app>" (token $title, see [ui.sidebar.spaces] rows): app is the agent
+SHELLS = {"bash", "zsh", "sh", "dash", "fish", "ksh", "nu", "elvish", "xonsh", "tcsh", "csh"}
+
+
+def fg_cmd(p):
+    """Foreground program of a pane, for apps that set no terminal title and run without a shell around
+    them (herdr-run's fast path, e.g. lazygit). Empty when the pane's shell is in front."""
+    try:
+        info = json.loads(run("pane", "process-info", "--pane", p["pane_id"]))["result"]["process_info"]
+    except (ValueError, KeyError):
+        return ""
+    for proc in info.get("foreground_processes") or []:
+        name = (proc.get("name") or "").lstrip("-").lower()
+        if name and name not in SHELLS:
+            return name
+    return ""
+
+
+# workspace row title "<workspace>› <app>" (token $title, see [ui.sidebar.spaces] rows): app is the agent
 # of the focused pane in the active tab, else of any pane in it
 wss = json.loads(run("workspace", "list"))["result"]["workspaces"]
 for ws in wss:
     tab = [p for p in panes if p["tab_id"] == ws.get("active_tab_id")]
     tab.sort(key=lambda p: not p.get("focused"))
     app = next((p["agent"] for p in tab if p.get("agent")), "") or next((cmd_of(p) for p in tab if cmd_of(p)), "")
-    want = f"{ws['label']} › {app}" if app else ws["label"]
+    if not app and tab:  # only the focused pane: one extra call, and only when nothing else names the app
+        app = fg_cmd(tab[0])
+    want = f"{ws['label']}› {app}" if app else ws["label"]
     if (ws.get("tokens") or {}).get("title") != want:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"title={want}")
+    # token $tabs: "⧉ <n>" when the workspace has several tabs, none for a single one
+    n = ws.get("tab_count") or 1
+    have = (ws.get("tokens") or {}).get("tabs")
+    if n > 1 and have != f"⧉ {n}":
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"tabs=⧉ {n}")
+    elif n <= 1 and have:
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "tabs")

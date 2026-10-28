@@ -23,9 +23,9 @@ except OSError:
 EVENTS = ["pane.created", "pane.updated", "pane.exited", "pane.closed", "pane.agent_detected", "pane.agent_status_changed"]
 
 
-QUIET = 0.3
-MAX_WAIT = 1.0
-MIN_GAP = 0.5
+QUIET = 0.5
+MAX_WAIT = 2.0
+MIN_GAP = 2.0
 last_run = 0.0
 
 
