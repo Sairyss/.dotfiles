@@ -17,6 +17,11 @@
 #   --here     run in this very terminal (no new tab or pane), e.g. in a popup; --ask/--ask-if still apply
 #   --job      shortcut for a long-running command: --tab --linger 1m (HERDR_RUN_LINGER changes the 1m).
 #              A --keep or --linger after it replaces the linger, e.g. `--job --keep`, `--job --linger 10m`
+#   --background  start it without taking you there: no focus change and a "Started in background"
+#              notification. In your own workspace a new tab (never your pane). --work-dir: an idle pane of
+#              another workspace open in DIR is used (so its sidebar shows the app), else a new tab in it,
+#              else a new workspace. With --linger a failure keeps its tab open marked failed (see
+#              herdr-run-hold); not with --here/--split
 #   --cwd DIR  run in DIR instead of the focused pane's directory (an idle pane is only
 #              reused when it is already in DIR, otherwise a new tab is opened)
 #
@@ -32,7 +37,9 @@
 #              the command's sidebar entry as "done" until you focus the pane (see herdr-run-hold);
 #              with --linger that wait ends when the linger is over.
 #   --linger D keep the pane open for D (e.g. 90, 90s, 1m) after <command> exits, then close it, even if
-#              you never looked at it, so output stays readable but the tab doesn't pile up. While it counts down:
+#              you never looked at it, so output stays readable but the tab doesn't pile up. A command that
+#              fails (non-zero exit, except Ctrl-C) is not closed: no countdown, the tab stays open and its
+#              sidebar mark waits until you focus it. While it counts down:
 #              Ctrl-C closes now, `k` (LAUNCH_KEEP_KEY) cancels the linger and keeps the tab open
 #   --ask      prompt for extra arguments (in this terminal) and append them to <command>;
 #              an empty answer runs it as is, Ctrl-D / Ctrl-C cancels. Needs a terminal.
@@ -49,7 +56,8 @@
 # the command just runs as is, so the same bindings/actions work anywhere.
 # Failures (a missing tab id, a herdr error, bad options) are appended to
 # ${XDG_STATE_HOME:-~/.local/state}/herdr/herdr-run.log and shown as a herdr notification,
-# because key bindings run this detached and would otherwise fail silently.
+# because key bindings run this detached and would otherwise fail silently. Only herdr-run's own errors
+# notify: a failing command only changes its sidebar status (see herdr-run-hold).
 #
 # A centered popup is not a mode of this script: herdr only opens popups from a native
 # key binding, so use `type = "popup"` in config.toml instead, e.g.
@@ -115,7 +123,7 @@ label_of() {
 }
 
 mode=
-keep= linger= job= reuse= ask= ask_if= dry= opt_cwd=
+keep= linger= job= reuse= bg= ask= ask_if= dry= opt_cwd=
 mode_flag=
 # set_mode MODE FLAG: --tab/--job, --split, --workspace and --here pick where to run, so only one mode may be given
 set_mode() {
@@ -132,6 +140,7 @@ while (($#)); do
     --work-dir) set_mode workdir --work-dir; opt_cwd="${2:?--work-dir needs a directory}"; shift ;;
     --here) set_mode here --here ;;
     --reuse) reuse=1 ;;
+    --background|--bg) bg=1 ;;
     --keep) keep=1 ;;
     --ask) ask=1 ;;
     --dry-run) dry=1 ;;
@@ -149,6 +158,7 @@ done
 mode="${mode:-auto}"
 [[ -z $job || -n $keep || -n $linger ]] || linger="${HERDR_RUN_LINGER:-1m}" # --job
 cmd="$*"
+[[ -z $bg || ( $mode != here && $mode != split ) ]] || fail "--background and $mode_flag conflict" 2
 [[ -n $cmd ]] || fail "no command given (see --help)" 2
 [[ -z $keep || -z $linger ]] || fail "--keep and --linger conflict" 2
 if [[ -n $opt_cwd ]]; then
@@ -291,6 +301,17 @@ pane_cwd="$(jstr foreground_cwd "$focused")"
 [[ -n $pane_cwd ]] || pane_cwd="$(jstr cwd "$focused")"
 [[ -n $pane ]] || fail "could not find the focused pane in: ${list:0:120}"
 cwd="${opt_cwd:-$pane_cwd}"
+# bg_done: with --background, say right away that the command was sent (nothing else shows it), then exit
+bg_done() {
+  [[ -z $bg ]] || { local n="Started in background: ${cmd:0:70}"
+    if [[ -n $dry ]]; then echo "would notify: $n"; else "$herdr" notification show "$n" >/dev/null 2>&1 || true; fi; }
+  exit 0
+}
+
+# what a new tab/workspace gets so that it takes (or, with --background, doesn't take) you there
+tab_focus=--focus ws_focus=--focus
+[[ -z $bg ]] || { tab_focus= ws_focus=--no-focus; }
+
 # --work-dir: already there means the default behaviour, elsewhere it is --workspace's
 if [[ $mode == workdir ]]; then
   if [[ "$(cd "$cwd" && pwd -P)" == "$(cd "$pane_cwd" 2>/dev/null && pwd -P)" ]]; then mode=auto; opt_cwd=; else mode=workspace; fi
@@ -347,7 +368,7 @@ if [[ $mode == workspace ]]; then
     pinned=1
     [[ -z $dry ]] || echo "the focused workspace is named by hand: not cd'ing it"
   fi
-  if is_idle "$info" && [[ -z $pinned ]]; then # idle: go to the directory (own line, so the command stays the line's first word)
+  if is_idle "$info" && [[ -z $pinned && -z $bg ]]; then # idle: go to the directory (own line, so the command stays the line's first word)
     [[ -z $dry ]] || echo "idle pane: typing into it"
     [[ $cwd == "$pane_cwd" ]] || hc pane run "$pane" "cd $(q "$cwd")" >/dev/null
     run_idle "$pane"
@@ -370,6 +391,7 @@ if [[ $mode == workspace ]]; then
     w="$(jstr workspace_id "$rec")"
     if [[ -z $exact ]] && named_by_hand "$(ws_label "$w")" "$d"; then continue; fi
     if [[ -n $exact ]]; then exact_ws="${exact_ws:-$w}"; else below_ws="${below_ws:-$w}"; fi
+    [[ -z $bg || $w != "$(jstr workspace_id "$after")" ]] || continue # background: not in the workspace you are in
     [[ -n $exact || -z $sub_pane ]] || continue # one idle candidate below $cwd is enough
     info="$("$herdr" pane process-info --pane "$(jstr pane_id "$rec")")"
     if is_idle "$info"; then
@@ -384,28 +406,30 @@ if [[ $mode == workspace ]]; then
   ws_id="${exact_ws:-$below_ws}"
   if [[ -n $idle_pane ]]; then
     [[ -z $dry ]] || echo "idle pane $idle_pane of the workspace already open in $cwd: typing into it"
-    hc workspace focus "$idle_ws" >/dev/null
-    hc tab focus "$idle_tab" >/dev/null
+    if [[ -z $bg ]]; then
+      hc workspace focus "$idle_ws" >/dev/null
+      hc tab focus "$idle_tab" >/dev/null
+    fi
     [[ -z $idle_cd ]] || hc pane run "$idle_pane" "cd $(q "$cwd")" >/dev/null
     run_idle "$idle_pane"
-    exit 0
+    bg_done
   fi
   if [[ -n $ws_id ]]; then
     [[ -z $dry ]] || echo "workspace $ws_id is open in $cwd but busy: new tab in it"
-    out="$(hc tab create --workspace "$ws_id" --cwd "$cwd" --focus)" || exit 1; check "$out"
-    hc workspace focus "$ws_id" >/dev/null
+    out="$(hc tab create --workspace "$ws_id" --cwd "$cwd" $tab_focus)" || exit 1; check "$out"
+    [[ -n $bg ]] || hc workspace focus "$ws_id" >/dev/null
   else
-    out="$(hc workspace create --cwd "$cwd" --label "$(basename "$cwd")" --focus)" || exit 1; check "$out"
+    out="$(hc workspace create --cwd "$cwd" --label "$(basename "$cwd")" $ws_focus)" || exit 1; check "$out"
   fi
   root="$(jstr pane_id "$out")"
   [[ -n $root || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
   focus_events "${root:-<new-pane>}"
   hc pane run "${root:-<new-pane>}" "$run" >/dev/null
   name_pane "${root:-<new-pane>}"
-  exit 0
+  bg_done
 fi
 
-if [[ $mode == auto && ( -z $opt_cwd || $opt_cwd == "$pane_cwd" ) ]]; then
+if [[ $mode == auto && -z $bg && ( -z $opt_cwd || $opt_cwd == "$pane_cwd" ) ]]; then
   info="$("$herdr" pane process-info --pane "$pane")"
   if is_idle "$info"; then # the shell itself is the foreground process group
     [[ -z $dry ]] || echo "idle pane: typing into it"
@@ -416,18 +440,20 @@ fi
 
 if [[ -n $fast ]]; then
   out="$(hc plugin pane open --plugin launch --entrypoint run --placement tab \
-    --cwd "$cwd" --env "LAUNCH_CMD=$cmd" --focus)" || exit 1
+    --cwd "$cwd" --env "LAUNCH_CMD=$cmd" $tab_focus)" || exit 1
   check "$out"
   tab="$(jstr tab_id "$out")"
   [[ -n $tab || -n $dry ]] || fail "no tab id in herdr reply: ${out:0:120}"
   # --focus alone doesn't switch tabs. A very short command may already have closed its tab: not an error.
-  if [[ -n $dry ]]; then hc tab focus "<new-tab>"; else "$herdr" tab focus "$tab" >/dev/null 2>&1 || true; fi
-  exit 0
+  if [[ -n $bg ]]; then :
+  elif [[ -n $dry ]]; then hc tab focus "<new-tab>"; else "$herdr" tab focus "$tab" >/dev/null 2>&1 || true; fi
+  bg_done
 fi
 
-out="$(hc tab create --cwd "$cwd" --focus)" || exit 1; check "$out"
+out="$(hc tab create --cwd "$cwd" $tab_focus)" || exit 1; check "$out"
 root="$(jstr pane_id "$out")"
 [[ -n $root || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
 focus_events "${root:-<new-pane>}"
 hc pane run "${root:-<new-pane>}" "$run" >/dev/null
 name_pane "${root:-<new-pane>}"
+bg_done

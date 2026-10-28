@@ -16,6 +16,7 @@ size = 30
 
 [keybindings]
 enter = "actions:run-job"
+ctrl-b = "actions:run-bg"
 
 [actions.run]
 description = "Run the selected npm script; `test` asks for extra arguments first"
@@ -23,11 +24,16 @@ command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/sc
 mode = "execute"
 
 [actions.run-job]
-description = "Run the selected npm script from its project directory in herdr: in this pane if idle, else in the workspace open there (new tab) or a new workspace; a tab closes 1 minute after it exits (a long-running script stays, marked done, until you focus it); a failure shows as blocked in the sidebar; `test` asks for extra arguments first"
+description = "Run the selected npm script from its project directory in herdr: in this pane if idle, else in the workspace open there (new tab) or a new workspace; a tab closes 1 minute after it exits (a long-running script stays, marked done, until you focus it); a failure keeps the tab open and shows as blocked in the sidebar; `test` asks for extra arguments first"
 command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts run job '{split:\\t:0}' '{split:\\t:1}'"
 mode = "execute"
 
 [actions.run-job-args]
 description = "Run the selected npm script like `run-job`, but always ask for extra arguments first"
 command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts run job-args '{split:\\t:0}' '{split:\\t:1}'"
+mode = "execute"
+
+[actions.run-bg]
+description = "Run the selected npm script in the background: without focusing it: in an idle pane of another workspace open in its project directory, else a new tab there or a new workspace, with a Started-in-background notification; a tab closes 1 minute after a successful exit, a failure keeps it open and shows as blocked in the sidebar; `test` asks for extra arguments first"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/npm-scripts run bg '{split:\\t:0}' '{split:\\t:1}'"
 mode = "execute"

@@ -24,7 +24,8 @@
 # keeps the tab open, same as in the countdown.
 #
 # 2. With --linger: the countdown (herdr-run-linger) to DURATION after the command finished, whether or
-#    not the pane was focused. Exit status: 0 = close the pane, 1 = you pressed the keep key.
+#    not the pane was focused. Exit status: 0 = close the pane, 1 = keep it (you pressed the keep key, or the
+#    command failed: a failure has no countdown and its mark waits until you focus the pane).
 #    Without --linger the exit status is always 0.
 set -uo pipefail
 
@@ -54,6 +55,10 @@ if [[ -n $linger ]]; then
   esac
   deadline=$(($(date +%s) + secs))
 fi
+# a failed command keeps its tab open (Ctrl-C, exit 130, is a decision of yours, not a failure): no countdown, the
+# mark waits until you focus the pane
+failed_keep=0
+if [[ -n $linger ]] && ((rc != 0 && rc != 130)); then failed_keep=1 deadline=0; fi
 
 # herdr-run gave this entry the full command as display name when the command started (herdr shows only
 # the short label, "npm"); clear it on every way out so a later job with the same label doesn't inherit it
@@ -141,6 +146,7 @@ if have_tty; then printf '\033[?1004l' >/dev/tty; stty echo </dev/tty 2>/dev/nul
 [[ -z $pane ]] || clear_meta # the entry is gone now; don't leave the name or labels behind
 
 if [[ -n $linger ]]; then
+  if ((failed_keep)); then printf '\r\033[2K[herdr-run] failed (exit %s), kept open\n' "$rc"; exit 1; fi
   if ((kept)); then printf '\r\033[2K[herdr-run] kept open\n'; exit 1; fi
   "$here/herdr-run-linger" "@$deadline"
   exit $?

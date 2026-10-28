@@ -20,6 +20,14 @@ a command goes. Outside herdr the command just runs as is.
 `--cwd DIR` only sets the directory for the default mode: an idle pane is reused when it is already
 in `DIR`, otherwise a new tab opens there.
 
+`--background` (`--bg`) starts the command without taking you there: it never
+changes focus and shows a "Started in background" notification, since nothing
+else shows it. In the workspace you are in it opens a new tab (never your
+pane). With `--work-dir` in another workspace open there, an idle pane of it is
+used (so the workspace's sidebar shows the app), else a new tab in it, else a
+new workspace. With `--linger`, a success closes the tab after the linger and a
+failure keeps it open marked failed. It conflicts with `--here` and `--split`.
+
 Only one of `--tab`/`--job`, `--split`, `--workspace`, `--work-dir` and `--here` may be given.
 
 `--reuse` is for commands that should be open once per workspace (such as
@@ -37,6 +45,10 @@ until you focus its pane, so you can jump to it later. This works the same when
 the command is typed into an idle pane as in a new tab. The difference is the
 end: a new tab closes after the linger, an idle pane (your own shell) always
 stays open, so `--linger` only affects new tabs, splits and workspaces.
+
+A failed command (non-zero exit, except Ctrl-C) with `--linger` skips the
+countdown: its tab stays open and the "failed" mark stays until you focus the
+pane. Without `--keep` or `--linger` a tab closes on exit whatever the status.
 
 `prefix+o` (herdr's own `open_notification_target`) only works while the
 notification toast is on screen. `bin/herdr-jump-done`, bound to `prefix+O`,
