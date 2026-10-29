@@ -89,7 +89,7 @@ it starts `$SHELL` in `DIR`.
 
 ## Used by
 
-- some television channels (`~/.config/television/cable`)
+- some television channels (`~/.config/television/cable/custom`)
 - key bindings in `~/.config/herdr/config.toml`
 
 ## Trying it

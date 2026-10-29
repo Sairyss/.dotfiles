@@ -107,13 +107,6 @@ type = "plugin_action"
 command = "annotate.capture"
 description = "annotate text"
 
-# sesh
-[[keys.command]]
-key = "prefix+s"
-type = "plugin_action"
-command = "fullerzz.sesh.open-picker"
-description = "sesh workspace picker"
-
 [[keys.command]]
 key = "prefix+v"
 type = "plugin_action"
@@ -156,6 +149,20 @@ description = "jump to the oldest finished/failed job"
 key = "prefix+t"
 type = "popup"
 command = "tv channels"
+width = "80%"
+height = "80%"
+description = "television"
+
+# [[keys.command]]
+# key = "prefix+s"
+# type = "plugin_action"
+# command = "fullerzz.sesh.open-picker"
+# description = "sesh workspace picker"
+
+[[keys.command]]
+key = "prefix+s"
+type = "popup"
+command = "tv herdr-zoxide"
 width = "80%"
 height = "80%"
 description = "television"
