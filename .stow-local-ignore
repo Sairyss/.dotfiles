@@ -2,3 +2,6 @@
 .gitmodules
 README.md
 screenshot.png
+.stowrc
+AGENTS.md
+scripts
