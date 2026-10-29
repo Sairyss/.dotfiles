@@ -12,6 +12,7 @@ import fcntl
 import json
 import os
 import re
+import shlex
 import subprocess
 import time
 
@@ -97,6 +98,33 @@ def cmd_of(p):
     return t.split()[0].rstrip(":").lower()
 
 
+SKIP_WORDS = {"sudo", "doas", "command", "builtin", "exec", "nohup", "time", "nice", "env", "caffeinate"}
+RUNNERS = {"npm", "pnpm", "yarn", "bun"}  # `<runner> run <script>`: "run" says nothing, show the script
+
+
+def detail_of(p):
+    """Arguments of the command running in a pane, without the program itself: "npm run test" -> "test",
+    "yarn test --watch" -> "test --watch". The full command comes from herdr-run's `cmd` pane token, else from
+    the terminal title (the command while one runs). Empty when there are no arguments or it isn't a command."""
+    text = (p.get("tokens") or {}).get("cmd") or (p.get("terminal_title_stripped") or "").strip()
+    if not text or SHELL_TITLE.match(text):
+        return ""
+    text = text.split("; rc=$?")[0]  # herdr-run types "<cmd>; rc=$?; herdr-run-hold <label> $rc" around the command
+    try:
+        words = shlex.split(text)  # unquotes what herdr-run quoted: npm run 'docker:env:reset'
+    except ValueError:
+        words = text.split()
+    while words and (words[0] in SKIP_WORDS or "=" in words[0] or words[0].startswith("-")):
+        words.pop(0)
+    if not words or words[0].endswith(":"):  # a TUI title like "Yazi: dir", not a command line
+        return ""
+    prog = words.pop(0).rsplit("/", 1)[-1].lower()
+    if prog in RUNNERS and words[:1] == ["run"]:
+        words.pop(0)
+    out = " ".join(words)
+    return out if len(out) <= 40 else out[:39] + "…"
+
+
 SHELLS = {"bash", "zsh", "sh", "dash", "fish", "ksh", "nu", "elvish", "xonsh", "tcsh", "csh"}
 
 
@@ -111,6 +139,33 @@ def fg_cmd(p):
         name = (proc.get("name") or "").lstrip("-").lower()
         if name and name not in SHELLS:
             return name
+    return ""
+
+
+def dirty_files(cwd):
+    """Number of changed or untracked files in the git repo containing cwd; 0 outside a repo or on error."""
+    if not cwd:
+        return 0
+    try:
+        out = subprocess.run(["git", "-C", cwd, "--no-optional-locks", "status", "--porcelain"],
+                             capture_output=True, text=True, timeout=3).stdout
+    except (OSError, subprocess.SubprocessError):
+        return 0
+    return len(out.splitlines())
+
+
+def git_branch(cwd):
+    """Current branch (short hash when detached) of the git repo containing cwd; empty outside a repo."""
+    if not cwd:
+        return ""
+    for args in (["branch", "--show-current"], ["rev-parse", "--short", "HEAD"]):
+        try:
+            out = subprocess.run(["git", "-C", cwd, "--no-optional-locks", *args],
+                                 capture_output=True, text=True, timeout=3).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            return ""
+        if out:
+            return out
     return ""
 
 
@@ -139,3 +194,29 @@ for ws in wss:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"tabs=⧉ {n}")
     elif n <= 1 and have:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "tabs")
+    # token $cmd: the arguments of the command that gave the app (see detail_of); none for agents and nvim
+    # (a job registered by herdr-run/herdr-ohmyzsh counts as a command: its agent name is just the program)
+    src = next((p for p in tab if p.get("agent")), None) or next((p for p in tab if cmd_of(p)), None)
+    detail = detail_of(src) if src and (src.get("agent") or "") not in AGENTS else ""
+    have = (ws.get("tokens") or {}).get("cmd")
+    if detail and have != detail:
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"cmd={detail}")
+    elif not detail and have:
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "cmd")
+    # token $branch: herdr's own `branch` token can't be hidden, so this one stands in for it and goes away while
+    # a command runs: the command's arguments (row 2, $cmd) need the room more
+    cwd = (tab[0].get("foreground_cwd") or tab[0].get("cwd")) if tab else None
+    branch = "" if detail else git_branch(cwd)
+    have = (ws.get("tokens") or {}).get("branch")
+    if branch and have != branch:
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"branch={branch}")
+    elif not branch and have:
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "branch")
+    # token $dirty: "✚ <n>" for n uncommitted files (changed or untracked) in the focused pane's repo. herdr's
+    # git_status only counts ahead/behind. Refreshed on pane events, so an edit shows up with the next one.
+    want = dirty_files(cwd)
+    have = (ws.get("tokens") or {}).get("dirty")
+    if want and have != f"✚ {want}":
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"dirty=✚ {want}")
+    elif not want and have:
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "dirty")
