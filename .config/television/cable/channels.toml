@@ -7,7 +7,8 @@ requirements = ["tv", "bat"]
 command = ["tv list-channels"]
 
 [preview]
-command = "bat -pn --color always ${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/cable/{}.toml"
+# our own channels are in cable/custom and win over a default of the same name
+command = '''d="${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/cable"; f="$d/custom/{}.toml"; [ -f "$f" ] || f="$d/{}.toml"; bat -pn --color always "$f"'''
 shell = "bash"
 
 [keybindings]

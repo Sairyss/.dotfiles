@@ -2,10 +2,11 @@
 # Usage: project-tests list | preview <file> <root> | run <file> <root>
 # Finds node, rust, go and python projects (the current directory or git root, else the top zoxide
 # directories, see lib/scope-dirs.sh) and lists their test files, or previews/runs one of them
-# from its project root. `list` prints: name, path relative to the root, root, display label.
+# from its project root. `list` prints: name, path relative to the root, root, label, display (name padded, then the label).
 set -euo pipefail
 source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/scope-dirs.sh"
 source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/herdr-run.sh"
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/align-rows.sh"
 
 # kind_of DIR: prints the project type of DIR, fails if it is none of the supported ones
 kind_of() {
@@ -50,15 +51,24 @@ command_for() {
   esac
 }
 
+# show FILE: the first 100 lines with syntax highlighting (bat picks the language from the extension), else plain
+show() {
+  if command -v bat >/dev/null 2>&1; then
+    bat --color=always --style=numbers --paging=never --line-range=:100 -- "$1"
+  else
+    head -n 100 -- "$1"
+  fi
+}
+
 # node: show the matching some-test.feature (same directory first, then anywhere) instead of the steps/spec file
 preview() {
   local f=$1 base feature
   base=$(basename "$f" | sed -E 's/\.(spec|test|steps?|e2e-spec)\.[cm]?[jt]sx?$//')
   if [[ $kind == node && $base != "$(basename "$f")" ]]; then
     feature=$(ls -- "$(dirname "$f")/$base.feature" 2>/dev/null || fd -t f -g "$base.feature" | head -n 1)
-    [[ -n $feature ]] && { head -n 100 -- "$feature"; return; }
+    [[ -n $feature ]] && { show "$feature"; return; }
   fi
-  head -n 100 -- "$f"
+  show "$f"
 }
 
 # list_all: the test files of every project in scope
@@ -75,7 +85,7 @@ list_all() {
 }
 
 case ${1:-} in
-  list)    list_all ;;
+  list)    list_all | align_rows 1 4 ;;
   preview) cd "$3"; kind=$(kind_of .); preview "$2" ;;
   run)     cd "$3"; kind=$(kind_of .); exec "$(herdr_run_bin)" --work-dir "$3" --linger 1m "$(command_for "$2")" ;;
   *)       echo "usage: project-tests list | preview <file> <root> | run <file> <root>" >&2; exit 2 ;;

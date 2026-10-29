@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Usage: dir-preview <dir> [levels]
+# The preview of a directory in channels: its top-level directories as a tree, like yazi's directory
+# previewer (yazi.toml), [levels] deep (default 1). --git-ignore keeps node_modules and the like out of it.
+# Needs eza (falls back to ls).
+set -euo pipefail
+
+if command -v eza >/dev/null 2>&1; then
+  eza -TL="${2:-1}" -D --color=always --icons=always --group-directories-first --no-quotes --git-ignore -- "$1"
+else
+  ls -la --color=always -- "$1"
+fi

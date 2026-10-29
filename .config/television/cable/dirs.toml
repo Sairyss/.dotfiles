@@ -7,7 +7,7 @@ requirements = ["fd"]
 command = ["fd -t d", "fd -t d --hidden"]
 
 [preview]
-command = "ls -la --color=always '{}'"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/dir-preview '{}' 3"
 
 [keybindings]
 shortcut = "f2"

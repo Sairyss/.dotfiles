@@ -13,6 +13,8 @@ command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/sc
 
 [ui.preview_panel]
 size = 30
+# tv's status bar can't list a channel's own keys, so they are shown here
+footer = "enter: run  ^b: run in background"
 
 [keybindings]
 enter = "actions:run-job"

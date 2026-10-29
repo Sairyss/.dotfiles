@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Usage: herdr-zoxide list | preview <dir> [workspace-id] | open <dir> | run <dir> <command> | close <workspace-id>
+# A sesh-like workspace picker for herdr: `list` prints the open herdr workspaces first, then the
+# zoxide directories, as: directory, workspace id (empty when none is open), name, marker, display label.
+# `open` and `run` jump to the directory through herdr-run (the workspace already open there, else a
+# new one named after it); `run` also starts <command> there.
+# Needs herdr, jq and zoxide (the preview needs eza, see dir-preview).
+set -euo pipefail
+
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/herdr-run.sh"
+source "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/lib/align-rows.sh"
+
+case ${1:-} in
+  list)
+    # one row per open workspace (the directory of its first pane), then the zoxide directories that no
+    # workspace is in yet: directory, workspace id (empty if none), name, marker, display (added by align_rows)
+    declare -A seen=()
+    {
+      while IFS=$'\t' read -r dir ws label; do
+        [[ -n $dir ]] || continue
+        seen[$dir]=1
+        printf '%s\t%s\t%s\t●\n' "$dir" "$ws" "$label"
+      done < <(herdr workspace list | jq -r --argjson p "$(herdr pane list)" '
+        .result.workspaces[] as $w
+        | ([$p.result.panes[] | select(.workspace_id == $w.workspace_id)] | first) as $pane
+        | select($pane != null)
+        | "\($pane.cwd)\t\($w.workspace_id)\t\($w.label)"')
+      if command -v zoxide >/dev/null 2>&1; then
+        while IFS= read -r dir; do
+          [[ -d $dir && -z ${seen[$dir]:-} ]] && printf '%s\t\t%s\t \n' "$dir" "${dir##*/}"
+        done < <(zoxide query --list 2>/dev/null || true)
+      fi
+    } | align_rows 3 1 20 4 ;;
+  preview)
+    state="not open"; [[ -z ${3:-} ]] || state=open
+    printf '%s  (workspace: %s)\n\n' "${2/#"$HOME"/\~}" "$state"
+    exec "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/dir-preview" "$2" ;;
+  open)
+    # no command: herdr-run only goes there (see the launch plugin's README)
+    exec "$(herdr_run_bin)" --work-dir "$2" ;;
+  run)
+    exec "$(herdr_run_bin)" --work-dir "$2" "$3" ;;
+  close)
+    herdr workspace close "$2" >/dev/null ;;
+  *) echo "usage: herdr-zoxide list | preview <dir> [workspace-id] | open <dir> | run <dir> <command> | close <workspace-id>" >&2; exit 2 ;;
+esac

@@ -1,14 +1,20 @@
 [metadata]
 name = "project-tests"
 description = "List and run tests of the current node, rust, go or python project, or of the top zoxide projects"
-requirements = ["fd", "rg", "zoxide"]
+requirements = ["fd", "rg", "zoxide", "bat"]
 
 [source]
 command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-tests list"
-display = "{split:\t:0}  ({split:\t:3})"
+display = "{split:\t:4}"
 
 [preview]
 command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-tests preview '{split:\t:1}' '{split:\t:2}'"
+
+[ui.preview_panel]
+# the full path, split over header (project root) and footer (path in the project) so a long one is
+# not cut off as easily
+header = "{split:\t:2}"
+footer = "{split:\t:1}"
 
 [keybindings]
 enter = "actions:run"

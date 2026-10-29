@@ -1,0 +1,56 @@
+[metadata]
+name = "herdr-zoxide"
+description = "Sesh-like picker: open herdr workspaces and zoxide directories, with several commands to start in the workspace"
+requirements = ["herdr", "jq", "zoxide"]
+
+[source]
+# Output format: directory<TAB>workspace id (empty if not open)<TAB>name<TAB>marker<TAB>display label
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/herdr-zoxide list"
+display = "{split:\t:4}"
+no_sort = true
+frecency = false
+
+[preview]
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/herdr-zoxide preview '{split:\t:0}' '{split:\t:1}'"
+
+[ui.preview_panel]
+# tv's status bar can't list a channel's own keys, so they are shown here
+footer = "enter: jump  ^e: nvim  ^g: lazygit  ^a: claude  ^d: close workspace"
+
+[keybindings]
+enter = "actions:open"
+ctrl-e = "actions:nvim"
+ctrl-g = "actions:lazygit"
+ctrl-a = "actions:claude"
+ctrl-d = "actions:close"
+# ctrl-x = "actions:remove"
+
+[actions.open]
+description = "Jump to the directory (herdr-run: this pane if idle, else the workspace open there, else a new one)"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/herdr-zoxide open '{split:\t:0}'"
+mode = "execute"
+
+[actions.nvim]
+description = "Jump to the directory (like open) and start nvim in it"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/herdr-zoxide run '{split:\t:0}' 'nvim .'"
+mode = "execute"
+
+[actions.lazygit]
+description = "Jump to the directory (like open) and start lazygit in it"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/herdr-zoxide run '{split:\t:0}' lazygit"
+mode = "execute"
+
+[actions.claude]
+description = "Jump to the directory (like open) and start claude in it"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/herdr-zoxide run '{split:\t:0}' 'claude --dangerously-skip-permissions'"
+mode = "execute"
+
+[actions.close]
+description = "Close the herdr workspace of the selected directory (does nothing when none is open)"
+command = "[ -z '{split:\t:1}' ] || ${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/herdr-zoxide close '{split:\t:1}'"
+mode = "fork"
+
+[actions.remove]
+description = "Remove the selected directory from zoxide"
+command = "zoxide remove '{split:\t:0}'"
+mode = "fork"

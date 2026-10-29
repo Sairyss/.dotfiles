@@ -1,0 +1,26 @@
+# tokyonight "moon" as configured in nvim (nvim/lua/plugins/tokyonight.lua): the moon palette of
+# folke/tokyonight.nvim with bg = #1e2030 and border_highlight = #04d1f9
+# general
+background = '#1e2030'
+border_fg = '#7AA2F7'
+text_fg = '#c8d3f5'
+dimmed_text_fg = '#828bb8'
+# input
+input_text_fg = '#ff757f'
+result_count_fg = '#ff757f'
+# results
+result_name_fg = '#cdd6f4'
+result_line_number_fg = '#ffc777'
+result_value_fg = '#828bb8'
+selection_fg = '#c3e88d'
+selection_bg = '#2f334d'
+match_fg = '#ff757f'
+# preview
+preview_title_fg = '#c099ff'
+# modes
+channel_mode_fg = '#1e2030'
+channel_mode_bg = '#ffc777'
+remote_control_mode_fg = '#1e2030'
+remote_control_mode_bg = '#c3e88d'
+action_picker_mode_fg = '#1e2030'
+action_picker_mode_bg = '#c099ff'
