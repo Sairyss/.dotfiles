@@ -1,4 +1,4 @@
-# launch
+# herdr-task-runner
 
 `bin/herdr-run` starts a command in herdr: in the focused pane, a new tab, a split or a workspace,
 depending on the mode. `herdr-run --help` lists every option; this page explains how it decides where
@@ -82,6 +82,49 @@ opens it) and leaves the `backend` pane alone.
 `--work-dir DIR` without a command only goes there: the same steps, but nothing
 is typed and no tab is opened, so a busy workspace is just focused. Outside herdr
 it starts `$SHELL` in `DIR`.
+
+## Sidebar and agents panel (`sidebar.py`)
+
+The same plugin keeps herdr's sidebar in step with the panes. `sidebar.py` has
+these subcommands, started from `herdr-plugin.toml` (the last three are also
+plugin actions):
+
+- `watch` runs detached from the startup hook, subscribes to herdr's events and
+  reconciles after bursts of them (plugin event hooks can't see `pane.updated`).
+  If herdr refuses the subscription it logs that and retries after
+  `watch.retry_delay`; it does not poll.
+- `reconcile` is one idempotent pass. It registers nvim panes as agent `nvim`
+  from their terminal title, tags slow commands as `kind=job`, and sets the
+  workspace tokens `$title`, `$app`, `$tabs`, `$cmd`, `$branch` and `$uncommitted`.
+  The `git` calls for all workspaces run in parallel.
+- `apply` installs the agents panel order: jobs, nvim, then real agents.
+- `restart` replaces the running watcher, for after editing `sidebar.py`.
+- `config` prints the effective settings.
+
+It needs python 3.11+ and git.
+
+### Settings
+
+Nothing is hardcoded in the script. `config.default.toml` lists every setting
+with its default and a comment. To change one, put only that key in
+`~/.config/herdr/plugins/config/herdr-task-runner/config.toml` (or the file
+`$HERDR_TASK_RUNNER_CONFIG` names); it is merged over the defaults table by
+table, and a list replaces the default list. The dotfiles track that file as
+`.config/herdr/herdr-task-runner/config.toml` and `scripts/sync-plugins.sh`
+links it in.
+
+Settings are read on every pass, so an edit applies with the next pane event.
+A bad file is logged and ignored (the defaults are used), and unknown keys are
+logged, so a typo doesn't fail silently. The herdr tools in `bin/` are bash
+and take their settings from environment variables instead (`HERDR_RUN_LINGER`,
+`HERDR_TASK_RUNNER_KEEP_KEY`, `HERDR_OMZ_THRESHOLD`), since they can't depend
+on a TOML parser.
+
+### Logs
+
+`sidebar.log` in the plugin's state dir
+(`~/.local/state/herdr/plugins/herdr-task-runner/`, 200 KB, one backup). Set
+`HERDR_TASK_RUNNER_DEBUG=1` for every herdr call and the time of each pass.
 
 ## Used by
 

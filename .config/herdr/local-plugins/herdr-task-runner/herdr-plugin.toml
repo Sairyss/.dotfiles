@@ -1,0 +1,43 @@
+id = "herdr-task-runner"
+name = "Task Runner"
+version = "0.3.0"
+min_herdr_version = "0.9.5"
+description = "Runs commands for bin/herdr-run ($HERDR_TASK_RUNNER_CMD pane) and keeps the Agents panel and sidebar rows in step with the panes (sidebar.py, needs python 3.11+ and git; settings in config.default.toml)"
+platforms = ["linux", "macos"]
+
+# Placement (tab/split) is chosen by the caller. The command string comes from the environment,
+# so there is nothing app-specific here.
+[[panes]]
+id = "run"
+title = "Task Runner"
+placement = "tab"
+command = ["bash", "-c", "exec bash -c \"$HERDR_TASK_RUNNER_CMD\""]
+
+# Agent views are transient (lost when the server exits), so reapply on startup.
+[[startup]]
+command = ["python3", "-I", "sidebar.py", "apply"]
+
+# detached watcher: subscribes to pane events and reconciles after bursts of them
+[[startup]]
+command = ["setsid", "-f", "python3", "-I", "sidebar.py", "watch"]
+
+[[actions]]
+id = "reconcile"
+title = "Sidebar: update now"
+description = "Register nvim panes and jobs and refresh the workspace row tokens"
+contexts = ["global"]
+command = ["python3", "-I", "sidebar.py", "reconcile"]
+
+[[actions]]
+id = "apply"
+title = "Sidebar: reapply agents panel sort"
+description = "Install the jobs, nvim, agents order of the Agents panel"
+contexts = ["global"]
+command = ["python3", "-I", "sidebar.py", "apply"]
+
+[[actions]]
+id = "restart"
+title = "Sidebar: restart watcher"
+description = "Start a fresh watcher in place of the running one, e.g. after editing sidebar.py"
+contexts = ["global"]
+command = ["python3", "-I", "sidebar.py", "restart"]

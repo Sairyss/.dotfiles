@@ -24,8 +24,8 @@ this page covers what is specific to this directory.
   machine.
 - The sync script also links `which-key/keys.toml` into the which-key plugin's
   config directory, so edits to the tracked file apply without copying it.
-- Each local plugin has a `herdr-plugin.toml`. `launch` has its own README, see
-  `local-plugins/launch/README.md`.
+- Each local plugin has a `herdr-plugin.toml`. `herdr-task-runner` has its own
+  README, see `local-plugins/herdr-task-runner/README.md`.
 
 ## Things to be aware of
 
@@ -35,22 +35,22 @@ this page covers what is specific to this directory.
   needed.
 - **Paths in key bindings are absolute-ish.** A binding runs with whatever
   `PATH` the server started with, so they call
-  `$HOME/.config/herdr/local-plugins/launch/bin/herdr-run` by its full path.
-  Use `$HOME`, not a real home directory.
+  `$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-run` by its
+  full path. Use `$HOME`, not a real home directory.
 - **The server keeps the `PATH` of the shell that started it.** After adding
-  `local-plugins/launch/shell.sh` to the shell config for the first time, stop
-  the server (`herdr server stop`) so it picks up the new `PATH`.
+  `local-plugins/herdr-task-runner/shell.sh` to the shell config for the first
+  time, stop the server (`herdr server stop`) so it picks up the new `PATH`.
 - **Config changes** to `config.toml` apply after `herdr server reload-config`.
-- **The sidebar rows depend on `agent-sort`.** The workspace rows use tokens
-  that plugin sets (`$app`, `$cmd`, `$branch`, `$dirty`, `$tabs`) and the
-  agents panel uses the agent names it registers. Renaming a token in one place
-  without the other leaves a row empty.
+- **The sidebar rows depend on `herdr-task-runner/sidebar.py`.** The workspace
+  rows use tokens that script sets (`$app`, `$cmd`, `$branch`, `$uncommitted`,
+  `$tabs`) and the agents panel uses the agent names it registers. Renaming a
+  token in one place without the other leaves a row empty.
 - **A plugin action is bound as `<plugin id>.<action>`**, with
   `type = "plugin_action"`. Popups (`type = "popup"`) can only be opened from a
   native key binding, not from a script.
 - **Start commands with `herdr-run`**, not by typing into panes. It decides
-  between the focused pane, a new tab and a workspace; see the launch README.
-  Television channels use it too.
+  between the focused pane, a new tab and a workspace; see the
+  herdr-task-runner README. Television channels use it too.
 - **Everything works on one machine.** herdr's socket API only controls its
   own server and can't move this client's view to another machine, so scripts
   such as `herdr-jump-done` only look at the machine they run on.

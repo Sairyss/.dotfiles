@@ -53,9 +53,9 @@ Before copying a block between scripts, check whether it belongs in a library.
   replaces the same colour of the theme, so a leftover one can look like the
   theme isn't applied. `tv` reads the theme at start, so restart a popup after
   changing it.
-- **Channels that start commands use `herdr-run`** (see the launch plugin's
-  README). `herdr-run --work-dir DIR` without a command only goes to the
-  directory.
+- **Channels that start commands use `herdr-run`** (see the
+  herdr-task-runner plugin's README). `herdr-run --work-dir DIR` without a
+  command only goes to the directory.
 - **The `channels` channel** previews the channel's file from `cable/custom`
   first, then from `cable`. Keep that order if the directories change again.
 

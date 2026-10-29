@@ -1,7 +1,7 @@
 -- Terminal title: "<file> (<dir> claude:<state>) - Nvim", like nvim's default "<file> (<dir>) - Nvim"; the
 -- claude:<state> part is only there while claudecode.nvim's terminal is alive.
 -- herdr reads it: herdr-auto-title builds tab names from it (a path-like parenthetical is dropped, so the state
--- doesn't leak into tab names) and the agent-sort plugin (reconcile.py) registers nvim panes from it and takes
+-- doesn't leak into tab names) and the herdr-task-runner plugin (sidebar.py) registers nvim panes from it and takes
 -- the state of the claude running inside, which herdr can't see inside an nvim terminal buffer.
 -- Keep the format in sync with both.
 vim.o.title = true

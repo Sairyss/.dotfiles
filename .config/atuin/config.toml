@@ -104,9 +104,9 @@ history_filter = [
   "^git commit -m",
   "^git checkout -b",
   "^git merge",
-  # lines `herdr-run --keep/--linger` types into a pane, and the launch plugin's commands called by path
+  # lines `herdr-run --keep/--linger` types into a pane, and the herdr-task-runner plugin's commands called by path
   "herdr-run-hold",
-  "local-plugins/launch/bin",
+  "local-plugins/herdr-task-runner/bin",
   "1004h.; stty -echo$",
 ]
 

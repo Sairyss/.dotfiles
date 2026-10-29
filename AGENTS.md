@@ -56,9 +56,9 @@ and channel in the repo.
 
 - Start commands from channels and key bindings with `herdr-run`, not by
   typing into panes yourself. How it picks the pane, tab or workspace is
-  described in `.config/herdr/local-plugins/launch/README.md`; keep that file
-  and the usage notes at the top of `bin/herdr-run` up to date when behaviour
-  changes.
+  described in `.config/herdr/local-plugins/herdr-task-runner/README.md`; keep
+  that file and the usage notes at the top of `bin/herdr-run` up to date when
+  behaviour changes.
 - Commands that have to run in a certain directory use `--work-dir DIR`.
   Long-running commands use `--job`.
 - `herdr-run` depends only on bash, grep, sed, cut, head and date. Don't add

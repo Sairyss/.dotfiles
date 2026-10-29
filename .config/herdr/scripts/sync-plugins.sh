@@ -35,7 +35,11 @@ done <"$list"
 link_keys='ln -sfn "$HOME/.dotfiles/.config/herdr/which-key/keys.toml" "$(herdr plugin config-dir pradyb.which-key)/keys.toml"'
 if [[ -n $target ]]; then ssh -n "$target" "$link_keys"; else bash -c "$link_keys"; fi
 
-# key bindings call ~/.config/herdr/local-plugins/launch/bin/herdr-run; ~/.config/herdr is a real dir on this
+# herdr-task-runner's sidebar.py reads its settings from the plugin config dir; point it at the tracked copy
+link_cfg='ln -sfn "$HOME/.dotfiles/.config/herdr/herdr-task-runner/config.toml" "$(herdr plugin config-dir herdr-task-runner)/config.toml"'
+if [[ -n $target ]]; then ssh -n "$target" "$link_cfg"; else bash -c "$link_cfg"; fi
+
+# key bindings call ~/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-run; ~/.config/herdr is a real dir on this
 # machine (runtime state), so link it. On the remote ~/.config is already one symlink into the dotfiles.
 if [[ -z $target && ! -e $HOME/.config/herdr/local-plugins ]]; then
   ln -s ../../.dotfiles/.config/herdr/local-plugins "$HOME/.config/herdr/local-plugins"

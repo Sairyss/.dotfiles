@@ -14,7 +14,7 @@ pane_outer_borders = false
 pane_gaps = false
 
 # agents panel: one line per agent (name · machine · workspace dir); nvim instances
-# (registered by local-plugins/agent-sort from the nvim terminal title) get a bold purple name, claude is orange, others light
+# (registered by local-plugins/herdr-task-runner/sidebar.py from the nvim terminal title) get a bold purple name, claude is orange, others light
 [ui.sidebar.agents]
 rows = [
   [
@@ -29,7 +29,7 @@ rows = [
 ]
 
 # workspaces panel, two rows: "<workspace> · <app>" and tab count, then the running command's arguments, branch, uncommitted file count and git status
-# (the $app, $cmd, $branch, $dirty and $tabs tokens are set by local-plugins/agent-sort; the $title token it also sets holds the old single-token "<workspace>·<app>" form)
+# (the $app, $cmd, $branch, $uncommitted and $tabs tokens are set by local-plugins/herdr-task-runner/sidebar.py; the $title token it also sets holds the old single-token "<workspace>·<app>" form)
 [ui.sidebar.spaces]
 rows = [
   [
@@ -44,7 +44,7 @@ rows = [
   [
     { token = "$cmd", fg = "#9ece6a" },
     { token = "$branch" },
-    { token = "$dirty", fg = "#e0af68" },
+    { token = "$uncommitted", fg = "#e0af68" },
     "git_status",
   ],
 ]
@@ -116,25 +116,25 @@ description = "sesh: previous workspace"
 [[keys.command]]
 key = "prefix+f"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse yazi"
+command = "$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-run --reuse yazi"
 description = "yazi"
 
 [[keys.command]]
 key = "prefix+n"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse nvim ."
+command = "$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-run --reuse nvim ."
 description = "neovim"
 
 [[keys.command]]
 key = "prefix+i"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run claude --dangerously-skip-permissions"
+command = "$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-run claude --dangerously-skip-permissions"
 description = "claude (skip permissions)"
 
 [[keys.command]]
 key = "prefix+m"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse btop"
+command = "$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-run --reuse btop"
 description = "btop"
 
 # like prefix+o (open_notification_target), but not limited to the time the toast is visible: focuses the
@@ -142,7 +142,7 @@ description = "btop"
 [[keys.command]]
 key = "prefix+O"
 type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-jump-done"
+command = "$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-jump-done"
 description = "jump to the oldest finished/failed job"
 
 [[keys.command]]

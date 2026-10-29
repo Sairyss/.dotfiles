@@ -1,0 +1,3 @@
+# Settings of the herdr-task-runner plugin's sidebar.py, linked into the plugin's config dir by
+# scripts/sync-plugins.sh. Only what differs from local-plugins/herdr-task-runner/config.default.toml
+# goes here; that file lists every setting with its default.

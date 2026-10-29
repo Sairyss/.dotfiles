@@ -21,7 +21,7 @@ and nvim splits, `alt+u/i` jumps between agents.
 Apps (yazi, nvim, lazygit, Claude) start with `prefix+f/n/l/i`,
 and `prefix+t` opens a [television](https://github.com/alexpasmantier/television) fuzzy finder popup which lets me jump to
 tabs and sessions, run apps/jobs/tests putting them into correct tab/workspace automatically from anywhere.
-`herdr-run` decides where each command goes ([readme](./.config/herdr/local-plugins/launch/README.md)).
+`herdr-run` decides where each command goes ([readme](./.config/herdr/local-plugins/herdr-task-runner/README.md)).
 Every task/job executing in the terminal is tracked in the agents sidebar, with notifications on finish.
 
 ## List of tools

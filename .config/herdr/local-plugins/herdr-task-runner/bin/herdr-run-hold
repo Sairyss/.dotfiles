@@ -19,7 +19,7 @@
 #    session) and you switch away from that terminal, and herdr's API never reports "done" (its sidebar works
 #    that out per client from the same events).
 #
-# The keep key (default `k`, LAUNCH_KEEP_KEY) works at any time: a `k` typed while the command runs (it waits
+# The keep key (default `k`, HERDR_TASK_RUNNER_KEEP_KEY) works at any time: a `k` typed while the command runs (it waits
 # in the terminal's input buffer until now), or while this waits for you to come back, cancels the linger and
 # keeps the tab open, same as in the countdown.
 #
@@ -62,7 +62,7 @@ if [[ -n $linger ]] && ((rc != 0 && rc != 130)); then failed_keep=1 deadline=0; 
 
 # herdr-run gave this entry the full command as display name when the command started (herdr shows only
 # the short label, "npm"); clear it on every way out so a later job with the same label doesn't inherit it
-meta() { "$herdr" pane report-metadata "$pane" --source launch --agent "$label" --applies-to-source ohmyzsh \
+meta() { "$herdr" pane report-metadata "$pane" --source task-runner --agent "$label" --applies-to-source ohmyzsh \
   "$@" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
 # everything herdr-run/this script put on the entry besides the state itself
 clear_meta() { meta --clear-display-agent --clear-state-labels --clear-token result --clear-token cmd --clear-token start; }
@@ -75,7 +75,7 @@ release() { "$herdr" pane release-agent "$pane" --source ohmyzsh --agent "$label
 
 # focus events from the terminal, if herdr-run turned them on (ESC [ I = focus in, ESC [ O = focus out)
 outer_out=0 kept=0
-keep_key="${LAUNCH_KEEP_KEY:-k}"
+keep_key="${HERDR_TASK_RUNNER_KEEP_KEY:-k}"
 have_tty() { { : </dev/tty; } 2>/dev/null; }
 drain_events() {
   local c r

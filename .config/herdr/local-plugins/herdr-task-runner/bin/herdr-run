@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Usage: herdr-run [options] <command...>
-# (the launch plugin's bin/ is on PATH in your shell after sourcing ../shell.sh; key bindings and other
+# (the herdr-task-runner plugin's bin/ is on PATH in your shell after sourcing ../shell.sh; key bindings and other
 # places that don't use your shell's PATH call it by its full path)
 #
 # Where it runs:
@@ -40,7 +40,7 @@
 #              you never looked at it, so output stays readable but the tab doesn't pile up. A command that
 #              fails (non-zero exit, except Ctrl-C) is not closed: no countdown, the tab stays open and its
 #              sidebar mark waits until you focus it. While it counts down:
-#              Ctrl-C closes now, `k` (LAUNCH_KEEP_KEY) cancels the linger and keeps the tab open
+#              Ctrl-C closes now, `k` (HERDR_TASK_RUNNER_KEEP_KEY) cancels the linger and keeps the tab open
 #   --ask      prompt for extra arguments (in this terminal) and append them to <command>;
 #              an empty answer runs it as is, Ctrl-D / Ctrl-C cancels. Needs a terminal.
 #   --ask-if R like --ask, but only when <command> matches the (bash ERE) regex R,
@@ -175,7 +175,7 @@ fi
 name_pane() {
   local name="$cmd"
   if ((${#name} > 80)); then name="${name:0:79}…"; fi
-  hc pane report-metadata "$1" --source launch --agent "$(label_of "$cmd")" --applies-to-source ohmyzsh \
+  hc pane report-metadata "$1" --source task-runner --agent "$(label_of "$cmd")" --applies-to-source ohmyzsh \
     --display-agent "$name" --token "cmd=$name" --token "start=$(date +%s)" --seq "$(date +%s%6N)" >/dev/null || true
 }
 
@@ -208,7 +208,7 @@ if ! command -v "$herdr" >/dev/null 2>&1 ||
   exec bash -c "$cmd"
 fi
 
-# is_idle INFO: the pane's shell is its foreground process group. A fast-path pane (see the launch plugin)
+# is_idle INFO: the pane's shell is its foreground process group. A fast-path pane (see the herdr-task-runner plugin)
 # has no shell: the command is exec'd, so it is its own "shell_pid" and would look idle without the name check.
 is_idle() {
   local fg sh_pid name
@@ -332,8 +332,8 @@ fast=
 [[ -z $linger && -z $keep ]] && fast=1
 
 if [[ $mode == split && -n $fast ]]; then
-  out="$(hc plugin pane open --plugin launch --entrypoint run --placement split \
-    --target-pane "$pane" --direction right --cwd "$cwd" --env "LAUNCH_CMD=$cmd" --focus)" || exit 1
+  out="$(hc plugin pane open --plugin herdr-task-runner --entrypoint run --placement split \
+    --target-pane "$pane" --direction right --cwd "$cwd" --env "HERDR_TASK_RUNNER_CMD=$cmd" --focus)" || exit 1
   check "$out"
   exit 0
 fi
@@ -417,8 +417,8 @@ if [[ $mode == auto && -z $bg && ( -z $opt_cwd || $opt_cwd == "$pane_cwd" ) ]]; 
 fi
 
 if [[ -n $fast ]]; then
-  out="$(hc plugin pane open --plugin launch --entrypoint run --placement tab \
-    --cwd "$cwd" --env "LAUNCH_CMD=$cmd" $tab_focus)" || exit 1
+  out="$(hc plugin pane open --plugin herdr-task-runner --entrypoint run --placement tab \
+    --cwd "$cwd" --env "HERDR_TASK_RUNNER_CMD=$cmd" $tab_focus)" || exit 1
   check "$out"
   tab="$(jstr tab_id "$out")"
   [[ -n $tab || -n $dry ]] || fail "no tab id in herdr reply: ${out:0:120}"

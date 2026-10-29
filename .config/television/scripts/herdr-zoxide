@@ -36,7 +36,7 @@ case ${1:-} in
     printf '%s  (workspace: %s)\n\n' "${2/#"$HOME"/\~}" "$state"
     exec "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/dir-preview" "$2" ;;
   open)
-    # no command: herdr-run only goes there (see the launch plugin's README)
+    # no command: herdr-run only goes there (see the herdr-task-runner plugin's README)
     exec "$(herdr_run_bin)" --work-dir "$2" ;;
   run)
     exec "$(herdr_run_bin)" --work-dir "$2" "$3" ;;

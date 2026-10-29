@@ -4,10 +4,10 @@
 # then exits 0, which tells the caller to close the pane.
 #   Ctrl-C            close now (exit 0)
 #   the keep key      cancel the countdown and keep the pane open (exit 1); default `k`,
-#                     override with LAUNCH_KEEP_KEY
+#                     override with HERDR_TASK_RUNNER_KEEP_KEY
 set -u
 
-keep_key="${LAUNCH_KEEP_KEY:-k}"
+keep_key="${HERDR_TASK_RUNNER_KEEP_KEY:-k}"
 
 if [[ $1 == @* ]]; then # an absolute deadline (epoch seconds), as given by herdr-run-hold
   end="${1#@}"

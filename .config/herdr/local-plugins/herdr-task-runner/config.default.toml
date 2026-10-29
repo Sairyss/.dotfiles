@@ -1,0 +1,95 @@
+# Defaults of sidebar.py: the single source of truth, there are no values hardcoded in the script.
+# Don't edit this file for your own taste: put the keys you want to change in
+#   ${HERDR_PLUGIN_CONFIG_DIR:-~/.config/herdr/plugins/config/herdr-task-runner}/config.toml
+# (or the file $HERDR_TASK_RUNNER_CONFIG points to). It is merged over this one table by table; a list in
+# it replaces the list here. The settings are read again on every pass, so a change shows up
+# with the next pane event. `sidebar.py config` prints the effective settings.
+
+[watch]
+# After a burst of pane events, reconcile when no event came for `quiet` seconds, but wait at
+# most `max_wait` (a pane that changes its title nonstop can't postpone it forever), and run at
+# most once per `min_gap`.
+quiet = 0.5
+max_wait = 2.0
+min_gap = 2.0
+# Events that trigger a pass. Not every type is accepted: pane.agent_status_changed needs a pane_id
+# and is refused when global. The first answer of herdr is checked, a refusal is logged.
+events = [
+  "pane.created", "pane.updated", "pane.exited", "pane.closed", "pane.agent_detected", "pane.focused",
+  "tab.created", "tab.closed", "tab.focused", "workspace.created", "workspace.closed",
+]
+# Seconds to wait before subscribing again when herdr refused the subscription.
+retry_delay = 30.0
+
+[herdr]
+# Seconds one `herdr` CLI call may take before it is given up on.
+call_timeout = 5.0
+# Source name the reports are filed under in herdr. Changing it leaves the entries of the old
+# name in the sidebar until the server restarts.
+source = "agent-sort"
+
+[git]
+# The $branch and $uncommitted tokens. A repo that is slow must not stall the sidebar.
+enabled = true
+timeout = 1.5  # seconds per git call
+budget = 8.0   # seconds per pass, all workspaces together (they run in parallel)
+workers = 8
+
+[agents]
+# Coding agents herdr tracks itself (and herdr-ohmyzsh's ignore list). Any other reported agent
+# is a job; nvim is handled apart.
+known = [
+  "pi", "omp", "claude", "claude-code", "codex", "copilot", "devin", "droid", "kimi", "opencode",
+  "kilo", "hermes", "qodercli", "qwen", "cursor", "mastracode", "antigravity-cli", "grok",
+  "letta", "gemini", "agy", "cline", "kiro", "amp", "maki", "nvim",
+]
+
+[nvim]
+# Register panes whose terminal title matches as agent `name` (see nvim/lua/config/title.lua).
+enabled = true
+name = "nvim"
+title = ' - Nvim$'
+# Older nvim config: the title was "nvim" or began with "nvim ".
+legacy_titles = ["nvim"]
+# Regex whose group 1 is the state of the claude running inside nvim: idle, working or blocked.
+claude_state = ' claude:(idle|working|blocked)\) - Nvim$'
+
+[command]
+# How the arguments of the running command are found for the $cmd token.
+# Words skipped in front of the program: "sudo npm run test" shows "test".
+skip_words = ["sudo", "doas", "command", "builtin", "exec", "nohup", "time", "nice", "env", "caffeinate"]
+# `<runner> run <script>`: "run" says nothing, so the script is shown.
+runners = ["npm", "pnpm", "yarn", "bun"]
+# Programs that mean "the shell is in front", not an app.
+shells = ["bash", "zsh", "sh", "dash", "fish", "ksh", "nu", "elvish", "xonsh", "tcsh", "csh"]
+# Longer arguments are cut with an ellipsis.
+max_length = 40
+# The prompt title "user@host:dir" is not a command.
+prompt_title = '^[^\s@]+@[^\s:]+:'
+
+[tokens]
+# Names of the tokens set on workspaces, for the layout in herdr's config.toml (`$app` ...).
+# An empty name turns that token off.
+title = "title"    # "<workspace>·<app>", the old single-token row
+app = "app"
+tabs = "tabs"      # shown only when the workspace has several tabs
+cmd = "cmd"
+branch = "branch"  # herdr's own `branch` can't be hidden, so this one stands in for it
+uncommitted = "uncommitted"  # changed or untracked files in the focused pane's repo
+# Formats, with {n} the number.
+title_format = "{workspace}·{app}"
+tabs_format = "⧉ {n}"
+uncommitted_format = "✚{n}"
+
+[kinds]
+# Pane token the agents panel sorts by, and its values: jobs first, then nvim, then agents
+# (panes without the token). The order is alphabetical, so keep job < nvim when renaming.
+token = "kind"
+job = "job"
+nvim = "nvim"
+
+[view]
+# The agents panel view installed by `sidebar.py apply`.
+label = "jobs, nvim, agents"
+# Ties keep this order.
+then_by = ["workspace_order", "tab_order", "pane_order"]
