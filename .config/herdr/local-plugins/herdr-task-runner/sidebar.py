@@ -49,6 +49,8 @@ XDG_STATE = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/sta
 ROOT = os.environ.get("HERDR_PLUGIN_ROOT") or os.path.join(XDG_CONFIG, "herdr/local-plugins/herdr-task-runner")
 CONFIG_DIR = os.environ.get("HERDR_PLUGIN_CONFIG_DIR") or os.path.join(XDG_CONFIG, "herdr/plugins/config/herdr-task-runner")
 STATE_DIR = os.environ.get("HERDR_PLUGIN_STATE_DIR") or os.path.join(XDG_STATE, "herdr/plugins/herdr-task-runner")
+# set by herdr for plugin processes; a manual `sidebar.py restart` from a plain shell has no such variable
+SOCKET = os.environ.get("HERDR_SOCKET_PATH") or os.path.join(XDG_CONFIG, "herdr/herdr.sock")
 DEFAULT_CONFIG = os.path.join(ROOT, "config.default.toml")
 USER_CONFIG = os.environ.get("HERDR_TASK_RUNNER_CONFIG") or os.path.join(CONFIG_DIR, "config.toml")
 STATE_FILE = os.path.join(STATE_DIR, "nvim-panes.json")
@@ -464,7 +466,7 @@ def watch():
     while True:
         try:
             s = socket.socket(socket.AF_UNIX)
-            s.connect(os.environ["HERDR_SOCKET_PATH"])
+            s.connect(SOCKET)
         except (OSError, KeyError):
             log.info("herdr socket gone, exiting")
             return
@@ -534,7 +536,7 @@ def apply():
                 + [{"field": f, "order": "asc"} for f in C.view.then_by],
     }
     s = socket.socket(socket.AF_UNIX)
-    s.connect(os.environ["HERDR_SOCKET_PATH"])
+    s.connect(SOCKET)
     s.sendall((json.dumps({"id": "sidebar-apply", "method": "agent.view.set", "params": view}) + "\n").encode())
     print(s.recv(4096).decode())
 
