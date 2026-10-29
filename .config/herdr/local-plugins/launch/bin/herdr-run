@@ -22,6 +22,7 @@
 #              another workspace open in DIR is used (so its sidebar shows the app), else a new tab in it,
 #              else a new workspace. With --linger a failure keeps its tab open marked failed (see
 #              herdr-run-hold); not with --here/--split
+#              Without a command it only goes there (nothing is typed), e.g. `herdr-run --work-dir DIR`
 #   --cwd DIR  run in DIR instead of the focused pane's directory (an idle pane is only
 #              reused when it is already in DIR, otherwise a new tab is opened)
 #
@@ -159,7 +160,9 @@ mode="${mode:-auto}"
 [[ -z $job || -n $keep || -n $linger ]] || linger="${HERDR_RUN_LINGER:-1m}" # --job
 cmd="$*"
 [[ -z $bg || ( $mode != here && $mode != split ) ]] || fail "--background and $mode_flag conflict" 2
-[[ -n $cmd ]] || fail "no command given (see --help)" 2
+[[ -n $cmd || $mode == workdir ]] || fail "no command given (see --help)" 2
+# --work-dir without a command only goes to the directory: nothing is typed, so there is nothing to keep or ask
+[[ -n $cmd ]] || { keep= linger= ask= ask_if=; }
 [[ -z $keep || -z $linger ]] || fail "--keep and --linger conflict" 2
 if [[ -n $opt_cwd ]]; then
   [[ -d $opt_cwd ]] || fail "--cwd: no such directory: $opt_cwd" 2
@@ -218,8 +221,9 @@ check() {
 if ! command -v "$herdr" >/dev/null 2>&1 ||
    { [[ -t 0 && -z ${HERDR_PANE_ID:-}${HERDR_SOCKET_PATH:-} ]]; } ||
    ! "$herdr" pane list >/dev/null 2>&1; then
-  if [[ -n $dry ]]; then echo "not in herdr: would run: bash -c $(printf '%q' "$cmd")${opt_cwd:+ (in $opt_cwd)}"; exit 0; fi
+  if [[ -n $dry ]]; then echo "not in herdr: would run: bash -c $(printf '%q' "${cmd:-${SHELL:-bash}}")${opt_cwd:+ (in $opt_cwd)}"; exit 0; fi
   [[ -z $opt_cwd ]] || cd "$opt_cwd"
+  [[ -n $cmd ]] || exec "${SHELL:-bash}" # no command: a shell in the directory
   exec bash -c "$cmd"
 fi
 
@@ -282,6 +286,7 @@ focus_events() {
 # new tab (focus events, sidebar name), so that herdr-run-hold keeps the "done"/"failed" mark in the sidebar
 # once the command finishes, instead of it vanishing as soon as the shell is the foreground process again.
 run_idle() {
+  [[ -n $cmd ]] || return 0
   focus_events "$1"
   hc pane run "$1" "$idle_run" >/dev/null
   [[ -z $keep && -z $linger ]] || name_pane "$1"
@@ -317,6 +322,7 @@ if [[ $mode == workdir ]]; then
   if [[ "$(cd "$cwd" && pwd -P)" == "$(cd "$pane_cwd" 2>/dev/null && pwd -P)" ]]; then mode=auto; opt_cwd=; else mode=workspace; fi
 fi
 [[ -z $dry ]] || echo "mode=$mode pane=$pane cwd=$cwd"
+[[ -n $cmd || $mode != auto ]] || exit 0 # no command and already in the directory
 
 # --reuse: a command already running in this workspace is jumped to, not started a second time. Matched on
 # the whole command line of a pane's foreground process (`nvim .` and `nvim file` are different). Both sides
@@ -414,6 +420,10 @@ if [[ $mode == workspace ]]; then
     run_idle "$idle_pane"
     bg_done
   fi
+  if [[ -z $cmd && -n $ws_id ]]; then # nothing to run: just go to the workspace that is there
+    [[ -n $bg ]] || hc workspace focus "$ws_id" >/dev/null
+    bg_done
+  fi
   if [[ -n $ws_id ]]; then
     [[ -z $dry ]] || echo "workspace $ws_id is open in $cwd but busy: new tab in it"
     out="$(hc tab create --workspace "$ws_id" --cwd "$cwd" $tab_focus)" || exit 1; check "$out"
@@ -423,6 +433,7 @@ if [[ $mode == workspace ]]; then
   fi
   root="$(jstr pane_id "$out")"
   [[ -n $root || -n $dry ]] || fail "no pane id in herdr reply: ${out:0:120}"
+  [[ -n $cmd ]] || bg_done
   focus_events "${root:-<new-pane>}"
   hc pane run "${root:-<new-pane>}" "$run" >/dev/null
   name_pane "${root:-<new-pane>}"

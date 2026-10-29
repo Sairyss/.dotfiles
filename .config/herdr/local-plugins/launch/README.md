@@ -83,6 +83,10 @@ For commands that have to run in a given directory (the tests of a project, a Cl
 `--work-dir DIR` adds one shortcut in front of this: when the focused pane is already in `DIR` it
 behaves exactly like the default mode (idle: typed in, busy: new tab), so no other workspace is touched.
 
+`--work-dir DIR` without a command only goes there: the same steps, but nothing
+is typed and no tab is opened, so a busy workspace is just focused. Outside herdr
+it starts `$SHELL` in `DIR`.
+
 ## Used by
 
 - some television channels (`~/.config/television/cable`)
