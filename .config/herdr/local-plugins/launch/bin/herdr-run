@@ -7,13 +7,12 @@
 #   (default)  in the focused pane if its shell is idle, else in a new tab
 #   --tab      always in a new tab
 #   --split    always in a new split pane next to the focused one
-#   --workspace  in the focused pane if its shell is idle (cd'ing it to --cwd first when it is elsewhere),
-#              else in a new workspace opened in --cwd (or the focused pane's directory). A workspace already
-#              open there (or below it) is reused: its idle pane runs the command, a busy one gets a new tab.
-#              A workspace renamed by hand (named after no directory above the pane) is never cd'ed
-#   --work-dir DIR  like the default, but for a command that has to run in DIR. In DIR already: exactly the
-#              default (idle pane: typed into it, busy pane: new tab). Elsewhere: an idle pane is cd'ed to
-#              DIR first, a busy one gets a workspace opened in DIR (an existing one is reused, see --workspace)
+#   --workspace  where the command has to run in --cwd (or the focused pane's directory), matched exactly: in the
+#              focused pane if it is there and idle; else in a workspace that has a pane exactly there (an idle
+#              pane runs the command, a busy one gets a new tab); else in a new workspace. A pane in another
+#              directory, even one below or above it, is never cd'ed or reused
+#   --work-dir DIR  like --workspace for DIR. When the focused pane is in DIR already it is exactly the
+#              default (idle pane: typed into it, busy pane: new tab). Without a command it only goes there
 #   --here     run in this very terminal (no new tab or pane), e.g. in a popup; --ask/--ask-if still apply
 #   --job      shortcut for a long-running command: --tab --linger 1m (HERDR_RUN_LINGER changes the 1m).
 #              A --keep or --linger after it replaces the linger, e.g. `--job --keep`, `--job --linger 10m`
@@ -89,24 +88,6 @@ trap 'fail "line $LINENO: $BASH_COMMAND"' ERR
 # jstr KEY JSON / jnum KEY JSON: first value of "KEY" in a JSON string (empty if absent)
 jstr() { grep -o "\"$1\":\"[^\"]*\"" <<<"$2" | head -n1 | cut -d'"' -f4 || true; }
 jnum() { grep -o "\"$1\":[0-9]*" <<<"$2" | head -n1 | cut -d: -f2 || true; }
-
-# named_by_hand LABEL DIR: succeeds if workspace name LABEL is not the name of DIR or of any directory above
-# it, i.e. the workspace was renamed by hand (a sesh workspace keeps the name of the directory it was opened
-# in, so it still matches after a cd into a subfolder). Such a workspace stays where it is: never cd it.
-named_by_hand() {
-  local d=$2
-  [[ -n $1 ]] || return 1
-  while [[ -n $d && $d != / ]]; do
-    [[ $(basename "$d") != "$1" ]] || return 1
-    d="$(dirname "$d")"
-  done
-}
-# ws_label ID: the name of workspace ID
-ws_label() {
-  local ws
-  ws="$("$herdr" workspace get "$1")"
-  jstr label "${ws#*\"workspace\":}"
-}
 
 # label_of COMMAND: the sidebar label herdr-ohmyzsh gives a command (its first real word, sanitized)
 label_of() {
@@ -368,55 +349,41 @@ if [[ $mode == split ]]; then
 fi
 
 if [[ $mode == workspace ]]; then
+  # Only an exact match counts. The focused pane when it is in $cwd already (idle: the command is typed into
+  # it), else a workspace with a pane in $cwd, else a new workspace. A pane in another directory, below or
+  # above $cwd as well, is never cd'ed or reused.
   info="$("$herdr" pane process-info --pane "$pane")"
-  pinned=
-  if [[ $cwd != "$pane_cwd" ]] && named_by_hand "$(ws_label "$(jstr workspace_id "$after")")" "$pane_cwd"; then
-    pinned=1
-    [[ -z $dry ]] || echo "the focused workspace is named by hand: not cd'ing it"
-  fi
-  if is_idle "$info" && [[ -z $pinned && -z $bg ]]; then # idle: go to the directory (own line, so the command stays the line's first word)
+  if [[ $cwd == "$pane_cwd" && -z $bg ]] && is_idle "$info"; then
     [[ -z $dry ]] || echo "idle pane: typing into it"
-    [[ $cwd == "$pane_cwd" ]] || hc pane run "$pane" "cd $(q "$cwd")" >/dev/null
     run_idle "$pane"
     exit 0
   fi
-  # A workspace already open in $cwd (some pane of it is there, or below it) is reused instead of opening a
-  # duplicate. In order of preference: an idle pane in $cwd, an idle pane below it (it is cd'ed first), a
-  # new tab in a workspace that is in $cwd, in one that is below it. A workspace renamed by hand is left
-  # alone when it is only below $cwd.
+  # A workspace already open in $cwd is reused instead of opening a duplicate: an idle pane of it runs the
+  # command (preferred), else a new tab in it.
   phys="$(cd "$cwd" && pwd -P)"
-  idle_pane= idle_tab= idle_ws= idle_cd= sub_pane= sub_tab= sub_ws= exact_ws= below_ws=
+  idle_pane= idle_tab= idle_ws= exact_ws=
   while IFS= read -r rec; do
-    d= exact=
+    exact=
     for c in "$(jstr foreground_cwd "$rec")" "$(jstr cwd "$rec")"; do
-      [[ -n $c ]] || continue
-      if [[ $c == "$cwd" || $c == "$phys" ]]; then d=$c; exact=1; break; fi
-      if [[ $c == "$cwd"/* || $c == "$phys"/* ]]; then d=$c; fi
+      if [[ -n $c && ( $c == "$cwd" || $c == "$phys" ) ]]; then exact=1; break; fi
     done
-    [[ -n $d ]] || continue
+    [[ -n $exact ]] || continue
     w="$(jstr workspace_id "$rec")"
-    if [[ -z $exact ]] && named_by_hand "$(ws_label "$w")" "$d"; then continue; fi
-    if [[ -n $exact ]]; then exact_ws="${exact_ws:-$w}"; else below_ws="${below_ws:-$w}"; fi
+    exact_ws="${exact_ws:-$w}"
     [[ -z $bg || $w != "$(jstr workspace_id "$after")" ]] || continue # background: not in the workspace you are in
-    [[ -n $exact || -z $sub_pane ]] || continue # one idle candidate below $cwd is enough
     info="$("$herdr" pane process-info --pane "$(jstr pane_id "$rec")")"
     if is_idle "$info"; then
-      if [[ -n $exact ]]; then
-        idle_pane="$(jstr pane_id "$rec")"; idle_tab="$(jstr tab_id "$rec")"; idle_ws=$w
-        break
-      fi
-      sub_pane="$(jstr pane_id "$rec")"; sub_tab="$(jstr tab_id "$rec")"; sub_ws=$w
+      idle_pane="$(jstr pane_id "$rec")"; idle_tab="$(jstr tab_id "$rec")"; idle_ws=$w
+      break
     fi
   done < <(sed 's/"workspace_id":"[^"]*"}/&\n/g' <<<"$list")
-  if [[ -z $idle_pane && -n $sub_pane ]]; then idle_pane=$sub_pane idle_tab=$sub_tab idle_ws=$sub_ws idle_cd=1; fi
-  ws_id="${exact_ws:-$below_ws}"
+  ws_id=$exact_ws
   if [[ -n $idle_pane ]]; then
     [[ -z $dry ]] || echo "idle pane $idle_pane of the workspace already open in $cwd: typing into it"
     if [[ -z $bg ]]; then
       hc workspace focus "$idle_ws" >/dev/null
       hc tab focus "$idle_tab" >/dev/null
     fi
-    [[ -z $idle_cd ]] || hc pane run "$idle_pane" "cd $(q "$cwd")" >/dev/null
     run_idle "$idle_pane"
     bg_done
   fi

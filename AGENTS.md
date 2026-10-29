@@ -32,8 +32,11 @@ and channel in the repo.
 - Keep the same density of comments as the surrounding code: explain why, not
   what.
 
-## Television channels (`.config/television/cable`)
+## Television channels (`.config/television/cable/custom`)
 
+- Our own channels live in `cable/custom`, apart from the defaults that
+  `tv update-channels` downloads into `cable`. tv reads `cable` recursively, and
+  when two channels have the same name the one in `custom` is used.
 - An action only runs when a key is bound to it: add
   `[keybindings] enter = "actions:<name>"`.
 - Pass fields between source, preview and actions with tab-separated entries

@@ -9,13 +9,13 @@ a command goes. Outside herdr the command just runs as is.
 ## Where a command goes
 
 | Mode | Focused pane idle | Focused pane busy |
-|---|---|---|
+| --- | --- | --- |
 | (default) | typed into the pane | new tab |
 | `--tab` / `--job` | new tab | new tab |
 | `--split` | new split next to the pane | new split |
 | `--here` | runs in this terminal (e.g. a popup) | same |
-| `--workspace` | `cd` to `--cwd` if needed, then typed into the pane | see "Jumping to a directory" |
-| `--work-dir DIR` | same as `--workspace` when the pane is not in `DIR`; typed into the pane when it is | new tab when the pane is in `DIR`, else see "Jumping to a directory" |
+| `--workspace` | typed into the pane when it is in `--cwd`, else see "Jumping to a directory" | see "Jumping to a directory" |
+| `--work-dir DIR` | typed into the pane when it is in `DIR`, else see "Jumping to a directory" | new tab when the pane is in `DIR`, else see "Jumping to a directory" |
 
 `--cwd DIR` only sets the directory for the default mode: an idle pane is reused when it is already
 in `DIR`, otherwise a new tab opens there.
@@ -62,26 +62,22 @@ the mark): switch to that machine and press `prefix+O` there.
 
 For commands that have to run in a given directory (the tests of a project, a Claude session).
 
-1. **The focused pane is idle**: it is `cd`'ed to the directory (on its own line, so herdr's sidebar
-   still labels it by the command) and the command is typed into it. Not if the
-   workspace was renamed by hand, i.e. its name is not the name of the pane's
-   directory or of any directory above it (so a workspace named after the
-   directory it was opened in, like sesh does, still counts after a `cd` into a
-   subfolder): such a workspace stays where it is and the command goes to
-   another workspace (step 2).
-2. **The focused pane is busy**: look for a workspace that already has a pane in
-   the directory or below it (the pane's shell directory or the directory of its
-   foreground process, symlinks resolved). A workspace renamed by hand is
-   skipped when its pane is only below the directory.
-   - an **idle pane** there: focus its workspace and tab, `cd` it to the
-     directory if it is below it, and type the command into it;
-   - only **busy panes** there: open a new tab in that workspace and run the
-     command in it;
-   - **no such workspace**: create a new workspace in the directory (named after
-     it) and run it there.
+Only an exact match counts: a pane whose directory is the directory itself (the
+pane's shell directory or the directory of its foreground process, symlinks
+resolved). A pane in a directory below or above it is never reused, and a pane
+is never `cd`'ed to another directory. So with a `backend` workspace focused,
+choosing the `mcp_server` project goes to the workspace of `mcp_server` (or
+opens it) and leaves the `backend` pane alone.
 
-`--work-dir DIR` adds one shortcut in front of this: when the focused pane is already in `DIR` it
-behaves exactly like the default mode (idle: typed in, busy: new tab), so no other workspace is touched.
+1. **The focused pane is in the directory**: the default mode. An idle pane gets
+   the command typed in, a busy one a new tab (in its workspace).
+2. **Another workspace has a pane in the directory**:
+   - an **idle pane** there: focus its workspace and tab and type the command
+     into it;
+   - only **busy panes** there: open a new tab in that workspace and run the
+     command in it.
+3. **No such workspace**: create a new workspace in the directory (named after
+   it) and run the command there.
 
 `--work-dir DIR` without a command only goes there: the same steps, but nothing
 is typed and no tab is opened, so a busy workspace is just focused. Outside herdr
