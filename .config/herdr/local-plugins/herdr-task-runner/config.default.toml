@@ -54,17 +54,23 @@ workers = 8
 source = "task-runner" # source name the entries are filed under in herdr
 # Seconds a command has to run before it is shown: for a line you typed, and for one started by
 # herdr-run, which you may want to see sooner.
-terminal_threshold = 5
-run_threshold = 5
+terminal_threshold = 3
+run_threshold = 3
 report = true          # show them in the sidebar
+# Seconds between updates of the `timer` pane token: the time since a command started, and the time left before
+# its tab closes (see the README). Each update is a herdr call, so keep it well above 1 for long commands.
+# Values fall on multiples of it: 5 shows 5s, 10s, 15s.
+timer_interval = 5
 # How long a tab stays open after a `herdr-run --job` / `--linger default` job ends (90, 90s, 1m, 1h, 1d), unless
 # $HERDR_RUN_LINGER says otherwise. Television's npm-scripts uses it.
 linger = "1m"
 # What the entry is called, which is also what herdr's own notification says when it is done:
 #   "program"  the first word: "npm"
 #   "command"  the whole command, sanitized and cut at 32 characters: "npm-run-docker-env-reset"
-# The sidebar's $app stays the program either way.
-label_style = "command"
+# The sidebar's $app stays the program either way. It is also the entry's name in the agents panel: with
+# "program" that is just "npm", and the arguments ("test") go in the `args` pane token, which the agents
+# rows can show (`{ token = "$args" }`, see [kinds]).
+label_style = "program"
 # Interactive programs that are not jobs, never shown by the hooks and never counted in $tasks.
 ignore = [
   "nvim",
@@ -212,6 +218,9 @@ count_finished = true
 token = "kind"
 job = "job"
 nvim = "nvim"
+# Pane token holding the arguments of a job's command ("test" for "sudo npm run test"), set only with
+# jobs.label_style = "program" (otherwise the name already has them).
+args = "args"
 
 [view]
 # The agents panel view installed by `sidebar.py apply`.

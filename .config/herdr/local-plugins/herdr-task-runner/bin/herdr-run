@@ -193,13 +193,16 @@ if [[ $mode == here ]]; then
 fi
 
 # name_pane PANE: show the whole command (not just the label, "npm") as the pane's sidebar name while it
-# runs, once hooks.zsh registers it. The same text goes in a `cmd` pane token, which stays readable
-# when no sidebar entry exists, so herdr-run-hold can recover the command. It clears both again.
+# runs, once hooks.zsh registers it; with label_style = program the name stays the label. The whole command
+# goes in a `cmd` pane token either way, which stays readable when no sidebar entry exists, so herdr-run-hold
+# can recover the command. It clears both again.
 name_pane() {
-  local name="$cmd"
+  local label name="$cmd"
+  label="$(label_of "$cmd")"
   if ((${#name} > 80)); then name="${name:0:79}…"; fi
-  hc pane report-metadata "$1" --source "$source_id" --agent "$(label_of "$cmd")" \
-    --display-agent "$name" --token "cmd=$name" --token "start=$(date +%s)" --seq "$(date +%s%6N)" >/dev/null || true
+  [[ $_tr_label_style == command ]] || name=$label
+  hc pane report-metadata "$1" --source "$source_id" --agent "$label" \
+    --display-agent "$name" --token "cmd=${cmd:0:80}" --token "start=$(date +%s)" --seq "$(date +%s%6N)" >/dev/null || true
 }
 
 # hc ARGS...: a herdr call that changes something (printed instead of run with --dry-run).

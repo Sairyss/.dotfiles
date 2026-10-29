@@ -13,7 +13,7 @@ pane_borders = "off"
 pane_outer_borders = false
 pane_gaps = false
 
-# agents panel: one line per agent (name · machine · workspace dir); nvim instances
+# agents panel: one line per agent (name · job arguments · workspace · machine); nvim instances
 # (registered by local-plugins/herdr-task-runner/sidebar.py from the nvim terminal title) get a bold purple name, claude is orange, others light
 [ui.sidebar.agents]
 rows = [
@@ -25,6 +25,10 @@ rows = [
     ] },
     "workspace",
     "machine",
+  ],
+  [
+    { token = "$args", fg = "#9ece6a" },
+    { token = "$timer", fg = "#e0af68" },
   ],
 ]
 

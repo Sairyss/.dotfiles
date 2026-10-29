@@ -11,10 +11,11 @@
 #    [jobs] run_threshold seconds (default 10) is marked done. A command that failed
 #    (non-zero exit, however long it ran) is marked blocked, herdr's "needs attention" state, labelled
 #    "failed (exit N)", with a `result` token "✗ exit N" for sidebar rules. Either stays until the pane
-#    is focused, like herdr does for agents; with --linger the wait also ends when the linger is over.
+#    is focused, like herdr does for agents. With --linger the entry stays through the countdown instead, also
+#    while the pane is focused, until it runs out, Ctrl-C or the keep key (a failure is not held that way).
 #    herdr drops a reported entry as soon as the pane's foreground process is the plain shell again
-#    (that is why it used to vanish when the command finished). It keeps it while a process named like
-#    the entry is in the foreground, so this waits as a process with that name.
+#    (that is why it used to vanish when the command finished). It keeps it while something else is in the
+#    foreground, so this script waits itself (checked with --linger; the --keep wait works the same way).
 #
 #    Whether you are away is read from the terminal's focus events (herdr-run turns them on when it types the
 #    command): herdr's own focus flag stays true when herdr runs inside another terminal (an ssh/incus
@@ -22,7 +23,7 @@
 #    that out per client from the same events).
 #
 # The keep key (default `k`, HERDR_TASK_RUNNER_KEEP_KEY) works at any time: a `k` typed while the command runs (it waits
-# in the terminal's input buffer until now), or while this waits for you to come back, cancels the linger and
+# in the terminal's input buffer until now), or while this waits for you to come back (--keep) or counts down, cancels the linger and
 # keeps the tab open, same as in the countdown.
 #
 # 2. With --linger: the countdown to DURATION after the command finished, whether or not the pane was
@@ -39,7 +40,7 @@ label="${1:?label}" rc="${2:?exit code}"; shift 2
 cmd="$*"
 herdr="${HERDR_BIN_PATH:-herdr}"
 # settings of the plugin's [jobs] table, written by sidebar.py (see hooks.zsh); the environment overrides them
-_tr_source=task-runner _tr_run_threshold=10 _tr_terminal_threshold=10
+_tr_source=task-runner _tr_run_threshold=10 _tr_terminal_threshold=10 _tr_label_style=program _tr_timer_interval=5
 env_file="${HERDR_PLUGIN_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/herdr/plugins/herdr-task-runner}/shell.env"
 # shellcheck disable=SC1090
 [[ ! -r $env_file ]] || . "$env_file"
@@ -77,16 +78,19 @@ if [[ -n $linger ]] && ((rc != 0 && rc != 130)); then failed_keep=1 deadline=0; 
 meta() { "$herdr" pane report-metadata "$pane" --source "$source_id" --agent "$label" \
   "$@" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
 # everything herdr-run/this script put on the entry besides the state itself
-clear_meta() { meta --clear-display-agent --clear-state-labels --clear-token result --clear-token cmd --clear-token start; }
+clear_meta() { meta --clear-display-agent --clear-state-labels --clear-token result --clear-token cmd --clear-token args --clear-token timer --clear-token start; }
 focused() { [[ "$("$herdr" pane get "$pane" 2>/dev/null)" == *'"focused":true'* ]]; }
-dir=
 # focus events off again on every way out (Ctrl-C included): left on, herdr keeps typing ESC[I / ESC[O into the
 # shell, which e.g. flips a vi-mode zsh to command mode so the next line herdr-run types arrives garbled
 focus_off() { if have_tty; then printf '\033[?1004l' >/dev/tty; stty echo </dev/tty 2>/dev/null; fi; }
-trap '[[ -z $dir ]] || rm -rf "$dir"; focus_off; [[ -z $pane ]] || clear_meta' EXIT
+# held=1: the entry stays in the sidebar through the linger countdown (hold), so it has to be dropped on every way out
+held=0
+trap 'focus_off; [[ -z $pane ]] || if ((held)); then release; else clear_meta; fi' EXIT # release drops the metadata first
+trap 'exit 129' HUP # the pane closed under us: bash skips the EXIT trap (the entry) on a bare signal
+trap 'exit 143' TERM
 trap 'exit 0' INT # Ctrl-C while waiting: close now (exit status 0), like in the countdown
 
-release() { "$herdr" pane release-agent "$pane" --source "$source_id" --agent "$label" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
+release() { clear_meta; "$herdr" pane release-agent "$pane" --source "$source_id" --agent "$label" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
 
 # focus events from the terminal, if herdr-run turned them on (ESC [ I = focus in, ESC [ O = focus out)
 outer_out=0 kept=0
@@ -103,16 +107,33 @@ drain_events() {
   done
 }
 
+# show_left SECONDS: the time left before the tab closes, in the `timer` pane token (agents rows:
+# `{ token = "$timer" }`), the first time and then every [jobs] timer_interval seconds or so: a call per second would be too many. The name is
+# repeated, or the call would replace it.
+shown=0 # the value last written
+show_left() {
+  local left=$1 text
+  ((held && left > 0 && (!shown || left <= (shown - 1) / _tr_timer_interval * _tr_timer_interval))) || return 0 # the first, then each multiple passed
+  shown=$left text="⏳${left}s"
+  ((left < 60)) || text="⏳$((left / 60))m $(printf '%02d' $((left % 60)))s"
+  ((left < 3600)) || text="⏳$((left / 3600))h $(printf '%02d' $((left % 3600 / 60)))m"
+  meta --display-agent "$name" --token "timer=$text"
+}
+
 # countdown DEADLINE: wait until the epoch second DEADLINE. Exit status 0 = close the pane, 1 = keep it
 # (the keep key); Ctrl-C closes now. Without a terminal to read keys from it is just a sleep.
 countdown() {
   local end=$1 left key
   ((end > $(date +%s))) || return 0 # already over
-  if ! have_tty; then sleep $((end - $(date +%s))); return 0; fi
+  if ! have_tty; then
+    while ((left = end - $(date +%s), left > 0)); do show_left "$left"; sleep 1; done
+    return 0
+  fi
   trap 'printf "\r\033[2K"; exit 0' INT
   drain_events # keys typed while the hold waited: only the keep key counts
   if ((kept)); then printf '\r\033[2K[herdr-run] kept open\n'; return 1; fi
   while ((left = end - $(date +%s), left > 0)); do
+    show_left "$left"
     printf '\r\033[2K[herdr-run] closing in %ss  ·  %s: keep this tab open  ·  Ctrl-C: close now' "$left" "$keep_key"
     if read -rsn1 -t 1 key </dev/tty && [[ $key == "$keep_key" ]]; then
       printf '\r\033[2K[herdr-run] kept open\n'
@@ -135,53 +156,49 @@ hold() {
   local away=0 by=outer
   ((outer_out)) && away=1
   focused || { away=1; by=flag; } # you switched to another tab/workspace of this herdr
-  if ((!away)); then release; return 0; fi # you are looking at it
+  # with a linger the entry stays (with the time left) until it runs out or Ctrl-C, even when you are looking at it
+  # (a Ctrl-C, 130, is a decision, not a result: that is not held either)
+  if ((!away && (deadline == 0 || rc == 130))); then release; return 0; fi # you are looking at it
 
   "$herdr" pane report-agent "$pane" --source "$source_id" --agent "$label" --state "$state" \
     --message "$cmd (exit $rc, took ${took}s)" --seq "$(date +%s%6N)" >/dev/null 2>&1 || return 0
   # the full command is the entry's name (herdr's own toast and sidebar show it instead of just "npm"); a
   # metadata call replaces the name set by herdr-run unless it repeats it
   name="$cmd"; ((${#name} > 80)) && name="${name:0:79}…"
+  [[ $_tr_label_style == command ]] || name=$label # label_style = program: just the program
   if [[ $state == blocked ]]; then
     meta --display-agent "$name" --state-label "blocked=failed (exit $rc)" --token "result=✗ exit $rc"
   else
     meta --display-agent "$name"
   fi
 
-  # the waiting process is a copy of bash under the entry's name
-  dir="$(mktemp -d)" || return 0
-  ln -s "$(command -v bash)" "$dir/$label"
-  # ends when you are back (a focus-in event, or the pane is focused when you were away inside herdr) or the
-  # linger is over
-  cat >"$dir/wait.sh" <<'WAIT'
-herdr="$1" pane="$2" deadline="$3" by="$4" key="$5" typed="${6:-}"
-tty=0
-if [[ -z $typed ]] && { : </dev/tty; } 2>/dev/null; then tty=1; fi
-while :; do
-  if ((tty)); then
-    if IFS= read -rsn1 -t 1 c </dev/tty; then
-      [[ $c == "$key" ]] && exit 3 # keep this tab open
-      if [[ $c == $'\e' ]]; then
-        IFS= read -rsn2 -t 0.05 r </dev/tty
-        [[ $by == outer && $r == '[I' ]] && break
+  if ((deadline > 0)); then held=1; return 0; fi # countdown() waits, below
+
+  # wait here, in this process: until you are back (a focus-in event, or the pane is focused when you were away
+  # inside herdr), or the keep key
+  local tty=0 c r
+  have_tty && tty=1
+  while :; do
+    if ((tty)); then
+      if IFS= read -rsn1 -t 1 c </dev/tty; then
+        if [[ $c == "$keep_key" ]]; then kept=1; break; fi
+        if [[ $c == $'\e' ]]; then
+          IFS= read -rsn2 -t 0.05 r </dev/tty
+          if [[ $by == outer && $r == '[I' ]]; then break; fi
+        fi
       fi
+    else
+      sleep 1
     fi
-  else
-    sleep 1
-  fi
-  [[ $by == flag && "$("$herdr" pane get "$pane" 2>/dev/null)" == *'"focused":true'* ]] && break
-  ((deadline > 0)) && (($(date +%s) >= deadline)) && break
-done
-WAIT
-  "$dir/$label" "$dir/wait.sh" "$herdr" "$pane" "$deadline" "$by" "$keep_key" "$typed"
-  (($? == 3)) && kept=1 # the keep key
+    if [[ $by == flag ]] && focused; then break; fi
+  done
   release
 }
 
 have_tty && drain_events # focus events and keys typed while the command ran
 hold
 focus_off
-[[ -z $pane ]] || clear_meta # the entry is gone now; don't leave the name or labels behind
+((held)) || [[ -z $pane ]] || clear_meta # the entry is gone now; don't leave the name or labels behind
 
 if [[ -n $linger ]]; then
   if ((failed_keep)); then printf '\r\033[2K[herdr-run] failed (exit %s), kept open\n' "$rc"; exit 1; fi

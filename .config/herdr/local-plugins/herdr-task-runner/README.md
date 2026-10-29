@@ -156,9 +156,21 @@ do it, so the plugin doesn't need herdr-ohmyzsh:
   after `jobs.run_threshold`; `herdr-run-hold` marks them done or failed.
 
 `jobs.label_style` sets what an entry is called, which is also what herdr's
-own notification says: `command` (default) names it after the whole command,
-cut at 32 characters (`npm-run-docker-env-reset`), `program` after the first
-word (`npm`). The sidebar's `$app` stays the program either way.
+own notification says: `program` (default) names it after the first word
+(`npm`), `command` after the whole command, cut at 32 characters
+(`npm-run-docker-env-reset`). The sidebar's `$app` stays the program either
+way. The label is also the entry's name in the Agents panel, so `program` shows
+`npm` there instead of the whole command. Then the arguments (`test` for
+`npm run test`, without `sudo` and the like, see `[command]`) are put in the
+`args` pane token, like `$cmd` of a workspace; show it with
+`{ token = "$args" }` in `[ui.sidebar.agents]` rows of herdr's `config.toml`.
+
+A job with a linger stays in the Agents panel until the linger runs out or you
+press Ctrl-C (or the keep key), also while you are looking at it. The `timer`
+pane token is its clock, for the same rows (`{ token = "$timer" }`): while the
+command runs it holds the time since it started (`🕐1m 05s`), then the time left
+before the tab closes (`⏳45s`). Both refresh every `jobs.timer_interval` seconds (5). A failed job has
+no countdown, so no token, and is dropped when you focus its pane.
 
 `jobs.report = false` turns the sidebar entries off. Environment variables
 override the settings for one shell: `HERDR_TASK_RUNNER_THRESHOLD`,

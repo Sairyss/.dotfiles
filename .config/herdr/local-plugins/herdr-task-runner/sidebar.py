@@ -115,6 +115,8 @@ def build(raw):
     for k in ("terminal_threshold", "run_threshold"):
         if float(getattr(s.jobs, k)) < 0:
             raise ValueError(f"jobs.{k} must not be negative")
+    if not isinstance(s.jobs.timer_interval, int) or s.jobs.timer_interval < 1:
+        raise ValueError("jobs.timer_interval must be a whole number of seconds, 1 or more")
     if not re.fullmatch(r"[0-9]+[smhd]?", str(s.jobs.linger)):
         raise ValueError("jobs.linger must look like 90, 90s, 1m, 1h or 1d")
     return s
@@ -151,7 +153,7 @@ def write_shell_env():
 
     lines = {
         "source": j.source, "terminal_threshold": j.terminal_threshold, "run_threshold": j.run_threshold,
-        "report": str(j.report).lower(),
+        "report": str(j.report).lower(), "timer_interval": j.timer_interval,
         "label_style": j.label_style, "linger": j.linger, "ignore": " ".join(j.ignore), "ignore_bare": " ".join(j.ignore_bare), "wrappers": " ".join(C.command.skip_words),
     }
     text = "# written by sidebar.py from the settings, don't edit\n" + "".join(f"_tr_{k}={q(v)}\n" for k, v in lines.items())
@@ -367,6 +369,13 @@ def sync_panes(panes):
         elif not is_job and tokens.get(kind) == C.kinds.job:
             run("pane", "report-metadata", pid, "--source", src, "--clear-token", kind)
 
+        # the arguments of a job's command, for the agents rows ($args), like $cmd of a workspace; only when
+        # the name is the bare program (label_style = program), else it already shows them
+        want_args = detail_of(p) if is_job and C.jobs.label_style == "program" else ""
+        if want_args != tokens.get(C.kinds.args, ""):
+            run("pane", "report-metadata", pid, "--source", src,
+                *(["--token", f"{C.kinds.args}={want_args}"] if want_args else ["--clear-token", C.kinds.args]))
+
     for pid in set(known) - live:  # pane closed
         del known[pid]
     with open(STATE_FILE, "w") as f:
@@ -556,10 +565,10 @@ def apply():
         "sort": [{"field": {"token": C.kinds.token}, "order": "asc"}]
                 + [{"field": f, "order": "asc"} for f in C.view.then_by],
     }
-    s = socket.socket(socket.AF_UNIX)
-    s.connect(SOCKET)
-    s.sendall((json.dumps({"id": "sidebar-apply", "method": "agent.view.set", "params": view}) + "\n").encode())
-    print(s.recv(4096).decode())
+    with socket.socket(socket.AF_UNIX) as s:
+        s.connect(SOCKET)
+        s.sendall((json.dumps({"id": "sidebar-apply", "method": "agent.view.set", "params": view}) + "\n").encode())
+        print(s.recv(4096).decode())
 
 
 def show_config():
