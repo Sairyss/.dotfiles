@@ -174,7 +174,7 @@ _tr_precmd() {
   local -i code=$? # first statement: the status of the command that just ended
   (( _tr_start )) || return 0
   local -F elapsed=$(( EPOCHREALTIME - _tr_start ))
-  local cmd=$_tr_cmd label=$_tr_label REPLY
+  local cmd=$_tr_cmd label=$_tr_label start=$_tr_start REPLY
   local -i managed=$_tr_managed threshold
   threshold=$(( managed ? _tr_run_threshold : _tr_terminal_threshold ))
   _tr_cmd= _tr_start=0 _tr_managed=0
@@ -189,24 +189,15 @@ _tr_precmd() {
   # Ctrl-C is a decision, not a result
   if (( code == 130 )); then _tr_registered=1; _tr_release; return 0; fi
 
-  _tr_human ${elapsed%.*}
-  local summary="exit $code, took $REPLY"
+  # Mark it done/failed and keep it in the sidebar until you look at the pane, like herdr-run-hold does for
+  # herdr-run jobs. herdr drops an entry once the shell is in front again, so the hold runs from here as the
+  # foreground process (the prompt waits, but only while you are away from the pane: when you are looking at it
+  # the entry is just released). It reads no keys, so what you type ahead is kept.
   if [[ $_tr_report == true ]]; then
-    local state=idle
-    (( code != 0 )) && state=blocked
-    _tr_seq # a later --seq wins, so this lands after the watcher's "working" even if they raced
-    _tr_call pane report-agent "$HERDR_PANE_ID" --source $_tr_source --agent "$label" \
-      --state $state --message "$cmd ($summary)" --seq $REPLY
-    _tr_registered=1
-    # the full command as the entry's name, so herdr's own toast says more than "npm finished"
     local name="$cmd"
     (( ${#name} > 80 )) && name="${name[1,79]}…"
-    local -a extra
-    (( code != 0 )) && extra=(--state-label "blocked=failed (exit $code)" --token "result=✗ exit $code")
-    _tr_seq
-    _tr_call pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$label" \
-      --display-agent "$name" $extra --seq $REPLY
-    _tr_marked=1
+    _tr_registered=0 # the hold releases the entry itself
+    herdr-run-hold --typed ${start%.*} "$label" $code "$cmd" >/dev/null 2>&1 </dev/null
   fi
   return 0
 }

@@ -15,8 +15,18 @@ min_gap = 2.0
 # Events that trigger a pass. Not every type is accepted: pane.agent_status_changed needs a pane_id
 # and is refused when global. The first answer of herdr is checked, a refusal is logged.
 events = [
-  "pane.created", "pane.updated", "pane.exited", "pane.closed", "pane.agent_detected", "pane.focused",
-  "tab.created", "tab.closed", "tab.focused", "workspace.created", "workspace.closed",
+  "pane.created",
+  "pane.updated",
+  "pane.exited",
+  "pane.closed",
+  "pane.agent_detected",
+  "pane.focused",
+  "tab.created",
+  "tab.closed",
+  "tab.focused",
+  "workspace.created",
+  "workspace.closed",
+  "workspace.focused",
 ]
 # Seconds to wait before subscribing again when herdr refused the subscription.
 retry_delay = 30.0
@@ -41,12 +51,12 @@ workers = 8
 # the zsh hooks (hooks.zsh, loaded by shell.sh) for commands typed in a pane, and by herdr-run/herdr-run-hold
 # for commands started with --keep/--linger. The shells read these settings when they
 # start (sidebar.py writes them to shell.env in the state dir), so a change reaches the shells opened after it.
-source = "task-runner"   # source name the entries are filed under in herdr
+source = "task-runner" # source name the entries are filed under in herdr
 # Seconds a command has to run before it is shown: for a line you typed, and for one started by
 # herdr-run, which you may want to see sooner.
-terminal_threshold = 10
-run_threshold = 10
-report = true            # show them in the sidebar
+terminal_threshold = 5
+run_threshold = 5
+report = true          # show them in the sidebar
 # How long a tab stays open after a `herdr-run --job` / `--linger default` job ends (90, 90s, 1m, 1h, 1d), unless
 # $HERDR_RUN_LINGER says otherwise. Television's npm-scripts uses it.
 linger = "1m"
@@ -57,19 +67,73 @@ linger = "1m"
 label_style = "command"
 # Interactive programs that are not jobs, never shown by the hooks and never counted in $tasks.
 ignore = [
-  "nvim", "vim", "vi", "emacs", "nano", "less", "more", "man", "ssh", "mosh", "tmux", "screen", "zellij",
-  "htop", "top", "btop", "lazygit", "lazydocker", "tig", "fzf", "yazi", "ranger", "k9s", "herdr",
+  "nvim",
+  "vim",
+  "vi",
+  "emacs",
+  "nano",
+  "less",
+  "more",
+  "man",
+  "ssh",
+  "mosh",
+  "tmux",
+  "screen",
+  "zellij",
+  "htop",
+  "top",
+  "btop",
+  "lazygit",
+  "lazydocker",
+  "tig",
+  "fzf",
+  "yazi",
+  "ranger",
+  "k9s",
+  "herdr",
 ]
 # REPLs: ignored only when run without arguments (`python script.py` is a job, `python` is not).
-ignore_bare = ["python", "python3", "irb", "pry", "node", "psql", "mysql", "sqlite3"]
+ignore_bare = [
+  "python",
+  "python3",
+  "irb",
+  "pry",
+  "node",
+  "psql",
+  "mysql",
+  "sqlite3",
+]
 
 [agents]
 # Coding agents herdr tracks itself . Any other reported agent
 # is a job; nvim is handled apart.
 known = [
-  "pi", "omp", "claude", "claude-code", "codex", "copilot", "devin", "droid", "kimi", "opencode",
-  "kilo", "hermes", "qodercli", "qwen", "cursor", "mastracode", "antigravity-cli", "grok",
-  "letta", "gemini", "agy", "cline", "kiro", "amp", "maki", "nvim",
+  "pi",
+  "omp",
+  "claude",
+  "claude-code",
+  "codex",
+  "copilot",
+  "devin",
+  "droid",
+  "kimi",
+  "opencode",
+  "kilo",
+  "hermes",
+  "qodercli",
+  "qwen",
+  "cursor",
+  "mastracode",
+  "antigravity-cli",
+  "grok",
+  "letta",
+  "gemini",
+  "agy",
+  "cline",
+  "kiro",
+  "amp",
+  "maki",
+  "nvim",
 ]
 
 [nvim]
@@ -85,11 +149,34 @@ claude_state = ' claude:(idle|working|blocked)\) - Nvim$'
 [command]
 # How the arguments of the running command are found for the $cmd token.
 # Words skipped in front of the program: "sudo npm run test" shows "test".
-skip_words = ["sudo", "doas", "command", "builtin", "exec", "nohup", "time", "nice", "env", "caffeinate"]
+skip_words = [
+  "sudo",
+  "doas",
+  "command",
+  "builtin",
+  "exec",
+  "nohup",
+  "time",
+  "nice",
+  "env",
+  "caffeinate",
+]
 # `<runner> run <script>`: "run" says nothing, so the script is shown.
 runners = ["npm", "pnpm", "yarn", "bun"]
 # Programs that mean "the shell is in front", not an app.
-shells = ["bash", "zsh", "sh", "dash", "fish", "ksh", "nu", "elvish", "xonsh", "tcsh", "csh"]
+shells = [
+  "bash",
+  "zsh",
+  "sh",
+  "dash",
+  "fish",
+  "ksh",
+  "nu",
+  "elvish",
+  "xonsh",
+  "tcsh",
+  "csh",
+]
 # Longer arguments are cut with an ellipsis.
 max_length = 40
 # The prompt title "user@host:dir" is not a command.
@@ -98,13 +185,13 @@ prompt_title = '^[^\s@]+@[^\s:]+:'
 [tokens]
 # Names of the tokens set on workspaces, for the layout in herdr's config.toml (`$app` ...).
 # An empty name turns that token off.
-title = "title"    # "<workspace>·<app>", the old single-token row
+title = "title"             # "<workspace>·<app>", the old single-token row
 app = "app"
-tabs = "tabs"      # shown only when the workspace has several tabs
+tabs = "tabs"               # shown only when the workspace has several tabs
 cmd = "cmd"
-branch = "branch"  # herdr's own `branch` can't be hidden, so this one stands in for it
-uncommitted = "uncommitted"  # changed or untracked files in the focused pane's repo
-tasks = "tasks"    # number of tasks running in all tabs of the workspace, see [tasks]
+branch = "branch"           # herdr's own `branch` can't be hidden, so this one stands in for it
+uncommitted = "uncommitted" # changed or untracked files in the focused pane's repo
+tasks = "tasks"             # number of tasks running in all tabs of the workspace, see [tasks]
 # Formats, with {n} the number.
 title_format = "{workspace}·{app}"
 tabs_format = "⧉ {n}"
@@ -115,6 +202,9 @@ tasks_format = "▶ {n}"
 # The $tasks token counts the panes of a workspace (all tabs) that run a job or a command, see [jobs].
 # Shown only when at least `min_count` run: 2 means "more than one".
 min_count = 2
+# A finished job stays marked done/failed in herdr until you focus its pane: count it until then (true), or
+# only the jobs that are still running (false).
+count_finished = true
 
 [kinds]
 # Pane token the agents panel sorts by, and its values: jobs first, then nvim, then agents

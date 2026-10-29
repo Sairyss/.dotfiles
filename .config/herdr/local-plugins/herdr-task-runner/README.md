@@ -103,8 +103,10 @@ plugin actions):
   from their terminal title, tags slow commands as `kind=job`, and sets the
   workspace tokens `$title`, `$app`, `$tabs`, `$tasks`, `$cmd`, `$branch` and
   `$uncommitted`. `$tasks` is the number of tasks running in all tabs of the
-  workspace, shown from `tasks.min_count` (default 2); interactive apps such
-  as nvim or lazygit (`jobs.ignore`), coding agents and shells don't count.
+  workspace, shown from `tasks.min_count` (default 2). Finished jobs still
+  marked done or failed count until you focus their pane
+  (`tasks.count_finished`); interactive apps such as nvim or lazygit
+  (`jobs.ignore`), coding agents and shells don't count.
   The `git` calls for all workspaces run in parallel.
 - `apply` installs the agents panel order: jobs, nvim, then real agents.
 - `restart` replaces the running watcher, for after editing `sidebar.py`.
@@ -145,7 +147,11 @@ notifies on that state change itself, so the plugin sends no toast. Two parts
 do it, so the plugin doesn't need herdr-ohmyzsh:
 
 - `hooks.zsh` (loaded by `shell.sh` in zsh inside a herdr pane) watches the
-  lines you type, after `jobs.terminal_threshold` seconds.
+  lines you type, after `jobs.terminal_threshold` seconds. When one ends while
+  you are looking elsewhere, it runs `herdr-run-hold --typed` from the prompt,
+  so the entry stays as done (or failed) in the Agents panel until you focus
+  the pane, like a `herdr-run` job. The prompt waits meanwhile; typed-ahead keys
+  are kept.
 - `herdr-run --keep/--linger` lines are shown as working by the same hooks
   after `jobs.run_threshold`; `herdr-run-hold` marks them done or failed.
 

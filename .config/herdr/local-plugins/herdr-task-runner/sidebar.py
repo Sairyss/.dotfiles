@@ -216,8 +216,12 @@ def cmd_of(p):
 def detail_of(p):
     """Arguments of the command running in a pane, without the program itself: "npm run test" -> "test",
     "yarn test --watch" -> "test --watch". The full command comes from herdr-run's `cmd` pane token, else from
-    the terminal title (the command while one runs). Empty when there are no arguments or it isn't a command."""
-    text = (p.get("tokens") or {}).get("cmd") or (p.get("terminal_title_stripped") or "").strip()
+    a job's display name, else from the terminal title (the command while one runs). Empty when there are no
+    arguments or it isn't a command."""
+    # the command of a job (display name set by hooks.zsh/herdr-run) also survives its end, while the done/failed
+    # mark is held and the terminal title is the prompt again
+    shown = p.get("display_agent") if p.get("agent") and p.get("agent") not in C.agents.known_set else ""
+    text = (p.get("tokens") or {}).get("cmd") or shown or (p.get("terminal_title_stripped") or "").strip()
     if not text or C.command.prompt_re.match(text):
         return ""
     text = text.split("; rc=$?")[0]  # herdr-run types "<cmd>; rc=$?; herdr-run-hold <label> $rc" around the command
@@ -237,22 +241,38 @@ def detail_of(p):
     return out if len(out) <= limit else out[:limit - 1] + "…"
 
 
+def program_of(text):
+    """The program of a command line, without wrappers and variables: "sudo FOO=1 npm run x" -> "npm"."""
+    text = text.split("; rc=$?")[0]
+    try:
+        words = shlex.split(text)
+    except ValueError:
+        words = text.split()
+    while words and (words[0] in C.command.skip_set or "=" in words[0] or words[0].startswith("-")):
+        words.pop(0)
+    return words[0].rstrip(":").rsplit("/", 1)[-1].lower() if words else ""
+
+
 def job_app(p):
-    """The app of a pane with an agent. A job's label can be its whole command (jobs.label_style), so its app
-    is the program of the display name, which holds the command."""
+    """The app of a pane with an agent. A job's label can be its whole command (jobs.label_style), so its app is
+    the program of the command: from the `cmd` token or the display name when they exist, else from the terminal
+    title (a new entry has no display name for a moment, and the label would flash up as the app)."""
     agent = p.get("agent") or ""
-    shown = (p.get("display_agent") or "").split()
-    if agent in C.agents.known_set or not shown:
+    if agent in C.agents.known_set:
         return agent
-    return shown[0].rsplit("/", 1)[-1].lower()
+    text = (p.get("tokens") or {}).get("cmd") or p.get("display_agent") or (p.get("terminal_title_stripped") or "")
+    if C.command.prompt_re.match(text.strip()):
+        text = ""
+    return program_of(text) or agent
 
 
 def is_task(p):
-    """A pane that runs a task: a job that is working or a command, not a shell prompt, a coding agent, a
-    finished job still marked, or an interactive app from [jobs] ignore."""
+    """A pane that runs a task: a job or a command, not a shell prompt, a coding agent or an interactive app from
+    [jobs] ignore. A finished job still marked (done/failed, kept until you focus its pane) counts when
+    [tasks] count_finished is on."""
     agent = (p.get("agent") or "").lower()
-    if agent and p.get("agent_status") not in ("working", "unknown", None):
-        return False  # done/failed marks stay in the sidebar after the command has ended
+    if agent and not C.tasks.count_finished and p.get("agent_status") not in ("working", "unknown", None):
+        return False
     name = agent or cmd_of(p)
     return bool(name) and name not in C.jobs.ignore_set and name not in C.jobs.ignore_bare_set \
         and name not in C.agents.known_set and name not in C.command.shell_set
@@ -401,7 +421,8 @@ def sync_workspaces(panes):
             # $tabs: only when the workspace has several tabs
             n = ws.get("tab_count") or 1
             report(ws, "tabs", names.tabs_format.format(n=n) if n > 1 else "")
-            # $tasks: how many tasks run in all tabs of the workspace, shown from [tasks] min_count on
+            # $tasks: how many tasks run (or finished unseen, see [tasks] count_finished) in all tabs of the workspace,
+            # shown from [tasks] min_count on
             running = sum(1 for p in panes if p["workspace_id"] == ws["workspace_id"] and is_task(p))
             report(ws, "tasks", names.tasks_format.format(n=running) if running >= C.tasks.min_count else "")
             # $cmd: the arguments of the command that gave the app (see detail_of); none for agents and nvim

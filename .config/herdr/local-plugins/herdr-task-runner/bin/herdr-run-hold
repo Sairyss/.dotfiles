@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Usage: herdr-run-hold [--linger DURATION] LABEL EXIT_CODE [COMMAND...]
+# Usage: herdr-run-hold [--typed START_EPOCH] [--linger DURATION] LABEL EXIT_CODE [COMMAND...]
+# (--typed: called by hooks.zsh from the prompt for a command you typed; START_EPOCH is when it started. It reads no
+# keys from the terminal and only waits while you are away from the pane.)
 # (COMMAND and the start time default to the `cmd` and `start` pane tokens herdr-run set when the command
 # started. They are not arguments so the line typed into the shell is the same every time and shell history
 # (atuin) doesn't fill up with one-off lines.)
@@ -29,17 +31,20 @@
 #    Without --linger the exit status is always 0.
 set -uo pipefail
 
+typed=
+if [[ ${1:-} == --typed ]]; then typed="${2:?start epoch}"; shift 2; fi # called by hooks.zsh for a command you typed
 linger=
 if [[ ${1:-} == --linger ]]; then linger="${2:?duration}"; shift 2; fi
 label="${1:?label}" rc="${2:?exit code}"; shift 2
 cmd="$*"
 herdr="${HERDR_BIN_PATH:-herdr}"
 # settings of the plugin's [jobs] table, written by sidebar.py (see hooks.zsh); the environment overrides them
-_tr_source=task-runner _tr_run_threshold=10
+_tr_source=task-runner _tr_run_threshold=10 _tr_terminal_threshold=10
 env_file="${HERDR_PLUGIN_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/herdr/plugins/herdr-task-runner}/shell.env"
 # shellcheck disable=SC1090
 [[ ! -r $env_file ]] || . "$env_file"
 threshold="${HERDR_TASK_RUNNER_RUN_THRESHOLD:-$_tr_run_threshold}"
+[[ -z $typed ]] || threshold="${HERDR_TASK_RUNNER_THRESHOLD:-$_tr_terminal_threshold}"
 source_id="$_tr_source"
 pane="${HERDR_PANE_ID:-}"
 start= info=
@@ -47,6 +52,7 @@ start= info=
 [[ -n $cmd ]] || cmd="$(grep -o '"cmd":"[^"]*"' <<<"$info" | head -n1 | cut -d'"' -f4)" # the tokens herdr-run set
 start="$(grep -o '"start":"[0-9]*"' <<<"$info" | head -n1 | cut -d'"' -f4)"
 [[ -n $cmd ]] || cmd="$label"
+[[ -z $typed ]] || start=$typed
 [[ -n $start ]] || start="$(date +%s)"
 
 # the moment the linger is over, counted from now (the command just finished)
@@ -85,7 +91,8 @@ release() { "$herdr" pane release-agent "$pane" --source "$source_id" --agent "$
 # focus events from the terminal, if herdr-run turned them on (ESC [ I = focus in, ESC [ O = focus out)
 outer_out=0 kept=0
 keep_key="${HERDR_TASK_RUNNER_KEEP_KEY:-k}"
-have_tty() { { : </dev/tty; } 2>/dev/null; }
+# a typed command is held from the shell prompt: the keys you type there are not for this script to read
+have_tty() { [[ -z $typed ]] && { : </dev/tty; } 2>/dev/null; }
 drain_events() {
   local c r
   while IFS= read -rsn1 -t 0.05 c </dev/tty 2>/dev/null; do
@@ -147,8 +154,9 @@ hold() {
   # ends when you are back (a focus-in event, or the pane is focused when you were away inside herdr) or the
   # linger is over
   cat >"$dir/wait.sh" <<'WAIT'
-herdr="$1" pane="$2" deadline="$3" by="$4" key="$5"
-tty=0; { : </dev/tty; } 2>/dev/null && tty=1
+herdr="$1" pane="$2" deadline="$3" by="$4" key="$5" typed="${6:-}"
+tty=0
+if [[ -z $typed ]] && { : </dev/tty; } 2>/dev/null; then tty=1; fi
 while :; do
   if ((tty)); then
     if IFS= read -rsn1 -t 1 c </dev/tty; then
@@ -165,7 +173,7 @@ while :; do
   ((deadline > 0)) && (($(date +%s) >= deadline)) && break
 done
 WAIT
-  "$dir/$label" "$dir/wait.sh" "$herdr" "$pane" "$deadline" "$by" "$keep_key"
+  "$dir/$label" "$dir/wait.sh" "$herdr" "$pane" "$deadline" "$by" "$keep_key" "$typed"
   (($? == 3)) && kept=1 # the keep key
   release
 }
