@@ -10,7 +10,10 @@ export VISUAL=nvim
 export BAT_THEME="TwoDark"
 
 # herdr-task-runner plugin: `herdr-run`, `herdr-run-hold` on PATH (see the file for details)
-source $CONFIG_DIR/../herdr/local-plugins/herdr-task-runner/shell.sh
+# (HERDR_TASK_RUNNER_DIR overrides where the plugin is; nothing happens when it isn't there)
+_task_runner="${HERDR_TASK_RUNNER_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/herdr/local-plugins/herdr-task-runner}"
+[ -r "$_task_runner/shell.sh" ] && source "$_task_runner/shell.sh"
+unset _task_runner
 
 source $CONFIG_DIR/functions.sh
 source $CONFIG_DIR/aliases.sh
