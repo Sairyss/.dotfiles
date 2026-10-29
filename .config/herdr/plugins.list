@@ -4,7 +4,6 @@
 github plannotator/herdr-annotate c5e565e9bdbb52d152ad15169f38ed8bae31b610
 github ChmaraX/herdr-nvim b7c69cab2c1eb8754b505061e942fffc4a557a3e
 github fullerzz/herdr-plugin-sesh 99f50246d9a936a49e434c3699ccf4f2ad633427
-github robbyrussell/herdr-ohmyzsh bbc072ada531e6306276900a866a4b44a9b92e74
 github kryptamine/herdr-auto-title e7fbd5717cc4293d2768a8792d7b331f69595474
 github pradyb/herdr-which-key cd760c7d03a32dc2f8cfa40eaab3cc9beeac116b
 local vim-herdr-navigation

@@ -1,10 +1,12 @@
 # herdr-task-runner
 
-`bin/herdr-run` starts a command in herdr: in the focused pane, a new tab, a split or a workspace,
-depending on the mode. `herdr-run --help` lists every option; this page explains how it decides where
-a command goes. Outside herdr the command just runs as is.
+`bin/herdr-run` starts a command in herdr: in the focused pane, a new tab, a
+split or a workspace, depending on the mode. `herdr-run --help` lists every
+option; this page explains how it decides where a command goes. Outside herdr
+the command just runs as is.
 
-"Idle" below means the pane's shell is the foreground process, i.e. nothing is running in it.
+"Idle" below means the pane's shell is the foreground process, i.e. nothing is
+running in it.
 
 ## Where a command goes
 
@@ -17,8 +19,8 @@ a command goes. Outside herdr the command just runs as is.
 | `--workspace` | typed into the pane when it is in `--cwd`, else see "Jumping to a directory" | see "Jumping to a directory" |
 | `--work-dir DIR` | typed into the pane when it is in `DIR`, else see "Jumping to a directory" | new tab when the pane is in `DIR`, else see "Jumping to a directory" |
 
-`--cwd DIR` only sets the directory for the default mode: an idle pane is reused when it is already
-in `DIR`, otherwise a new tab opens there.
+`--cwd DIR` only sets the directory for the default mode: an idle pane is reused
+when it is already in `DIR`, otherwise a new tab opens there.
 
 `--background` (`--bg`) starts the command without taking you there: it never
 changes focus and shows a "Started in background" notification, since nothing
@@ -28,7 +30,8 @@ used (so the workspace's sidebar shows the app), else a new tab in it, else a
 new workspace. With `--linger`, a success closes the tab after the linger and a
 failure keeps it open marked failed. It conflicts with `--here` and `--split`.
 
-Only one of `--tab`/`--job`, `--split`, `--workspace`, `--work-dir` and `--here` may be given.
+Only one of `--tab`/`--job`, `--split`, `--workspace`, `--work-dir` and `--here`
+may be given.
 
 `--reuse` is for commands that should be open once per workspace (such as
 lazygit). If a pane of the focused workspace already runs exactly that command
@@ -45,6 +48,8 @@ until you focus its pane, so you can jump to it later. This works the same when
 the command is typed into an idle pane as in a new tab. The difference is the
 end: a new tab closes after the linger, an idle pane (your own shell) always
 stays open, so `--linger` only affects new tabs, splits and workspaces.
+`jobs.linger` is the duration `--job` and `--linger default` use (1m;
+`$HERDR_RUN_LINGER` overrides it).
 
 A failed command (non-zero exit, except Ctrl-C) with `--linger` skips the
 countdown: its tab stays open and the "failed" mark stays until you focus the
@@ -54,13 +59,14 @@ pane. Without `--keep` or `--linger` a tab closes on exit whatever the status.
 notification toast is on screen. `bin/herdr-jump-done`, bound to `prefix+O`,
 works for as long as the mark is in the sidebar: it focuses the agent or job
 that has been done or failed the longest, and again for the next one. It only
-looks at the machine where it runs. It never touches other machines' marks (the API
-can only move that server's focus, not this client's view, and it would clear
-the mark): switch to that machine and press `prefix+O` there.
+looks at the machine where it runs. It never touches other machines' marks (the
+API can only move that server's focus, not this client's view, and it would
+clear the mark): switch to that machine and press `prefix+O` there.
 
 ## Jumping to a directory (`--workspace`, `--work-dir`)
 
-For commands that have to run in a given directory (the tests of a project, a Claude session).
+For commands that have to run in a given directory (the tests of a project, a
+Claude session).
 
 Only an exact match counts: a pane whose directory is the directory itself (the
 pane's shell directory or the directory of its foreground process, symlinks
@@ -80,8 +86,8 @@ opens it) and leaves the `backend` pane alone.
    it) and run the command there.
 
 `--work-dir DIR` without a command only goes there: the same steps, but nothing
-is typed and no tab is opened, so a busy workspace is just focused. Outside herdr
-it starts `$SHELL` in `DIR`.
+is typed and no tab is opened, so a busy workspace is just focused. Outside
+herdr it starts `$SHELL` in `DIR`.
 
 ## Sidebar and agents panel (`sidebar.py`)
 
@@ -95,7 +101,10 @@ plugin actions):
   `watch.retry_delay`; it does not poll.
 - `reconcile` is one idempotent pass. It registers nvim panes as agent `nvim`
   from their terminal title, tags slow commands as `kind=job`, and sets the
-  workspace tokens `$title`, `$app`, `$tabs`, `$cmd`, `$branch` and `$uncommitted`.
+  workspace tokens `$title`, `$app`, `$tabs`, `$tasks`, `$cmd`, `$branch` and
+  `$uncommitted`. `$tasks` is the number of tasks running in all tabs of the
+  workspace, shown from `tasks.min_count` (default 2); interactive apps such
+  as nvim or lazygit (`jobs.ignore`), coding agents and shells don't count.
   The `git` calls for all workspaces run in parallel.
 - `apply` installs the agents panel order: jobs, nvim, then real agents.
 - `restart` replaces the running watcher, for after editing `sidebar.py`.
@@ -116,9 +125,44 @@ links it in.
 Settings are read on every pass, so an edit applies with the next pane event.
 A bad file is logged and ignored (the defaults are used), and unknown keys are
 logged, so a typo doesn't fail silently. The herdr tools in `bin/` are bash
-and take their settings from environment variables instead (`HERDR_RUN_LINGER`,
-`HERDR_TASK_RUNNER_KEEP_KEY`, `HERDR_OMZ_THRESHOLD`), since they can't depend
-on a TOML parser.
+and take their settings from environment variables instead
+(`HERDR_RUN_LINGER`, `HERDR_TASK_RUNNER_KEEP_KEY`), since they can't depend on
+a TOML parser. The `[jobs]` table is the exception: `sidebar.py` writes it to
+`shell.env` in the state dir, and `hooks.zsh`, `herdr-run` and `herdr-run-hold`
+read that file (an environment variable of the same setting wins, e.g.
+`HERDR_TASK_RUNNER_THRESHOLD`).
+
+`scripts/sync-plugins.sh` links `herdr-run` and `herdr-run-hold` into
+`~/.local/bin` (`$XDG_BIN_HOME`), so they are found by name wherever that is on
+`PATH`. Otherwise `herdr-run` types `herdr-run-hold` anyway in zsh (a function
+from `hooks.zsh`), then `"$HERDR_RUN_HOLD"`, then the full path.
+
+### Jobs
+
+Commands that run for a while show in the sidebar like an agent: working while
+they run, then done or failed (blocked) until you look at the pane. herdr
+notifies on that state change itself, so the plugin sends no toast. Two parts
+do it, so the plugin doesn't need herdr-ohmyzsh:
+
+- `hooks.zsh` (loaded by `shell.sh` in zsh inside a herdr pane) watches the
+  lines you type, after `jobs.terminal_threshold` seconds.
+- `herdr-run --keep/--linger` lines are shown as working by the same hooks
+  after `jobs.run_threshold`; `herdr-run-hold` marks them done or failed.
+
+`jobs.label_style` sets what an entry is called, which is also what herdr's
+own notification says: `command` (default) names it after the whole command,
+cut at 32 characters (`npm-run-docker-env-reset`), `program` after the first
+word (`npm`). The sidebar's `$app` stays the program either way.
+
+`jobs.report = false` turns the sidebar entries off. Environment variables
+override the settings for one shell: `HERDR_TASK_RUNNER_THRESHOLD`,
+`HERDR_TASK_RUNNER_RUN_THRESHOLD` and `HERDR_TASK_RUNNER_REPORT`.
+
+`jobs.ignore` lists interactive programs that are never jobs (and never counted
+in `$tasks`); `jobs.ignore_bare` lists REPLs that are ignored only without
+arguments. The shells read the settings when they start, so a change reaches
+the shells opened after it. herdr-ohmyzsh's `hsplit`/`htab`/`hagent`/
+`hworktree`/`hreload` helpers and its `herdr` completions are not included.
 
 ### Logs
 

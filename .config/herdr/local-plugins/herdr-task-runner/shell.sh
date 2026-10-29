@@ -9,4 +9,7 @@ case ":$PATH:" in
   *":$_task_runner_dir/bin:"*) ;;
   *) export PATH="$_task_runner_dir/bin:$PATH" ;;
 esac
+# inside a herdr pane, zsh also shows the commands you type in the sidebar (see hooks.zsh)
+if [ -n "${ZSH_VERSION:-}" ] && [ "${HERDR_ENV:-}" = 1 ]; then . "$_task_runner_dir/hooks.zsh"; fi
+export HERDR_RUN_HOLD="$_task_runner_dir/bin/herdr-run-hold" # the short form herdr-run types when PATH lacks it
 unset _task_runner_dir

@@ -14,9 +14,10 @@ reconcile:
   registered as agent `nvim` with the pane token kind=nvim. The claude:<idle|working|blocked> part is the
   state of the claude running inside that nvim: it becomes the agent state (the name stays "nvim").
   The registration is released when the title stops looking like nvim (exit, crash, closed window).
-- slow-command entries reported by herdr-ohmyzsh are tagged kind=job. A job is any reported agent that
+- slow-command entries reported by hooks.zsh and herdr-run-hold are tagged kind=job. A job is any reported agent that
   herdr doesn't know as a coding agent and that isn't nvim.
-- workspace row tokens: title, app, tabs, cmd, branch, uncommitted.
+- the [jobs] settings are written to shell.env in the state dir, for hooks.zsh and herdr-run-hold.
+- workspace row tokens: title, app, tabs, tasks, cmd, branch, uncommitted.
 
 Settings: config.default.toml in the plugin, overridden by the user's config.toml in the plugin's config dir
 (see the top of the default file). Logs go to sidebar.log in the plugin's state dir ($HERDR_TASK_RUNNER_DEBUG=1: verbose).
@@ -98,9 +99,22 @@ def build(raw):
     s.command.skip_set = set(s.command.skip_words)
     s.command.runner_set = set(s.command.runners)
     s.command.shell_set = set(s.command.shells)
+    s.jobs.ignore_set = {a.lower() for a in s.jobs.ignore}
+    s.jobs.ignore_bare_set = {a.lower() for a in s.jobs.ignore_bare}
     s.tokens.title_format.format(workspace="w", app="a")
     s.tokens.tabs_format.format(n=2)
     s.tokens.uncommitted_format.format(n=2)
+    s.tokens.tasks_format.format(n=2)
+    if s.jobs.label_style not in ("program", "command"):
+        raise ValueError("jobs.label_style must be program or command")
+    if not s.jobs.source or s.jobs.source == s.herdr.source:
+        # the sidebar's reports use nanosecond seqs, the hooks' microseconds: one source would drown the other
+        raise ValueError("jobs.source must be set and differ from herdr.source")
+    for k in ("terminal_threshold", "run_threshold"):
+        if float(getattr(s.jobs, k)) < 0:
+            raise ValueError(f"jobs.{k} must not be negative")
+    if not re.fullmatch(r"[0-9]+[smhd]?", str(s.jobs.linger)):
+        raise ValueError("jobs.linger must look like 90, 90s, 1m, 1h or 1d")
     return s
 
 
@@ -118,11 +132,39 @@ def load_settings():
         C = build(merge(base, read_toml(USER_CONFIG)))
     except FileNotFoundError:
         C = build(base)
-    except (OSError, ValueError, TypeError, KeyError, re.error) as e:
+    except Exception as e:  # whatever is wrong with the file (a bad format string raises IndexError, ...)
         if ("bad", str(e)) not in warned:
             warned.add(("bad", str(e)))
             log.error("config: %s unusable (%s), using the defaults", USER_CONFIG, e)
         C = build(base)
+
+
+def write_shell_env():
+    """The [jobs] settings as shell variables, for hooks.zsh and the bash tools, which can't parse TOML.
+    Only rewritten when they changed, so shells never see a half-written file."""
+    j = C.jobs
+
+    def q(v):
+        return "'" + str(v).replace("'", "'\\''") + "'"
+
+    lines = {
+        "source": j.source, "terminal_threshold": j.terminal_threshold, "run_threshold": j.run_threshold,
+        "report": str(j.report).lower(),
+        "label_style": j.label_style, "linger": j.linger, "ignore": " ".join(j.ignore), "ignore_bare": " ".join(j.ignore_bare), "wrappers": " ".join(C.command.skip_words),
+    }
+    text = "# written by sidebar.py from the settings, don't edit\n" + "".join(f"_tr_{k}={q(v)}\n" for k, v in lines.items())
+    path = os.path.join(STATE_DIR, "shell.env")
+    try:
+        with open(path) as f:
+            if f.read() == text:
+                return
+    except OSError:
+        pass
+    os.makedirs(STATE_DIR, exist_ok=True)
+    tmp = f"{path}.{os.getpid()}"
+    with open(tmp, "w") as f:
+        f.write(text)
+    os.replace(tmp, path)
 
 
 def setup_logging():
@@ -162,7 +204,7 @@ def lock_file(name, block):
 
 def cmd_of(p):
     """Command running in a pane without an agent, from the terminal title (zsh's title is the command while
-    one runs, and TUIs like yazi set their own, "Yazi: dir"), so it shows before herdr-ohmyzsh's delay."""
+    one runs, and TUIs like yazi set their own, "Yazi: dir"), so it shows before the [jobs] threshold."""
     t = (p.get("terminal_title_stripped") or "").strip()
     if not t or C.command.prompt_re.match(t):
         return ""
@@ -191,6 +233,27 @@ def detail_of(p):
     out = " ".join(words)
     limit = C.command.max_length
     return out if len(out) <= limit else out[:limit - 1] + "…"
+
+
+def job_app(p):
+    """The app of a pane with an agent. A job's label can be its whole command (jobs.label_style), so its app
+    is the program of the display name, which holds the command."""
+    agent = p.get("agent") or ""
+    shown = (p.get("display_agent") or "").split()
+    if agent in C.agents.known_set or not shown:
+        return agent
+    return shown[0].rsplit("/", 1)[-1].lower()
+
+
+def is_task(p):
+    """A pane that runs a task: a job that is working or a command, not a shell prompt, a coding agent, a
+    finished job still marked, or an interactive app from [jobs] ignore."""
+    agent = (p.get("agent") or "").lower()
+    if agent and p.get("agent_status") not in ("working", "unknown", None):
+        return False  # done/failed marks stay in the sidebar after the command has ended
+    name = agent or cmd_of(p)
+    return bool(name) and name not in C.jobs.ignore_set and name not in C.jobs.ignore_bare_set \
+        and name not in C.agents.known_set and name not in C.command.shell_set
 
 
 def fg_cmd(p):
@@ -327,7 +390,7 @@ def sync_workspaces(panes):
 
         for ws in wss:
             tab = tab_of(ws)
-            app = next((p["agent"] for p in tab if p.get("agent")), "") or next((cmd_of(p) for p in tab if cmd_of(p)), "")
+            app = next((job_app(p) for p in tab if p.get("agent")), "") or next((cmd_of(p) for p in tab if cmd_of(p)), "")
             if not app and tab:  # only the focused pane: one extra call, and only when nothing else names the app
                 app = fg_cmd(tab[0])
             report(ws, "title", names.title_format.format(workspace=ws["label"], app=app) if app else ws["label"])
@@ -336,8 +399,11 @@ def sync_workspaces(panes):
             # $tabs: only when the workspace has several tabs
             n = ws.get("tab_count") or 1
             report(ws, "tabs", names.tabs_format.format(n=n) if n > 1 else "")
+            # $tasks: how many tasks run in all tabs of the workspace, shown from [tasks] min_count on
+            running = sum(1 for p in panes if p["workspace_id"] == ws["workspace_id"] and is_task(p))
+            report(ws, "tasks", names.tasks_format.format(n=running) if running >= C.tasks.min_count else "")
             # $cmd: the arguments of the command that gave the app (see detail_of); none for agents and nvim
-            # (a job registered by herdr-run/herdr-ohmyzsh counts as a command: its agent name is just the program)
+            # (a job registered by hooks.zsh/herdr-run counts as a command: its agent name is just the program)
             src = next((p for p in tab if p.get("agent")), None) or next((p for p in tab if cmd_of(p)), None)
             detail = detail_of(src) if src and (src.get("agent") or "") not in C.agents.known_set else ""
             report(ws, "cmd", detail)
@@ -355,6 +421,7 @@ def reconcile():
     lock = lock_file("reconcile.lock", block=True)  # a manual action and the watcher can overlap
     try:
         load_settings()
+        write_shell_env()
         started = time.monotonic()
         panes = json.loads(run("pane", "list"))["result"]["panes"]
         sync_panes(panes)
@@ -366,6 +433,14 @@ def reconcile():
 
 
 # ---- watch -------------------------------------------------------------------------------------------------
+
+def recv(s):
+    """Read from the herdr socket; a connection reset counts as the server being gone (b"")."""
+    try:
+        return s.recv(65536)
+    except OSError:
+        return b""
+
 
 def watch():
     lock = lock_file("watcher.lock", block=False)
@@ -396,7 +471,7 @@ def watch():
         req = {"id": "sidebar-watch", "method": "events.subscribe",
                "params": {"subscriptions": [{"type": t} for t in C.watch.events]}}
         s.sendall((json.dumps(req) + "\n").encode())
-        buf = s.recv(65536)
+        buf = recv(s)
         if b'"error"' in buf.split(b"\n", 1)[0]:
             log.error("subscription refused: %s", buf.decode(errors="replace").strip())
             s.close()
@@ -407,13 +482,13 @@ def watch():
         reconcile_throttled()
         buf = b""
         while True:
-            chunk = s.recv(65536)
+            chunk = recv(s)
             if not chunk:
                 break  # server gone, or events_lost closed us: resubscribe
             buf += chunk
             deadline = time.monotonic() + C.watch.max_wait
             while time.monotonic() < deadline and select.select([s], [], [], C.watch.quiet)[0]:  # debounce bursts
-                more = s.recv(65536)
+                more = recv(s)
                 if not more:
                     break
                 buf += more
@@ -426,11 +501,15 @@ def watch():
 
 def restart():
     """Stop the running watcher (its pid is in the lock file) and start a new one."""
-    try:
-        with open(os.path.join(STATE_DIR, "watcher.lock")) as f:
-            os.kill(int(f.read().strip()), signal.SIGTERM)
-    except (OSError, ValueError):
-        pass  # not running
+    free = lock_file("watcher.lock", block=False)
+    if free:  # nobody holds the lock: the pid in the file is stale and may belong to another process now
+        free.close()
+    else:
+        try:
+            with open(os.path.join(STATE_DIR, "watcher.lock")) as f:
+                os.kill(int(f.read().strip()), signal.SIGTERM)
+        except (OSError, ValueError):
+            pass
     for _ in range(30):  # until the old one has let go of the lock
         lock = lock_file("watcher.lock", block=False)
         if lock:

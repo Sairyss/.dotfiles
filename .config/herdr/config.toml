@@ -29,7 +29,7 @@ rows = [
 ]
 
 # workspaces panel, two rows: "<workspace> · <app>" and tab count, then the running command's arguments, branch, uncommitted file count and git status
-# (the $app, $cmd, $branch, $uncommitted and $tabs tokens are set by local-plugins/herdr-task-runner/sidebar.py; the $title token it also sets holds the old single-token "<workspace>·<app>" form)
+# (the $app, $cmd, $branch, $uncommitted, $tasks and $tabs tokens are set by local-plugins/herdr-task-runner/sidebar.py; the $title token it also sets holds the old single-token "<workspace>·<app>" form)
 [ui.sidebar.spaces]
 rows = [
   [
@@ -40,6 +40,7 @@ rows = [
       { starts_with = "claude", fg = "#ff9e64" },
     ] },
     { token = "$tabs", fg = "#9aa5ce", dim = false },
+    { token = "$tasks", fg = "#9ece6a" },
   ],
   [
     { token = "$cmd", fg = "#9ece6a" },

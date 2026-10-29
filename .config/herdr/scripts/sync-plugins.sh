@@ -49,4 +49,9 @@ if [[ -z $target && ! -e $HOME/.config/herdr/local-plugins ]]; then
   ln -s "$dotfiles/.config/herdr/local-plugins" "$HOME/.config/herdr/local-plugins"
 fi
 
+# register herdr-run and herdr-run-hold by name, in a directory that is on PATH (also for the herdr server, key bindings
+# and popups, whose PATH doesn't come from shell.sh), so the line herdr-run types into a pane is just `herdr-run-hold`
+link_bin='bin="${XDG_BIN_HOME:-$HOME/.local/bin}"; mkdir -p "$bin"; for t in herdr-run herdr-run-hold; do ln -sfn "${DOTFILES:-$HOME/.dotfiles}/.config/herdr/local-plugins/herdr-task-runner/bin/$t" "$bin/$t"; done'
+if [[ -n $target ]]; then ssh -n "$target" "$link_bin"; else bash -c "$link_bin"; fi
+
 h server reload-config >/dev/null

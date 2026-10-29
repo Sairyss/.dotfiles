@@ -14,7 +14,8 @@
 #   --work-dir DIR  like --workspace for DIR. When the focused pane is in DIR already it is exactly the
 #              default (idle pane: typed into it, busy pane: new tab). Without a command it only goes there
 #   --here     run in this very terminal (no new tab or pane), e.g. in a popup; --ask/--ask-if still apply
-#   --job      shortcut for a long-running command: --tab --linger 1m (HERDR_RUN_LINGER changes the 1m).
+#   --job      shortcut for a long-running command: --tab --linger default (the [jobs] linger setting, 1m;
+#              HERDR_RUN_LINGER overrides it).
 #              A --keep or --linger after it replaces the linger, e.g. `--job --keep`, `--job --linger 10m`
 #   --background  start it without taking you there: no focus change and a "Started in background"
 #              notification. In your own workspace a new tab (never your pane). --work-dir: an idle pane of
@@ -33,10 +34,10 @@
 # apply to an idle pane, which always stays open: there only the mark is kept, there is no countdown):
 #   --keep     leave the shell open when <command> exits (default: the pane closes),
 #              e.g. to read the output of a failed build
-#              For commands that ran at least 10s (herdr-ohmyzsh's threshold), --keep/--linger also keep
+#              For commands that ran at least 10s ([jobs] run_threshold), --keep/--linger also keep
 #              the command's sidebar entry as "done" until you focus the pane (see herdr-run-hold);
 #              with --linger that wait ends when the linger is over.
-#   --linger D keep the pane open for D (e.g. 90, 90s, 1m) after <command> exits, then close it, even if
+#   --linger D keep the pane open for D (e.g. 90, 90s, 1m; `default` = the [jobs] linger setting) after <command> exits, then close it, even if
 #              you never looked at it, so output stays readable but the tab doesn't pile up. A command that
 #              fails (non-zero exit, except Ctrl-C) is not closed: no countdown, the tab stays open and its
 #              sidebar mark waits until you focus it. While it counts down:
@@ -73,6 +74,13 @@
 set -Eeuo pipefail
 
 herdr="${HERDR_BIN_PATH:-herdr}"
+# source name of the job entries: the plugin's [jobs] source, written by sidebar.py (see hooks.zsh)
+_tr_source=task-runner _tr_label_style=program _tr_linger=1m
+_tr_wrappers='sudo doas command builtin exec nohup time nice env caffeinate'
+env_file="${HERDR_PLUGIN_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/herdr/plugins/herdr-task-runner}/shell.env"
+# shellcheck disable=SC1090
+[[ ! -r $env_file ]] || . "$env_file"
+source_id="$_tr_source"
 log="${XDG_STATE_HOME:-$HOME/.local/state}/herdr/herdr-run.log"
 
 # fail MESSAGE [EXIT_CODE]: key bindings are detached, so leave a trace and a toast
@@ -89,28 +97,41 @@ trap 'fail "line $LINENO: $BASH_COMMAND"' ERR
 jstr() { grep -o "\"$1\":\"[^\"]*\"" <<<"$2" | head -n1 | cut -d'"' -f4 || true; }
 jnum() { grep -o "\"$1\":[0-9]*" <<<"$2" | head -n1 | cut -d: -f2 || true; }
 
-# label_of COMMAND: the sidebar label herdr-ohmyzsh gives a command (its first real word, sanitized)
+# label_of COMMAND: the sidebar label hooks.zsh gives a command (_tr_label_for there): its first real word, or with
+# label_style = command all its words, sanitized (lowercase [a-z0-9_-], at most 32 characters)
 label_of() {
-  local words w
-  read -ra words <<<"$1"
-  for w in "${words[@]}"; do
+  local words w out
+  read -ra words <<<"${1%%; rc=*}"
+  while ((${#words[@]})); do
+    w=${words[0]}
+    case " $_tr_wrappers " in *" $w "*) words=("${words[@]:1}"); continue ;; esac
     case $w in
-      *=*|-*|sudo|doas|command|builtin|exec|nohup|time|nice|env|caffeinate) continue ;;
+      *=*|-*) words=("${words[@]:1}") ;;
+      *) break ;;
     esac
-    w="${w##*/}"; w="${w,,}"; w="${w//[^a-z0-9_-]/-}"
-    [[ $w == [a-z]* ]] || w=shell
-    echo "${w:0:32}"; return 0
   done
-  echo shell
+  ((${#words[@]})) || { echo shell; return 0; }
+  if [[ $_tr_label_style == command ]]; then out="${words[*]}"; else out="${words[0]##*/}"; fi
+  # same steps, same order as _tr_sanitize in hooks.zsh, or the two would file one command under two labels
+  out="${out,,}"; out="${out// /-}"; out="${out//[^a-z0-9_-]/-}"
+  out="$(sed 's/--*/-/g; s/^-//; s/-$//' <<<"$out")"
+  [[ $out == [a-z]* ]] || out=shell
+  out="${out:0:32}"
+  echo "${out%-}"
 }
 
 mode=
 keep= linger= job= reuse= bg= ask= ask_if= dry= opt_cwd=
-mode_flag=
+mode_flag= cwd_flag=
 # set_mode MODE FLAG: --tab/--job, --split, --workspace and --here pick where to run, so only one mode may be given
 set_mode() {
   [[ -z $mode || $mode == "$1" ]] || fail "$mode_flag and $2 conflict (pick one of --tab/--job, --split, --workspace, --work-dir, --here)" 2
   mode=$1; mode_flag=$2
+}
+# set_cwd FLAG: --cwd and --work-dir both name the directory, so only one of them may be given
+set_cwd() {
+  [[ -z $cwd_flag || $cwd_flag == "$1" ]] || fail "$cwd_flag and $1 conflict (both set the directory)" 2
+  cwd_flag=$1
 }
 while (($#)); do
   case $1 in
@@ -119,7 +140,7 @@ while (($#)); do
     --job) set_mode tab --job; job=1 ;;
     --split) set_mode split --split ;;
     --workspace) set_mode workspace --workspace ;;
-    --work-dir) set_mode workdir --work-dir; opt_cwd="${2:?--work-dir needs a directory}"; shift ;;
+    --work-dir) set_mode workdir --work-dir; set_cwd --work-dir; opt_cwd="${2:?--work-dir needs a directory}"; shift ;;
     --here) set_mode here --here ;;
     --reuse) reuse=1 ;;
     --background|--bg) bg=1 ;;
@@ -127,10 +148,10 @@ while (($#)); do
     --ask) ask=1 ;;
     --dry-run) dry=1 ;;
     --ask-if) ask_if="${2:?--ask-if needs a regex}"; shift ;;
-    --cwd) opt_cwd="${2:?--cwd needs a directory}"; shift ;;
+    --cwd) set_cwd --cwd; opt_cwd="${2:?--cwd needs a directory}"; shift ;;
     --linger)
       linger="${2:?--linger needs a duration}"; shift
-      [[ $linger =~ ^[0-9]+[smhd]?$ ]] || fail "bad --linger duration: $linger" 2 ;;
+      [[ $linger == default || $linger =~ ^[0-9]+[smhd]?$ ]] || fail "bad --linger duration: $linger" 2 ;;
     --) shift; break ;;
     -*) fail "unknown option: $1 (see --help)" 2 ;;
     *) break ;;
@@ -138,7 +159,9 @@ while (($#)); do
   shift
 done
 mode="${mode:-auto}"
-[[ -z $job || -n $keep || -n $linger ]] || linger="${HERDR_RUN_LINGER:-1m}" # --job
+[[ -z $job || -n $keep || -n $linger ]] || linger=default # --job
+[[ $linger != default ]] || linger="${HERDR_RUN_LINGER:-$_tr_linger}" # --linger default: the [jobs] linger setting
+[[ -z $linger || $linger =~ ^[0-9]+[smhd]?$ ]] || fail "bad linger duration: $linger (check HERDR_RUN_LINGER and [jobs] linger)" 2
 cmd="$*"
 [[ -z $bg || ( $mode != here && $mode != split ) ]] || fail "--background and $mode_flag conflict" 2
 [[ -n $cmd || $mode == workdir ]] || fail "no command given (see --help)" 2
@@ -170,12 +193,12 @@ if [[ $mode == here ]]; then
 fi
 
 # name_pane PANE: show the whole command (not just the label, "npm") as the pane's sidebar name while it
-# runs, if herdr-ohmyzsh registers it. The same text goes in a `cmd` pane token, which stays readable
+# runs, once hooks.zsh registers it. The same text goes in a `cmd` pane token, which stays readable
 # when no sidebar entry exists, so herdr-run-hold can recover the command. It clears both again.
 name_pane() {
   local name="$cmd"
   if ((${#name} > 80)); then name="${name:0:79}…"; fi
-  hc pane report-metadata "$1" --source task-runner --agent "$(label_of "$cmd")" --applies-to-source ohmyzsh \
+  hc pane report-metadata "$1" --source "$source_id" --agent "$(label_of "$cmd")" \
     --display-agent "$name" --token "cmd=$name" --token "start=$(date +%s)" --seq "$(date +%s%6N)" >/dev/null || true
 }
 
@@ -220,7 +243,7 @@ is_idle() {
 
 # <cmd> as a shell snippet, optionally followed by a linger.
 # It is typed into the pane's own shell (not `bash -c`) and starts with <cmd> itself, so shell
-# integrations that label a pane by the first word of the line (herdr-ohmyzsh) show the real command.
+# integrations that label a pane by the first word of the line (hooks.zsh) show the real command.
 q() { printf '%q' "$1"; }
 snippet="$cmd"
 idle_run="$snippet" # an idle pane's shell: no linger (the shell stays open), see run_idle
@@ -231,11 +254,16 @@ if [[ -n $keep || -n $linger ]]; then
   # press the keep key, then the line ends without `exit` and the tab stays open.
   snippet+="; rc=\$?"
   # typed into the terminal, so keep it short: `herdr-run-hold` when the shell finds it on PATH (the pane's
-  # shell has the same PATH as this one, see ../shell.sh), else its path written with ~ when under $HOME.
+  # shell has the same PATH as this one, see ../shell.sh), else, for zsh, the `herdr-run-hold` function of hooks.zsh, else `$HERDR_RUN_HOLD` (shell.sh exports it) when
+  # it is set here and names this script, else its path written with ~ when under $HOME.
   # The command itself is not repeated (herdr-run-hold reads it back from a pane token).
-  here="$(cd "$(dirname "$0")" && pwd)"
+  here="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)" # the script itself, also when called through a symlink on PATH
   if [[ "$(readlink -f "$(command -v herdr-run-hold 2>/dev/null)" 2>/dev/null)" == "$(readlink -f "$here/herdr-run-hold")" ]]; then
     hold=herdr-run-hold
+  elif [[ ${SHELL##*/} == zsh ]]; then
+    hold=herdr-run-hold # a function that hooks.zsh defines in every zsh pane, whatever the PATH
+  elif [[ -n ${HERDR_RUN_HOLD:-} && "$(readlink -f "$HERDR_RUN_HOLD" 2>/dev/null)" == "$(readlink -f "$here/herdr-run-hold")" ]]; then
+    hold='"$HERDR_RUN_HOLD"'
   elif [[ $here == "$HOME"/* ]]; then hold="~/$(q "${here#"$HOME"/}/herdr-run-hold")"
   else hold="$(q "$here/herdr-run-hold")"; fi
   hold_args="$(q "$(label_of "$cmd")") \$rc"
@@ -256,7 +284,7 @@ fi
 # switch-away usually happens while it runs; they then wait in the tty input until herdr-run-hold reads them.
 #  - printf ...1004h  switches the reports on (herdr-run-hold switches them off again)
 #  - stty -echo       stops the tty echoing those codes into the command's output as ^[[O / ^[[I
-# It is a separate typed line, not a prefix of the command line, because herdr-ohmyzsh labels the sidebar
+# It is a separate typed line, not a prefix of the command line, because hooks.zsh labels the sidebar
 # entry with the first word of the line, which must be the command itself (so no `printf ...; cmd`).
 focus_events() {
   [[ -n $keep || -n $linger ]] || return 0

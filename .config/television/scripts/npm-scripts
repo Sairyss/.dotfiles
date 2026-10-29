@@ -31,9 +31,9 @@ case ${1:-} in
     cmd="npm run '$3'"
     case $2 in
       here)     exec "$(herdr_run_bin)" --here --cwd "$4" --ask-if "run 'test'\$" "$cmd" ;;
-      job)      exec "$(herdr_run_bin)" --work-dir "$4" --linger "${HERDR_RUN_LINGER:-1m}" --ask-if "run 'test'\$" "$cmd" ;;
-      job-args) exec "$(herdr_run_bin)" --work-dir "$4" --linger "${HERDR_RUN_LINGER:-1m}" --ask "$cmd" ;;
-      bg)       exec "$(herdr_run_bin)" --background --work-dir "$4" --linger "${HERDR_RUN_LINGER:-1m}" --ask-if "run 'test'\$" "$cmd" ;;
+      job)      exec "$(herdr_run_bin)" --work-dir "$4" --linger default --ask-if "run 'test'\$" "$cmd" ;;
+      job-args) exec "$(herdr_run_bin)" --work-dir "$4" --linger default --ask "$cmd" ;;
+      bg)       exec "$(herdr_run_bin)" --background --work-dir "$4" --linger default --ask-if "run 'test'\$" "$cmd" ;;
       *)        echo "npm-scripts: unknown run mode: $2" >&2; exit 2 ;;
     esac ;;
   *) echo "usage: npm-scripts list | preview <script> <root> | run <here|job|job-args|bg> <script> <root>" >&2; exit 2 ;;

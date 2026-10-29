@@ -35,8 +35,36 @@ timeout = 1.5  # seconds per git call
 budget = 8.0   # seconds per pass, all workspaces together (they run in parallel)
 workers = 8
 
+[jobs]
+# Commands that run for a while show in the sidebar like an agent: working while they run, then done or
+# failed (blocked) until you look at the pane; herdr itself notifies when that state changes. It is done by
+# the zsh hooks (hooks.zsh, loaded by shell.sh) for commands typed in a pane, and by herdr-run/herdr-run-hold
+# for commands started with --keep/--linger. The shells read these settings when they
+# start (sidebar.py writes them to shell.env in the state dir), so a change reaches the shells opened after it.
+source = "task-runner"   # source name the entries are filed under in herdr
+# Seconds a command has to run before it is shown: for a line you typed, and for one started by
+# herdr-run, which you may want to see sooner.
+terminal_threshold = 10
+run_threshold = 10
+report = true            # show them in the sidebar
+# How long a tab stays open after a `herdr-run --job` / `--linger default` job ends (90, 90s, 1m, 1h, 1d), unless
+# $HERDR_RUN_LINGER says otherwise. Television's npm-scripts uses it.
+linger = "1m"
+# What the entry is called, which is also what herdr's own notification says when it is done:
+#   "program"  the first word: "npm"
+#   "command"  the whole command, sanitized and cut at 32 characters: "npm-run-docker-env-reset"
+# The sidebar's $app stays the program either way.
+label_style = "command"
+# Interactive programs that are not jobs, never shown by the hooks and never counted in $tasks.
+ignore = [
+  "nvim", "vim", "vi", "emacs", "nano", "less", "more", "man", "ssh", "mosh", "tmux", "screen", "zellij",
+  "htop", "top", "btop", "lazygit", "lazydocker", "tig", "fzf", "yazi", "ranger", "k9s", "herdr",
+]
+# REPLs: ignored only when run without arguments (`python script.py` is a job, `python` is not).
+ignore_bare = ["python", "python3", "irb", "pry", "node", "psql", "mysql", "sqlite3"]
+
 [agents]
-# Coding agents herdr tracks itself (and herdr-ohmyzsh's ignore list). Any other reported agent
+# Coding agents herdr tracks itself . Any other reported agent
 # is a job; nvim is handled apart.
 known = [
   "pi", "omp", "claude", "claude-code", "codex", "copilot", "devin", "droid", "kimi", "opencode",
@@ -76,10 +104,17 @@ tabs = "tabs"      # shown only when the workspace has several tabs
 cmd = "cmd"
 branch = "branch"  # herdr's own `branch` can't be hidden, so this one stands in for it
 uncommitted = "uncommitted"  # changed or untracked files in the focused pane's repo
+tasks = "tasks"    # number of tasks running in all tabs of the workspace, see [tasks]
 # Formats, with {n} the number.
 title_format = "{workspace}·{app}"
 tabs_format = "⧉ {n}"
 uncommitted_format = "✚{n}"
+tasks_format = "▶ {n}"
+
+[tasks]
+# The $tasks token counts the panes of a workspace (all tabs) that run a job or a command, see [jobs].
+# Shown only when at least `min_count` run: 2 means "more than one".
+min_count = 2
 
 [kinds]
 # Pane token the agents panel sorts by, and its values: jobs first, then nvim, then agents
