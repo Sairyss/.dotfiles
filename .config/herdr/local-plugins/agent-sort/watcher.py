@@ -33,7 +33,10 @@ def reconcile():
     global last_run
     time.sleep(max(0.0, last_run + MIN_GAP - time.monotonic()))  # events queue up in the socket meanwhile
     last_run = time.monotonic()
-    subprocess.run([sys.executable, "-I", os.path.join(HERE, "reconcile.py")], capture_output=True, timeout=20)
+    try:
+        subprocess.run([sys.executable, "-I", os.path.join(HERE, "reconcile.py")], capture_output=True, timeout=20)
+    except subprocess.SubprocessError:
+        pass  # a slow run (big repo, busy machine) must not kill the watcher; the next burst of events retries
 
 
 while True:

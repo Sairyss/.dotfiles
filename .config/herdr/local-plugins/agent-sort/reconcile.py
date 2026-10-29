@@ -142,30 +142,39 @@ def fg_cmd(p):
     return ""
 
 
-def dirty_files(cwd):
-    """Number of changed or untracked files in the git repo containing cwd; 0 outside a repo or on error."""
-    if not cwd:
-        return 0
+GIT_TIMEOUT = 1.5  # per call: a huge repo must not stall the sidebar
+GIT_BUDGET = 8.0  # per run, all workspaces together, well under the watcher's 20 s limit
+git_spent = 0.0
+
+
+def git(cwd, *args):
+    """stdout of `git -C cwd ...`: "" outside a repo, None when git was too slow, failed to start or the
+    run's time budget is used up (callers keep the token they have then instead of clearing it)."""
+    global git_spent
+    if not cwd or git_spent >= GIT_BUDGET:
+        return None
+    start = time.monotonic()
     try:
-        out = subprocess.run(["git", "-C", cwd, "--no-optional-locks", "status", "--porcelain"],
-                             capture_output=True, text=True, timeout=3).stdout
+        return subprocess.run(["git", "-C", cwd, "--no-optional-locks", *args],
+                              capture_output=True, text=True, timeout=GIT_TIMEOUT).stdout
     except (OSError, subprocess.SubprocessError):
-        return 0
-    return len(out.splitlines())
+        return None
+    finally:
+        git_spent += time.monotonic() - start
+
+
+def dirty_files(cwd):
+    """Number of changed or untracked files in the git repo containing cwd; 0 outside a repo, None if unknown."""
+    out = git(cwd, "status", "--porcelain")
+    return None if out is None else len(out.splitlines())
 
 
 def git_branch(cwd):
-    """Current branch (short hash when detached) of the git repo containing cwd; empty outside a repo."""
-    if not cwd:
-        return ""
+    """Current branch (short hash when detached) of the git repo containing cwd; "" outside a repo, None if unknown."""
     for args in (["branch", "--show-current"], ["rev-parse", "--short", "HEAD"]):
-        try:
-            out = subprocess.run(["git", "-C", cwd, "--no-optional-locks", *args],
-                                 capture_output=True, text=True, timeout=3).stdout.strip()
-        except (OSError, subprocess.SubprocessError):
-            return ""
-        if out:
-            return out
+        out = git(cwd, *args)
+        if out is None or out.strip():
+            return None if out is None else out.strip()
     return ""
 
 
@@ -208,7 +217,9 @@ for ws in wss:
     cwd = (tab[0].get("foreground_cwd") or tab[0].get("cwd")) if tab else None
     branch = "" if detail else git_branch(cwd)
     have = (ws.get("tokens") or {}).get("branch")
-    if branch and have != branch:
+    if branch is None:
+        pass  # git too slow: keep what is shown
+    elif branch and have != branch:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"branch={branch}")
     elif not branch and have:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "branch")
@@ -216,7 +227,9 @@ for ws in wss:
     # git_status only counts ahead/behind. Refreshed on pane events, so an edit shows up with the next one.
     want = dirty_files(cwd)
     have = (ws.get("tokens") or {}).get("dirty")
-    if want and have != f"✚{want}":
+    if want is None:
+        pass  # git too slow: keep what is shown
+    elif want and have != f"✚{want}":
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"dirty=✚{want}")
     elif not want and have:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "dirty")
