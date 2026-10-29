@@ -23,8 +23,8 @@
 # in the terminal's input buffer until now), or while this waits for you to come back, cancels the linger and
 # keeps the tab open, same as in the countdown.
 #
-# 2. With --linger: the countdown (herdr-run-linger) to DURATION after the command finished, whether or
-#    not the pane was focused. Exit status: 0 = close the pane, 1 = keep it (you pressed the keep key, or the
+# 2. With --linger: the countdown to DURATION after the command finished, whether or not the pane was
+#    focused. Ctrl-C closes now, the keep key keeps the pane open. Exit status: 0 = close the pane, 1 = keep it (you pressed the keep key, or the
 #    command failed: a failure has no countdown and its mark waits until you focus the pane).
 #    Without --linger the exit status is always 0.
 set -uo pipefail
@@ -41,7 +41,6 @@ start= info=
 start="$(grep -o '"start":"[0-9]*"' <<<"$info" | head -n1 | cut -d'"' -f4)"
 [[ -n $cmd ]] || cmd="$label"
 [[ -n $start ]] || start="$(date +%s)"
-here="$(dirname "$(readlink -f "$0")")"
 
 # the moment the linger is over, counted from now (the command just finished)
 deadline=0
@@ -86,7 +85,25 @@ drain_events() {
     case $r in '[O') outer_out=1 ;; '[I') outer_out=0 ;; esac
   done
 }
-release() { "$herdr" pane release-agent "$pane" --source ohmyzsh --agent "$label" --seq "$(date +%s%6N)" >/dev/null 2>&1; }
+
+# countdown DEADLINE: wait until the epoch second DEADLINE. Exit status 0 = close the pane, 1 = keep it
+# (the keep key); Ctrl-C closes now. Without a terminal to read keys from it is just a sleep.
+countdown() {
+  local end=$1 left key
+  ((end > $(date +%s))) || return 0 # already over
+  if ! have_tty; then sleep $((end - $(date +%s))); return 0; fi
+  trap 'printf "\r\033[2K"; exit 0' INT
+  drain_events # keys typed while the hold waited: only the keep key counts
+  if ((kept)); then printf '\r\033[2K[herdr-run] kept open\n'; return 1; fi
+  while ((left = end - $(date +%s), left > 0)); do
+    printf '\r\033[2K[herdr-run] closing in %ss  ·  %s: keep this tab open  ·  Ctrl-C: close now' "$left" "$keep_key"
+    if read -rsn1 -t 1 key </dev/tty && [[ $key == "$keep_key" ]]; then
+      printf '\r\033[2K[herdr-run] kept open\n'
+      return 1
+    fi
+  done
+  printf '\r\033[2K'
+}
 
 hold() {
   [[ -n $pane ]] || return 0
@@ -148,7 +165,7 @@ if have_tty; then printf '\033[?1004l' >/dev/tty; stty echo </dev/tty 2>/dev/nul
 if [[ -n $linger ]]; then
   if ((failed_keep)); then printf '\r\033[2K[herdr-run] failed (exit %s), kept open\n' "$rc"; exit 1; fi
   if ((kept)); then printf '\r\033[2K[herdr-run] kept open\n'; exit 1; fi
-  "$here/herdr-run-linger" "@$deadline"
+  countdown "$deadline"
   exit $?
 fi
 exit 0
