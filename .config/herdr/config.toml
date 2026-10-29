@@ -133,12 +133,6 @@ command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse nvim .
 description = "neovim"
 
 [[keys.command]]
-key = "prefix+l"
-type = "shell"
-command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run --reuse lazygit"
-description = "lazygit"
-
-[[keys.command]]
 key = "prefix+i"
 type = "shell"
 command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-run claude --dangerously-skip-permissions"
@@ -158,10 +152,18 @@ type = "shell"
 command = "$HOME/.config/herdr/local-plugins/launch/bin/herdr-jump-done"
 description = "jump to the oldest finished/failed job"
 
-[[keys.command]] # popup in the middle of the screen
+[[keys.command]]
 key = "prefix+t"
 type = "popup"
 command = "tv channels"
 width = "80%"
 height = "80%"
 description = "television"
+
+[[keys.command]]
+key = "prefix+l"
+type = "popup"
+command = "lazygit"
+width = "90%"
+height = "90%"
+description = "lazygit (popup)"

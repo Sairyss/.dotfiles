@@ -212,11 +212,11 @@ for ws in wss:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"branch={branch}")
     elif not branch and have:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "branch")
-    # token $dirty: "✚ <n>" for n uncommitted files (changed or untracked) in the focused pane's repo. herdr's
+    # token $dirty: "✚<n>" for n uncommitted files (changed or untracked) in the focused pane's repo. herdr's
     # git_status only counts ahead/behind. Refreshed on pane events, so an edit shows up with the next one.
     want = dirty_files(cwd)
     have = (ws.get("tokens") or {}).get("dirty")
-    if want and have != f"✚ {want}":
-        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"dirty=✚ {want}")
+    if want and have != f"✚{want}":
+        run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--token", f"dirty=✚{want}")
     elif not want and have:
         run("workspace", "report-metadata", ws["workspace_id"], "--source", SOURCE, "--clear-token", "dirty")
