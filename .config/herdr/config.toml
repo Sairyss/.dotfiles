@@ -151,6 +151,12 @@ command = "$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-jump-do
 description = "jump to the oldest finished/failed job"
 
 [[keys.command]]
+key = "prefix+L"
+type = "shell"
+command = "lazygit"
+description = "lazygit"
+
+[[keys.command]]
 key = "prefix+t"
 type = "popup"
 command = "tv channels"

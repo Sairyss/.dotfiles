@@ -115,6 +115,9 @@ def build(raw):
     for k in ("terminal_threshold", "run_threshold"):
         if float(getattr(s.jobs, k)) < 0:
             raise ValueError(f"jobs.{k} must not be negative")
+    for k in ("elapsed_timer", "countdown_timer"):
+        if not isinstance(getattr(s.jobs, k), bool):
+            raise ValueError(f"jobs.{k} must be true or false")
     if not isinstance(s.jobs.timer_interval, int) or s.jobs.timer_interval < 1:
         raise ValueError("jobs.timer_interval must be a whole number of seconds, 1 or more")
     if not re.fullmatch(r"[0-9]+[smhd]?", str(s.jobs.linger)):
@@ -154,6 +157,7 @@ def write_shell_env():
     lines = {
         "source": j.source, "terminal_threshold": j.terminal_threshold, "run_threshold": j.run_threshold,
         "report": str(j.report).lower(), "timer_interval": j.timer_interval,
+        "elapsed_timer": str(j.elapsed_timer).lower(), "countdown_timer": str(j.countdown_timer).lower(),
         "label_style": j.label_style, "linger": j.linger, "ignore": " ".join(j.ignore), "ignore_bare": " ".join(j.ignore_bare), "wrappers": " ".join(C.command.skip_words),
     }
     text = "# written by sidebar.py from the settings, don't edit\n" + "".join(f"_tr_{k}={q(v)}\n" for k, v in lines.items())

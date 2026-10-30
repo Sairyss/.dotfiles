@@ -40,7 +40,7 @@ label="${1:?label}" rc="${2:?exit code}"; shift 2
 cmd="$*"
 herdr="${HERDR_BIN_PATH:-herdr}"
 # settings of the plugin's [jobs] table, written by sidebar.py (see hooks.zsh); the environment overrides them
-_tr_source=task-runner _tr_run_threshold=10 _tr_terminal_threshold=10 _tr_label_style=program _tr_timer_interval=5
+_tr_source=task-runner _tr_run_threshold=10 _tr_terminal_threshold=10 _tr_label_style=program _tr_timer_interval=5 _tr_countdown_timer=true
 env_file="${HERDR_PLUGIN_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/herdr/plugins/herdr-task-runner}/shell.env"
 # shellcheck disable=SC1090
 [[ ! -r $env_file ]] || . "$env_file"
@@ -113,6 +113,7 @@ drain_events() {
 shown=0 # the value last written
 show_left() {
   local left=$1 text
+  [[ $_tr_countdown_timer == true ]] || return 0
   ((held && left > 0 && (!shown || left <= (shown - 1) / _tr_timer_interval * _tr_timer_interval))) || return 0 # the first, then each multiple passed
   shown=$left text="⏳${left}s"
   ((left < 60)) || text="⏳$((left / 60))m $(printf '%02d' $((left % 60)))s"
@@ -172,7 +173,12 @@ hold() {
     meta --display-agent "$name"
   fi
 
-  if ((deadline > 0)); then held=1; return 0; fi # countdown() waits, below
+  if ((deadline > 0)); then
+    held=1 # countdown() waits, below
+    # no countdown to replace the elapsed time that hooks.zsh left in the token: drop it, it would stay frozen
+    [[ $_tr_countdown_timer == true ]] || meta --display-agent "$name" --clear-token timer
+    return 0
+  fi
 
   # wait here, in this process: until you are back (a focus-in event, or the pane is focused when you were away
   # inside herdr), or the keep key

@@ -21,7 +21,7 @@ autoload -Uz add-zsh-hook
 # (HERDR_RUN_HOLD is exported by shell.sh)
 herdr-run-hold() {
   # the command is over: the hold shows the linger countdown in the `timer` token instead of the elapsed time
-  _tr_kill_watcher
+  _tr_kill_running_watcher
   "${HERDR_RUN_HOLD:-${XDG_CONFIG_HOME:-$HOME/.config}/herdr/local-plugins/herdr-task-runner/bin/herdr-run-hold}" "$@"
 }
 
@@ -29,6 +29,7 @@ typeset -g _tr_bin="${HERDR_BIN_PATH:-herdr}"
 # defaults, for a shell that starts before the plugin has written shell.env
 typeset -g _tr_source=task-runner _tr_terminal_threshold=10 _tr_run_threshold=10
 typeset -g _tr_report=true _tr_label_style=program _tr_timer_interval=5
+typeset -g _tr_elapsed_timer=true _tr_countdown_timer=true
 typeset -g _tr_ignore='nvim vim vi emacs nano less more man ssh mosh tmux screen zellij htop top btop lazygit tig fzf herdr'
 typeset -g _tr_ignore_bare='python python3 irb pry node psql mysql sqlite3'
 typeset -g _tr_wrappers='sudo doas command builtin exec nohup time nice env caffeinate'
@@ -107,9 +108,17 @@ _tr_human() {
   else REPLY="$(( s / 3600 ))h $(( (s % 3600) / 60 ))m"; fi
 }
 
-# The watcher lives as long as the command (it keeps the `timer` token up to date), so it is always signalled.
+# _tr_kill_running_watcher: _tr_kill_watcher for the command that is running now (its elapsed time and threshold)
+_tr_kill_running_watcher() {
+  _tr_kill_watcher $(( EPOCHREALTIME - _tr_start )) $(( _tr_managed ? _tr_run_threshold : _tr_terminal_threshold ))
+}
+
+# $1: seconds the command ran, $2: the threshold. With elapsed_timer on the watcher lives as long as the command
+# (it keeps the `timer` token up to date), so it is always signalled. Off, it is gone a moment after the threshold;
+# its pid may belong to something else by then, so it is only signalled while it can still be running.
 _tr_kill_watcher() {
   (( _tr_watcher )) || return 0
+  [[ $_tr_elapsed_timer == true ]] || (( ${1:-0} < ${2:-0} + 2 )) || { _tr_watcher=0; return 0; }
   # its own process group under job control; the bare pid when not (non-interactive shells)
   kill -TERM -- -$_tr_watcher 2>/dev/null || kill -TERM $_tr_watcher 2>/dev/null
   _tr_watcher=0
@@ -171,29 +180,32 @@ _tr_preexec() {
     zselect -t 100
     "$_tr_bin" pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
       --display-agent "$name" --token "cmd=${cmd[1,80]}" --seq $(( seq + 1 ))
-    # then the time since the command started, in the `timer` token, at every multiple of [jobs] timer_interval seconds (a herdr
-    # call per second would be too many). The first one is due now: the threshold, rounded to the second.
-    local -F e
-    local -i n w
-    local text
-    # a shell that dies without running zshexit (SIGKILL) can't stop this loop: it ends with the shell
-    while kill -0 $shell_pid 2>/dev/null; do
-      e=$(( EPOCHREALTIME - _tr_start ))
-      n=$(( e + 0.5 ))
-      text="🕐${n}s"
-      (( n < 60 )) || text="🕐$(( n / 60 ))m $(printf '%02d' $(( n % 60 )))s"
-      (( n < 3600 )) || text="🕐$(( n / 3600 ))h $(printf '%02d' $(( n % 3600 / 60 )))m"
-      _tr_seq
-      "$_tr_bin" pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
-        --display-agent "$name" --token "timer=$text" --seq $REPLY
-      # sleep to the next multiple of the interval (not a whole interval: the calls would add up and the values drift), plus a
-      # hair so the wake-up lands after it
-      e=$(( EPOCHREALTIME - _tr_start ))
-      w=$(( ((n / _tr_timer_interval + 1) * _tr_timer_interval - e) * 100 + 3 )) # an integer variable truncates
-      (( w > 0 )) || w=1
-      zselect -t $w
-      (( $? == 1 )) || sleep $_tr_timer_interval # zselect returns 1 when the time is up; anything else (missing module): don't spin
-    done
+    # then the time since the command started, in the `timer` token, at every multiple of [jobs] timer_interval
+    # seconds (a herdr call per second would be too many). The first one is due now: the threshold, rounded to
+    # the second. Off: this ends here, nothing keeps running (no `exit`: that would run the zshexit hook).
+    if [[ $_tr_elapsed_timer == true ]]; then
+      local -F e
+      local -i n w
+      local text
+      # a shell that dies without running zshexit (SIGKILL) can't stop this loop: it ends with the shell
+      while kill -0 $shell_pid 2>/dev/null; do
+        e=$(( EPOCHREALTIME - _tr_start ))
+        n=$(( e + 0.5 ))
+        text="🕐${n}s"
+        (( n < 60 )) || text="🕐$(( n / 60 ))m $(printf '%02d' $(( n % 60 )))s"
+        (( n < 3600 )) || text="🕐$(( n / 3600 ))h $(printf '%02d' $(( n % 3600 / 60 )))m"
+        _tr_seq
+        "$_tr_bin" pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
+          --display-agent "$name" --token "timer=$text" --seq $REPLY
+        # sleep to the next multiple of the interval (not a whole interval: the calls would add up and the values drift), plus a
+        # hair so the wake-up lands after it
+        e=$(( EPOCHREALTIME - _tr_start ))
+        w=$(( ((n / _tr_timer_interval + 1) * _tr_timer_interval - e) * 100 + 3 )) # an integer variable truncates
+        (( w > 0 )) || w=1
+        zselect -t $w
+        (( $? == 1 )) || sleep $_tr_timer_interval # zselect returns 1 when the time is up; anything else (missing module): don't spin
+      done
+    fi
   ) >/dev/null 2>&1 &!
   _tr_marked=1 # the name is on the entry once it is reported: clear it with the entry
   _tr_watcher=$!
@@ -207,7 +219,7 @@ _tr_precmd() {
   local -i managed=$_tr_managed threshold
   threshold=$(( managed ? _tr_run_threshold : _tr_terminal_threshold ))
   _tr_cmd= _tr_start=0 _tr_managed=0
-  _tr_kill_watcher
+  _tr_kill_watcher $elapsed $threshold
   (( elapsed >= threshold )) || return 0
 
   # herdr-run-hold marked it already; just drop what the "working" report left (it may have
@@ -231,7 +243,7 @@ _tr_precmd() {
   return 0
 }
 
-_tr_zshexit() { _tr_kill_watcher; _tr_release }
+_tr_zshexit() { _tr_kill_running_watcher; _tr_release }
 
 add-zsh-hook preexec _tr_preexec
 add-zsh-hook precmd  _tr_precmd

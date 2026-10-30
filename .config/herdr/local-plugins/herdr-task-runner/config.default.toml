@@ -61,6 +61,11 @@ report = true          # show them in the sidebar
 # its tab closes (see the README). Each update is a herdr call, so keep it well above 1 for long commands.
 # Values fall on multiples of it: 5 shows 5s, 10s, 15s.
 timer_interval = 5
+# Each timer can be turned off on its own: elapsed_timer (time since the command started, 🕐) and
+# countdown_timer (time left before the tab closes, ⏳). Off, nothing runs for it and the `timer` token stays empty;
+# the linger itself (the tab closing, the entry waiting) is not affected.
+elapsed_timer = true
+countdown_timer = true
 # How long a tab stays open after a `herdr-run --job` / `--linger default` job ends (90, 90s, 1m, 1h, 1d), unless
 # $HERDR_RUN_LINGER says otherwise. Television's npm-scripts uses it.
 linger = "1m"

@@ -169,8 +169,10 @@ A job with a linger stays in the Agents panel until the linger runs out or you
 press Ctrl-C (or the keep key), also while you are looking at it. The `timer`
 pane token is its clock, for the same rows (`{ token = "$timer" }`): while the
 command runs it holds the time since it started (`🕐1m 05s`), then the time left
-before the tab closes (`⏳45s`). Both refresh every `jobs.timer_interval` seconds (5). A failed job has
-no countdown, so no token, and is dropped when you focus its pane.
+before the tab closes (`⏳45s`). Both refresh every `jobs.timer_interval`
+seconds (5), and each can be turned off with `jobs.elapsed_timer` and
+`jobs.countdown_timer`. A failed job has no countdown, so no token, and is
+dropped when you focus its pane.
 
 `jobs.report = false` turns the sidebar entries off. Environment variables
 override the settings for one shell: `HERDR_TASK_RUNNER_THRESHOLD`,
