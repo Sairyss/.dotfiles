@@ -157,7 +157,7 @@ def write_shell_env():
     lines = {
         "source": j.source, "terminal_threshold": j.terminal_threshold, "run_threshold": j.run_threshold,
         "report": str(j.report).lower(), "timer_interval": j.timer_interval,
-        "elapsed_timer": str(j.elapsed_timer).lower(), "countdown_timer": str(j.countdown_timer).lower(),
+        "agents": " ".join(C.agents.known), "elapsed_timer": str(j.elapsed_timer).lower(), "countdown_timer": str(j.countdown_timer).lower(),
         "label_style": j.label_style, "linger": j.linger, "ignore": " ".join(j.ignore), "ignore_bare": " ".join(j.ignore_bare), "wrappers": " ".join(C.command.skip_words),
     }
     text = "# written by sidebar.py from the settings, don't edit\n" + "".join(f"_tr_{k}={q(v)}\n" for k, v in lines.items())

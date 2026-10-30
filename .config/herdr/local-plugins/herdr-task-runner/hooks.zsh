@@ -31,6 +31,7 @@ typeset -g _tr_source=task-runner _tr_terminal_threshold=10 _tr_run_threshold=10
 typeset -g _tr_report=true _tr_label_style=program _tr_timer_interval=5
 typeset -g _tr_elapsed_timer=true _tr_countdown_timer=true
 typeset -g _tr_ignore='nvim vim vi emacs nano less more man ssh mosh tmux screen zellij htop top btop lazygit tig fzf herdr'
+typeset -g _tr_agents='claude nvim' # [agents] known: coding agents herdr tracks itself, no timer for them
 typeset -g _tr_ignore_bare='python python3 irb pry node psql mysql sqlite3'
 typeset -g _tr_wrappers='sudo doas command builtin exec nohup time nice env caffeinate'
 () {
@@ -40,11 +41,13 @@ typeset -g _tr_wrappers='sudo doas command builtin exec nohup time nice env caff
 [[ -z ${HERDR_TASK_RUNNER_THRESHOLD:-} ]] || _tr_terminal_threshold=$HERDR_TASK_RUNNER_THRESHOLD
 [[ -z ${HERDR_TASK_RUNNER_RUN_THRESHOLD:-} ]] || _tr_run_threshold=$HERDR_TASK_RUNNER_RUN_THRESHOLD
 [[ -z ${HERDR_TASK_RUNNER_REPORT:-} ]] || _tr_report=$HERDR_TASK_RUNNER_REPORT
-typeset -ga _tr_ignore_a _tr_ignore_bare_a _tr_wrappers_a
+typeset -ga _tr_ignore_a _tr_ignore_bare_a _tr_wrappers_a _tr_agents_a
+_tr_agents_a=(${=_tr_agents})
 _tr_ignore_a=(${=_tr_ignore}) _tr_ignore_bare_a=(${=_tr_ignore_bare}) _tr_wrappers_a=(${=_tr_wrappers})
 
 typeset -g  _tr_cmd= _tr_label=
 typeset -gF _tr_start=0
+typeset -gi _tr_timing=0 # 1: the watcher of the running command keeps the timer token up to date
 typeset -gi _tr_managed=0 _tr_watcher=0 _tr_registered=0 _tr_marked=0
 
 # herdr drops a report whose --seq is not above the last one it saw for this pane and source, and that memory
@@ -113,12 +116,12 @@ _tr_kill_running_watcher() {
   _tr_kill_watcher $(( EPOCHREALTIME - _tr_start )) $(( _tr_managed ? _tr_run_threshold : _tr_terminal_threshold ))
 }
 
-# $1: seconds the command ran, $2: the threshold. With elapsed_timer on the watcher lives as long as the command
-# (it keeps the `timer` token up to date), so it is always signalled. Off, it is gone a moment after the threshold;
+# $1: seconds the command ran, $2: the threshold. With a timer (elapsed_timer on, not an agent) the watcher lives as long as the command
+# (it keeps the `timer` token up to date), so it is always signalled. Without, it is gone a moment after the threshold;
 # its pid may belong to something else by then, so it is only signalled while it can still be running.
 _tr_kill_watcher() {
   (( _tr_watcher )) || return 0
-  [[ $_tr_elapsed_timer == true ]] || (( ${1:-0} < ${2:-0} + 2 )) || { _tr_watcher=0; return 0; }
+  (( _tr_timing )) || (( ${1:-0} < ${2:-0} + 2 )) || { _tr_watcher=0; return 0; }
   # its own process group under job control; the bare pid when not (non-interactive shells)
   kill -TERM -- -$_tr_watcher 2>/dev/null || kill -TERM $_tr_watcher 2>/dev/null
   _tr_watcher=0
@@ -147,13 +150,15 @@ _tr_preexec() {
   # line switches them off, except the ones herdr-run types to need them
   [[ $cmd == *1004h* || $cmd == *herdr-run-hold* ]] || print -n '\e[?1004l'
   _tr_release # the previous command's mark goes once you move on
-  _tr_cmd= _tr_start=0 _tr_managed=0 _tr_marked=0
+  _tr_cmd= _tr_start=0 _tr_managed=0 _tr_marked=0 _tr_timing=0
   _tr_program "$cmd" || return 0
   local prog=$REPLY
   (( ${_tr_ignore_a[(Ie)$prog]} )) && return 0
   (( _tr_args == 0 && ${_tr_ignore_bare_a[(Ie)$prog]} )) && return 0 # a REPL, not a job
 
   [[ $cmd == *herdr-run-hold* ]] && _tr_managed=1
+  # long-running apps like claude have no use for a clock, and nvim/lazygit are ignored above
+  [[ $_tr_elapsed_timer == true ]] && (( ! ${_tr_agents_a[(Ie)$prog]} )) && _tr_timing=1
   _tr_label_for "$cmd"
   # without the "; rc=$?; herdr-run-hold ..." herdr-run appends: that is not part of the command
   cmd=${cmd%%; rc=*}
@@ -170,7 +175,7 @@ _tr_preexec() {
   local name="$cmd"
   (( ${#name} > 80 )) && name="${name[1,79]}…"
   [[ $_tr_label_style == command ]] || name=$_tr_label
-  local -i shell_pid=$$
+  local -i shell_pid=$$ timing=$_tr_timing
   (
     zmodload zsh/zselect 2>/dev/null && (( cs > 0 )) && zselect -t $cs
     "$_tr_bin" pane report-agent "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
@@ -183,7 +188,7 @@ _tr_preexec() {
     # then the time since the command started, in the `timer` token, at every multiple of [jobs] timer_interval
     # seconds (a herdr call per second would be too many). The first one is due now: the threshold, rounded to
     # the second. Off: this ends here, nothing keeps running (no `exit`: that would run the zshexit hook).
-    if [[ $_tr_elapsed_timer == true ]]; then
+    if (( timing )); then
       local -F e
       local -i n w
       local text
