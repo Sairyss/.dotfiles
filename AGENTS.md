@@ -3,6 +3,15 @@
 Guidelines for working on these dotfiles. They apply to every config, script
 and channel in the repo.
 
+## Public repository: keep private data out
+
+The repo and its history are public. Never write secrets, email addresses,
+work-related names (employer, projects, key files, hosts, containers, internal
+domains), or real IPs, subnets, MAC addresses and service lists of this
+machine. Use placeholders (`example.com`, `192.0.2.0/24`) or read the value
+from an environment variable or the system at run time. Don't commit, push or
+open a pull request unless asked.
+
 ## Scripts must work on any machine
 
 - No machine-specific paths (`/home/<user>`, mount points) and no real

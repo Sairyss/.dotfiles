@@ -12,7 +12,7 @@
     "type": "regexp",
     "operand": "dest.host",
     "sensitive": false,
-    "data": "^(|.*\\.)golang\\.org",
+    "data": "^(|.*\\.)golang\\.org$",
     "list": []
   }
 }

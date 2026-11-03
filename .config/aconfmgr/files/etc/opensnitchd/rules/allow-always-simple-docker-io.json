@@ -10,7 +10,7 @@
     "type": "regexp",
     "operand": "dest.host",
     "sensitive": false,
-    "data": "^(|.*\\.)docker\\.io",
+    "data": "^(|.*\\.)docker\\.io$",
     "list": []
   }
 }

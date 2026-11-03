@@ -7,10 +7,23 @@
   "action": "allow",
   "duration": "always",
   "operator": {
-    "type": "simple",
-    "operand": "process.path",
+    "type": "list",
+    "operand": "list",
     "sensitive": false,
-    "data": "/usr/bin/docker-proxy",
-    "list": []
+    "data": "[{\"type\":\"simple\",\"operand\":\"process.path\",\"sensitive\":false,\"data\":\"/usr/bin/docker-proxy\"},{\"type\":\"network\",\"operand\":\"dest.network\",\"sensitive\":false,\"data\":\"172.16.0.0/12\"}]",
+    "list": [
+      {
+        "type": "simple",
+        "operand": "process.path",
+        "sensitive": false,
+        "data": "/usr/bin/docker-proxy"
+      },
+      {
+        "type": "network",
+        "operand": "dest.network",
+        "sensitive": false,
+        "data": "172.16.0.0/12"
+      }
+    ]
   }
 }

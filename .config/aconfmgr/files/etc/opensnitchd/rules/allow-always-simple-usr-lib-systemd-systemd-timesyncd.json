@@ -7,10 +7,23 @@
   "action": "allow",
   "duration": "always",
   "operator": {
-    "type": "simple",
-    "operand": "process.path",
+    "type": "list",
+    "operand": "list",
     "sensitive": false,
-    "data": "/usr/lib/systemd/systemd-timesyncd",
-    "list": []
+    "data": "[{\"type\":\"simple\",\"operand\":\"process.path\",\"sensitive\":false,\"data\":\"/usr/lib/systemd/systemd-timesyncd\"},{\"type\":\"simple\",\"operand\":\"dest.port\",\"sensitive\":false,\"data\":\"123\"}]",
+    "list": [
+      {
+        "type": "simple",
+        "operand": "process.path",
+        "sensitive": false,
+        "data": "/usr/lib/systemd/systemd-timesyncd"
+      },
+      {
+        "type": "simple",
+        "operand": "dest.port",
+        "sensitive": false,
+        "data": "123"
+      }
+    ]
   }
 }

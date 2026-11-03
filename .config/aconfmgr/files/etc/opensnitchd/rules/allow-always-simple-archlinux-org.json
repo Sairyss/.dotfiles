@@ -10,7 +10,7 @@
     "type": "regexp",
     "operand": "dest.host",
     "sensitive": false,
-    "data": "^(|.*\\.)archlinux\\.org",
+    "data": "^(|.*\\.)archlinux\\.org$",
     "list": []
   }
 }

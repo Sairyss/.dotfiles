@@ -10,7 +10,7 @@
     "type": "network",
     "operand": "dest.network",
     "sensitive": false,
-    "data": "::/64",
+    "data": "::1/128",
     "list": []
   }
 }
