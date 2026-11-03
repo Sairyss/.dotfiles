@@ -1,10 +1,12 @@
 AddPackage atuin                   # Magical shell history
 AddPackage bat                     # Cat clone with syntax highlighting and git integration
 AddPackage broot                   # Fuzzy Search + tree + cd
+AddPackage btop                    # A monitor of system resources, bpytop ported to C++
 AddPackage coolreader              # Fast and small XML/CSS based eBook reader
 AddPackage cryfs                   # Cryptographic filesystem for the cloud
 AddPackage cmake                   # A cross-platform open-source make system
 AddPackage dbeaver                 # Free universal SQL Client for developers and database administrators (community edition)
+AddPackage discover                # KDE and Plasma resources management GUI
 AddPackage docker                  # Pack, ship and run any application as a lightweight container
 AddPackage docker-compose          # Fast, isolated development environments using Docker
 AddPackage emacs                   # The extensible, customizable, self-documenting real-time display editor
@@ -16,16 +18,19 @@ AddPackage firejail                # Linux namespaces sandbox program
 AddPackage flameshot               # Powerful yet simple to use screenshot software
 AddPackage flatpak                 # Linux application sandboxing and distribution framework (formerly xdg-app)
 AddPackage git                     # the fast distributed version control system
+AddPackage git-delta               # Syntax-highlighting pager for git and diff output
 AddPackage go                      # Core compiler tools for the Go programming language
 AddPackage grub-customizer         # A graphical grub2 settings manager
 AddPackage httpie                  # human-friendly CLI HTTP client for the API era
 AddPackage hyperfine               # A command-line benchmarking tool
+AddPackage incus                   # Powerful system container and virtual machine manager
 AddPackage jellyfin-server         # Jellyfin server backend
 AddPackage jq                      # Command-line JSON processor
 AddPackage qbittorrent             # An advanced BitTorrent client programmed in C++, based on Qt toolkit and libtorrent-rasterbar
 AddPackage keepassxc               # Cross-platform community-driven port of Keepass password manager
 AddPackage kitty                   # Kitty Terminal
 AddPackage kiwix-desktop           # Offline reader for Web content, especially intended to make Wikipedia available offline
+AddPackage kooha                   # Elegantly record your screen
 AddPackage lazygit                 # Simple terminal UI for git commands
 AddPackage lutris                  # Open Gaming Platform
 AddPackage neovim                  # Fork of Vim aiming to improve user experience, plugins, and GUIs
@@ -41,6 +46,7 @@ AddPackage starship                # The cross-shell prompt for astronauts
 AddPackage steam                   # Valve's digital software delivery system
 AddPackage stow                    # Symlink farm manager
 AddPackage telegram-desktop        # Official Telegram Desktop client
+AddPackage television              # A general purpose fuzzy finder for your terminal
 AddPackage ttc-iosevka-aile        # Typeface family designed for coding, terminal use and technical documents. (Aile variant)
 AddPackage ttf-firacode-nerd       # Patched font Fira (Fura) Code from nerd fonts library
 AddPackage ttf-fira-sans           # Mozilla's sans-serif typeface designed for Firefox OS
@@ -61,21 +67,24 @@ AddPackage yarn                    # Fast, reliable, and secure dependency manag
 AddPackage yay                     # Yet another yogurt. Pacman wrapper and AUR helper written in go. Pre-compiled.
 AddPackage yazi                    # Blazing fast terminal file manager written in Rust, based on async I/O
 AddPackage zellij                  # A terminal multiplexer
+AddPackage zeal                    # Offline API documentation browser
 AddPackage zsh                     # A very advanced and programmable command interpreter (shell) for UNIX
 AddPackage zsh-completions         # Additional completion definitions for Zsh
 
 # Foreign packages
 AddPackage --foreign aconfmgr-git           # A configuration manager for Arch Linux
+AddPackage --foreign freefilesync           # Folder comparison and synchronization software
 AddPackage --foreign google-chrome          # The popular and trusted web browser by Google (Stable Channel)
 AddPackage --foreign headsetcontrol         # Sidetone and Battery status for Logitech G930, G533, G633, G933 SteelSeries Arctis 7/PRO 2019 and Corsair VOID (Pro) in Linux and MacOSX
 AddPackage --foreign kanata                 # Bring the customizability of a QMK board to any keyboard near you
 AddPackage --foreign lazydocker             # A simple terminal UI for docker and docker-compose, written in Go with the gocui library.
+AddPackage --foreign herdr-bin              # Supervise multiple coding agents in one terminal
+AddPackage --foreign lmstudio-bin           # LM Studio - A desktop app for exploring and running large language models locally
 AddPackage --foreign mprocs                 # Run multiple commands in parallel
 AddPackage --foreign opensnitch-ebpf-module # eBPF process monitor module for opensnitch
 AddPackage --foreign postman-bin            # Build, test, and document your APIs faster
 AddPackage --foreign slack-desktop          # Slack Desktop (Beta) for Linux
 AddPackage --foreign sqls                   # Language Server Protocol implementation for SQL
 AddPackage --foreign visual-studio-code-bin # Visual Studio Code (vscode): Editor for building and debugging modern web and cloud applications (official binary version)
-AddPackage --foreign zeal-git               # A simple documentation browser
 AddPackage --foreign zoom                   # Video Conferencing and Web Conferencing Service
 AddPackage --foreign zotero-bin             # Zotero Standalone. Is a free, easy-to-use tool to help you collect, organize, cite, and share your research sources.

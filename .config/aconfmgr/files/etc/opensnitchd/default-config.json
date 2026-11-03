@@ -1,0 +1,47 @@
+{
+  "Server": {
+    "Address": "unix:///tmp/osui.sock",
+    "Authentication": {
+      "Type": "simple",
+      "TLSOptions": {
+        "CACert": "",
+        "ServerCert": "",
+        "ClientCert": "",
+        "ClientKey": "",
+        "SkipVerify": false,
+        "ClientAuthType": "no-client-cert"
+      }
+    },
+    "LogFile": "/var/log/opensnitchd.log"
+  },
+  "DefaultAction": "deny",
+  "DefaultDuration": "once",
+  "InterceptUnknown": false,
+  "ProcMonitorMethod": "ebpf",
+  "LogLevel": 2,
+  "LogUTC": true,
+  "LogMicro": false,
+  "Firewall": "nftables",
+  "FwOptions": {
+    "ConfigPath": "/etc/opensnitchd/system-fw.json",
+    "MonitorInterval": "15s",
+    "QueueBypass": true
+  },
+  "Rules": {
+    "Path": "/etc/opensnitchd/rules/",
+    "EnableChecksums": false
+  },
+  "Ebpf": {
+    "EventsWorkers": 8,
+    "QueueEventsSize": 0
+  },
+  "Stats": {
+    "MaxEvents": 250,
+    "MaxStats": 25,
+    "Workers": 6
+  },
+  "Internal": {
+    "GCPercent": 100,
+    "FlushConnsOnStart": true
+  }
+}
