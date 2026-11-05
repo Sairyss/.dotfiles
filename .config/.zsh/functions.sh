@@ -1,11 +1,11 @@
 # Show contents of a directory when cd to it https://blog.meain.io/2019/automatically-ls-after-cd/
-function list_all() {
-  emulate -L zsh
-  eza -alhF
-}
-if [[ ${chpwd_functions[(r)list_all]} != "list_all" ]];then
-  chpwd_functions=(${chpwd_functions[@]} "list_all")
-fi
+# function list_all() {
+#   emulate -L zsh
+#   eza -alhF
+# }
+# if [[ ${chpwd_functions[(r)list_all]} != "list_all" ]];then
+#   chpwd_functions=(${chpwd_functions[@]} "list_all")
+# fi
 
 # archive extraction
 # usage: ex <file>
@@ -32,4 +32,3 @@ ex() {
     echo "'$1' is not a valid file"
   fi
 }
-
