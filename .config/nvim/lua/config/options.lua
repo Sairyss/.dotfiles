@@ -6,6 +6,8 @@ vim.opt.wrap = true
 vim.opt.relativenumber = false
 vim.opt.swapfile = false
 
+vim.o.title = true
+
 -- LazyVim related
 vim.g.snacks_animate = false
 
@@ -65,5 +67,6 @@ vim.g.matchparen_insert_timeout = 2
 
 ----- end performance improvements -----
 
--- terminal title (read by herdr)
-require("config.title")
+-- terminal title (read by herdr): replaced by herdr_claude, kept in case it is wanted back
+require("config.integrations.herdr.herdr_claude")
+require("config.integrations.herdr.herdr_server")

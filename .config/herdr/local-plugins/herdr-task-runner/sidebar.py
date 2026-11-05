@@ -10,10 +10,9 @@ Usage: sidebar.py reconcile | watch | apply | restart | config
   config     print the effective settings as JSON
 
 reconcile:
-- nvim panes (terminal title "<file> (<dir>[ claude:<state>]) - Nvim", see nvim/lua/config/title.lua) are
-  registered as agent `nvim` with the pane token kind=nvim. The claude:<idle|working|blocked> part is the
-  state of the claude running inside that nvim: it becomes the agent state (the name stays "nvim").
-  The registration is released when the title stops looking like nvim (exit, crash, closed window).
+- nvim panes register themselves: nvim/lua/config/integrations/herdr/herdr_claude.lua reports agent `nvim` with
+  the pane token kind=nvim and the state of the claude running inside (idle, working, blocked), and releases it
+  when claude or nvim ends. Reconcile leaves such panes alone; it no longer looks at terminal titles for them.
 - slow-command entries reported by hooks.zsh and herdr-run-hold are tagged kind=job. A job is any reported agent that
   herdr doesn't know as a coding agent and that isn't nvim.
 - the [jobs] settings are written to shell.env in the state dir, for hooks.zsh and herdr-run-hold.
@@ -53,7 +52,6 @@ STATE_DIR = os.environ.get("HERDR_PLUGIN_STATE_DIR") or os.path.join(XDG_STATE, 
 SOCKET = os.environ.get("HERDR_SOCKET_PATH") or os.path.join(XDG_CONFIG, "herdr/herdr.sock")
 DEFAULT_CONFIG = os.path.join(ROOT, "config.default.toml")
 USER_CONFIG = os.environ.get("HERDR_TASK_RUNNER_CONFIG") or os.path.join(CONFIG_DIR, "config.toml")
-STATE_FILE = os.path.join(STATE_DIR, "nvim-panes.json")
 
 log = logging.getLogger("sidebar")
 C = SimpleNamespace()  # the settings of the current pass, filled by load_settings()
@@ -94,8 +92,6 @@ def build(raw):
 
     s = ns(raw)
     s.raw = raw
-    s.nvim.title_re = re.compile(s.nvim.title, re.I)
-    s.nvim.claude_re = re.compile(s.nvim.claude_state, re.I)
     s.command.prompt_re = re.compile(s.command.prompt_title)
     s.agents.known_set = set(s.agents.known)
     s.command.skip_set = set(s.command.skip_words)
@@ -103,6 +99,11 @@ def build(raw):
     s.command.shell_set = set(s.command.shells)
     s.jobs.ignore_set = {a.lower() for a in s.jobs.ignore}
     s.jobs.ignore_bare_set = {a.lower() for a in s.jobs.ignore_bare}
+    s.jobs.ignore_patterns = list(s.jobs.ignore_match)
+    try:
+        s.jobs.ignore_res = [re.compile(r) for r in s.jobs.ignore_patterns]
+    except re.error as e:
+        raise ValueError(f"jobs.ignore_match: bad regular expression: {e}")
     s.tokens.title_format.format(workspace="w", app="a")
     s.tokens.tabs_format.format(n=2)
     s.tokens.uncommitted_format.format(n=2)
@@ -158,7 +159,7 @@ def write_shell_env():
         "source": j.source, "terminal_threshold": j.terminal_threshold, "run_threshold": j.run_threshold,
         "report": str(j.report).lower(), "timer_interval": j.timer_interval,
         "agents": " ".join(C.agents.known), "elapsed_timer": str(j.elapsed_timer).lower(), "countdown_timer": str(j.countdown_timer).lower(),
-        "label_style": j.label_style, "linger": j.linger, "ignore": " ".join(j.ignore), "ignore_bare": " ".join(j.ignore_bare), "wrappers": " ".join(C.command.skip_words),
+        "label_style": j.label_style, "linger": j.linger, "ignore": " ".join(j.ignore), "ignore_bare": " ".join(j.ignore_bare), "ignore_match": "\n".join(j.ignore_patterns), "wrappers": " ".join(C.command.skip_words),
     }
     text = "# written by sidebar.py from the settings, don't edit\n" + "".join(f"_tr_{k}={q(v)}\n" for k, v in lines.items())
     path = os.path.join(STATE_DIR, "shell.env")
@@ -272,10 +273,22 @@ def job_app(p):
     return program_of(text) or agent
 
 
+def ignored_by_match(p):
+    """A pane that is not a task or an app of its tab: it marks itself transparent (pane token transparent=1, for
+    sidebars), or what it reports as its command (the `cmd` token, the display name, the terminal title) matches a
+    [jobs] ignore_match pattern."""
+    if (p.get("tokens") or {}).get("transparent") == "1":
+        return True
+    texts = ((p.get("tokens") or {}).get("cmd"), p.get("display_agent"), p.get("terminal_title_stripped"))
+    return any(r.search(t) for t in texts if t for r in C.jobs.ignore_res)
+
+
 def is_task(p):
     """A pane that runs a task: a job or a command, not a shell prompt, a coding agent or an interactive app from
     [jobs] ignore. A finished job still marked (done/failed, kept until you focus its pane) counts when
     [tasks] count_finished is on."""
+    if ignored_by_match(p):
+        return False
     agent = (p.get("agent") or "").lower()
     if agent and not C.tasks.count_finished and p.get("agent_status") not in ("working", "unknown", None):
         return False
@@ -331,40 +344,13 @@ def git_branch(cwd):
 # ---- reconcile ---------------------------------------------------------------------------------------------
 
 def sync_panes(panes):
-    """nvim registration and job tags, per pane."""
-    try:
-        with open(STATE_FILE) as f:
-            known = json.load(f)  # pane_id -> [state, display] last reported for nvim panes
-    except (OSError, ValueError):
-        known = {}
-
-    src, kind, nvim = C.herdr.source, C.kinds.token, C.nvim.name
-    live = set()
+    """Job tags, per pane (nvim panes tag themselves, see the top of the file)."""
+    src, kind = C.herdr.source, C.kinds.token
     for p in panes:
         pid = p["pane_id"]
         agent = p.get("agent")
         tokens = p.get("tokens") or {}
-        title = p.get("terminal_title") or ""
-        live.add(pid)
-
-        legacy = any(title == t or title.startswith(t + " ") for t in C.nvim.legacy_titles)
-        if C.nvim.enabled and (C.nvim.title_re.search(title) or legacy):
-            m = C.nvim.claude_re.search(title)
-            want = [m.group(1) if m else "idle", ""]
-            status = {"done": "idle"}.get(p.get("agent_status"), p.get("agent_status"))
-            if agent == nvim and status == want[0] and known.get(pid) == want and tokens.get(kind) == C.kinds.nvim:
-                continue
-            run("pane", "report-agent", pid, "--source", src, "--agent", nvim, "--state", want[0], "--seq", seq())
-            meta = ["pane", "report-metadata", pid, "--source", src, "--agent", nvim, "--token", f"{kind}={C.kinds.nvim}"]
-            meta += ["--display-agent", want[1]] if want[1] else ["--clear-display-agent"]
-            run(*meta)
-            known[pid] = want
-            continue
-
-        if pid in known:  # was nvim, isn't anymore
-            run("pane", "release-agent", pid, "--source", src, "--agent", nvim, "--seq", seq())
-            run("pane", "report-metadata", pid, "--source", src, "--clear-display-agent", "--clear-token", kind)
-            del known[pid]
+        if tokens.get(kind) == C.kinds.nvim:
             continue
 
         is_job = bool(agent) and agent not in C.agents.known_set
@@ -380,11 +366,6 @@ def sync_panes(panes):
             run("pane", "report-metadata", pid, "--source", src,
                 *(["--token", f"{C.kinds.args}={want_args}"] if want_args else ["--clear-token", C.kinds.args]))
 
-    for pid in set(known) - live:  # pane closed
-        del known[pid]
-    with open(STATE_FILE, "w") as f:
-        json.dump(known, f)
-
 
 def sync_workspaces(panes):
     """Workspace row tokens. The row title is "<workspace>·<app>" (token $title, see [ui.sidebar.spaces] rows):
@@ -395,7 +376,8 @@ def sync_workspaces(panes):
     names = C.tokens
 
     def tab_of(ws):
-        tab = [p for p in panes if p["tab_id"] == ws.get("active_tab_id")]
+        # transparent panes and [jobs] ignore_match ones never name the app, the command or the directory
+        tab = [p for p in panes if p["tab_id"] == ws.get("active_tab_id") and not ignored_by_match(p)]
         tab.sort(key=lambda p: not p.get("focused"))
         return tab
 

@@ -63,12 +63,27 @@ if [ "${HERDR_NAV_NO_FORWARD:-0}" != "1" ] && [ -n "$pane" ] && command -v jq >/
   fi
 fi
 
+# A pane marked transparent (pane token transparent=1, set by sidebar plugins) is not a stop of its own, so
+# moving across panes and tabs steps over it.
+is_transparent() {
+  "$herdr" pane get "$1" 2>/dev/null | jq -e '.result.pane.tokens.transparent == "1"' >/dev/null 2>&1
+}
+
 # Move herdr focus. At the left/right edge of the tab, go to the previous/next tab
 # instead, wrapping around. Needs jq; without it this is a plain pane focus.
 move_herdr() {
   if [ -n "$pane" ] && command -v jq >/dev/null 2>&1; then
     neighbor="$("$herdr" pane neighbor --pane "$pane" --direction "$dir" 2>/dev/null \
       | jq -r '.result.neighbor.neighbor_pane_id // empty' 2>/dev/null || true)"
+    via=""
+    while [ -n "$neighbor" ] && is_transparent "$neighbor"; do
+      via="$neighbor"
+      neighbor="$("$herdr" pane neighbor --pane "$neighbor" --direction "$dir" 2>/dev/null \
+        | jq -r '.result.neighbor.neighbor_pane_id // empty' 2>/dev/null || true)"
+    done
+    if [ -n "$via" ] && [ -n "$neighbor" ]; then
+      exec "$herdr" pane focus --direction "$dir" --pane "$via" # the pane beyond the sidebar
+    fi
     if [ -z "$neighbor" ] && { [ "$dir" = left ] || [ "$dir" = right ]; }; then
       ids="$("$herdr" pane get "$pane" 2>/dev/null \
         | jq -r '.result.pane | "\(.workspace_id) \(.tab_id)"' 2>/dev/null || true)"
@@ -81,6 +96,13 @@ move_herdr() {
           | jq -r --arg cur "$tab" --argjson off "$offset" \
               '.result.tabs | map(.tab_id) | length as $n | (index($cur)) as $i | if $i == null or $n < 2 then empty else .[($i + $off + $n) % $n] end' 2>/dev/null || true)"
         if [ -n "$target" ]; then
+          # Leaving from the sidebar: hand the focus back to the pane next to it first, or the tab would stay named
+          # after the sidebar (tab titles follow the focused pane) and be focused there when you return.
+          if is_transparent "$pane"; then
+            back=right
+            [ "$dir" = right ] && back=left
+            "$herdr" pane focus --direction "$back" --pane "$pane" >/dev/null 2>&1 || true
+          fi
           exec "$herdr" tab focus "$target"
         fi
         exit 0 # only one tab

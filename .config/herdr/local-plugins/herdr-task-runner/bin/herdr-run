@@ -26,9 +26,23 @@
 #   --cwd DIR  run in DIR instead of the focused pane's directory (an idle pane is only
 #              reused when it is already in DIR, otherwise a new tab is opened)
 #
+#   --edit FILE  open FILE in neovim, e.g. from a file manager. In an nvim whose directory contains the file, in any
+#              workspace, else in an nvim of the focused workspace if there is one (it jumps to that pane and opens
+#              the file there; needs nvim/lua/config/herdr_server.lua, which makes every nvim listen on a socket
+#              named after its pane), else in a new tab running
+#              `nvim [+LINE] FILE` in the file's git root (the file's directory outside a repo). Between equals the
+#              workspace you are in wins, then the tab you are in (a sidebar's own tab, when opened from it). Takes
+#              no command, and conflicts with the
+#              other options that pick where to run (and --cwd). $HERDR_RUN_NVIM overrides the nvim program
+#   --line N   with --edit: put the cursor on line N (0 or empty = none)
+#
 #   --reuse    for an app that should only be open once per workspace (e.g. lazygit): when a pane of the
 #              focused workspace already runs exactly <command> (compared without quotes) as its foreground
 #              process, jump to its tab instead of starting another. Only for the default and --tab modes; without it every call opens one
+#
+# Transparent panes: a pane with the pane token transparent=1 (a sidebar plugin sets it) is not where you
+#   work. When it has the focus, herdr-run acts as if the pane next to it (right, else left) had it and focuses
+#   that pane, so a sidebar never makes its tab "busy". Without a usable pane next to it nothing changes.
 #
 # What happens around it (new tabs/splits/workspaces; --ask and the done/failed mark of --keep/--linger also
 # apply to an idle pane, which always stays open: there only the mark is kept, there is no countdown):
@@ -123,6 +137,8 @@ label_of() {
 mode=
 keep= linger= job= reuse= bg= ask= ask_if= dry= opt_cwd=
 mode_flag= cwd_flag=
+edit_file= edit_line=
+nvim="${HERDR_RUN_NVIM:-nvim}"
 # set_mode MODE FLAG: --tab/--job, --split, --workspace and --here pick where to run, so only one mode may be given
 set_mode() {
   [[ -z $mode || $mode == "$1" ]] || fail "$mode_flag and $2 conflict (pick one of --tab/--job, --split, --workspace, --work-dir, --here)" 2
@@ -142,6 +158,10 @@ while (($#)); do
     --workspace) set_mode workspace --workspace ;;
     --work-dir) set_mode workdir --work-dir; set_cwd --work-dir; opt_cwd="${2:?--work-dir needs a directory}"; shift ;;
     --here) set_mode here --here ;;
+    --edit) set_mode edit --edit; set_cwd --edit; edit_file="${2:?--edit needs a file}"; shift ;;
+    --line) edit_line="${2:?--line needs a number}"; shift
+      [[ $edit_line =~ ^[0-9]*$ ]] || fail "bad --line: $edit_line" 2
+      [[ $edit_line != 0 ]] || edit_line= ;;
     --reuse) reuse=1 ;;
     --background|--bg) bg=1 ;;
     --keep) keep=1 ;;
@@ -163,6 +183,19 @@ mode="${mode:-auto}"
 [[ $linger != default ]] || linger="${HERDR_RUN_LINGER:-$_tr_linger}" # --linger default: the [jobs] linger setting
 [[ -z $linger || $linger =~ ^[0-9]+[smhd]?$ ]] || fail "bad linger duration: $linger (check HERDR_RUN_LINGER and [jobs] linger)" 2
 cmd="$*"
+[[ -z $edit_line || -n $edit_file ]] || fail "--line only works with --edit" 2
+if [[ $mode == edit ]]; then
+  # Becomes the command of a new tab in the file's git root; an nvim that is already open is tried first, below.
+  [[ -z $cmd ]] || fail "--edit takes no command (got: ${cmd:0:40})" 2
+  [[ $edit_file == /* ]] || edit_file="$PWD/$edit_file"
+  edit_dir="$(dirname "$edit_file")"
+  [[ -d $edit_dir ]] || fail "--edit: no such directory: $edit_dir" 2
+  edit_root="$(git -C "$edit_dir" rev-parse --show-toplevel 2>/dev/null || true)"
+  [[ -n $edit_root ]] || edit_root="$(cd "$edit_dir" && pwd)"
+  cmd="$nvim${edit_line:+ +$edit_line} $(printf '%q' "$edit_file")"
+  opt_cwd="$edit_root"
+  mode=tab
+fi
 [[ -z $bg || ( $mode != here && $mode != split ) ]] || fail "--background and $mode_flag conflict" 2
 [[ -n $cmd || $mode == workdir ]] || fail "no command given (see --help)" 2
 # --work-dir without a command only goes to the directory: nothing is typed, so there is nothing to keep or ask
@@ -317,6 +350,24 @@ pane="$(jstr pane_id "$focused")"
 pane_cwd="$(jstr foreground_cwd "$focused")"
 [[ -n $pane_cwd ]] || pane_cwd="$(jstr cwd "$focused")"
 [[ -n $pane ]] || fail "could not find the focused pane in: ${list:0:120}"
+# A pane that marks itself transparent (pane token transparent=1, which a sidebar plugin sets) is not where
+# you work: when it has the focus, act as if the pane next to it had it, and give that pane the focus. Otherwise
+# a sidebar in the tab would make the tab "busy" and every command would open a new one. The neighbour is the
+# pane to the right (a sidebar on the left), else to the left; without a usable one (none, or itself
+# transparent) nothing changes.
+if [[ $focused == *'"transparent":"1"'* ]]; then
+  for dir in right left; do
+    nb="$(jstr neighbor_pane_id "$("$herdr" pane neighbor --pane "$pane" --direction "$dir" 2>/dev/null)")"
+    nrec="$(sed 's/"workspace_id":"[^"]*"}/&\n/g' <<<"$list" | grep -F "\"pane_id\":\"$nb\"" | head -n1 || true)"
+    [[ -n $nb && -n $nrec && $nrec != *'"transparent":"1"'* ]] || continue
+    if [[ -n $dry ]]; then echo "focused pane $pane is transparent: using its neighbour $nb"
+    else "$herdr" pane focus --pane "$pane" --direction "$dir" >/dev/null 2>&1 || true; fi
+    pane=$nb focused=$nrec
+    pane_cwd="$(jstr foreground_cwd "$focused")"
+    [[ -n $pane_cwd ]] || pane_cwd="$(jstr cwd "$focused")"
+    break
+  done
+fi
 cwd="${opt_cwd:-$pane_cwd}"
 # bg_done: with --background, say right away that the command was sent (nothing else shows it), then exit
 bg_done() {
@@ -335,6 +386,54 @@ if [[ $mode == workdir ]]; then
 fi
 [[ -z $dry ]] || echo "mode=$mode pane=$pane cwd=$cwd"
 [[ -n $cmd || $mode != auto ]] || exit 0 # no command and already in the directory
+
+# --edit: an nvim gets the file, and you are taken to it. Each nvim listens on a socket named after its pane
+# (nvim/lua/config/herdr_server.lua), so the panes are the candidates, no process matching needed.
+# One whose directory contains the file wins, in any workspace; an nvim elsewhere only counts in this workspace.
+# A socket that doesn't answer (nvim crashed) is skipped.
+if [[ -n $edit_file ]]; then
+  sockdir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
+  ws="$(jstr workspace_id "$after")"
+  best_pane= best_tab= best_ws= best_sock= best_score=0
+  while IFS= read -r rec; do
+    rec_ws="$(jstr workspace_id "$rec")"
+    id="$(jstr pane_id "$rec")"
+    sock="$sockdir/herdr-nvim-${id//[^[:alnum:]]/_}.sock"
+    [[ -S $sock ]] || continue
+    dir="$(jstr foreground_cwd "$rec")"
+    # path match first (10), then this workspace (+4), then the tab you are in (+1; a sidebar belongs to it). Without a
+    # path match an nvim of another workspace is no candidate: the file doesn't belong to its project
+    score=1
+    [[ -n $dir && $edit_file == "$dir"/* ]] && score=10
+    if [[ $rec_ws == "$ws" ]]; then
+      score=$((score + 4))
+      [[ "$(jstr tab_id "$rec")" != "$(jstr tab_id "$focused")" ]] || score=$((score + 1))
+    elif ((score < 10)); then
+      continue
+    fi
+    ((score > best_score)) || continue
+    "$nvim" --server "$sock" --remote-expr 1 >/dev/null 2>&1 || continue
+    best_pane=$id best_tab="$(jstr tab_id "$rec")" best_ws=$rec_ws best_sock=$sock best_score=$score
+  done < <(sed 's/"workspace_id":"[^"]*"}/&\n/g' <<<"$list")
+  if [[ -n $best_pane ]]; then
+    quoted="${edit_file//\'/\'\'}" # a vim string: ' is doubled
+    expr="execute('drop${edit_line:+ +$edit_line} ' . fnameescape('$quoted'))"
+    if [[ -n $dry ]]; then
+      echo "edit: would open $edit_file${edit_line:+:$edit_line} in the nvim of pane $best_pane ($best_sock) and focus it"
+      exit 0
+    fi
+    # Go there first, then hand over the file: nvim answers only once the file is loaded (plugins, a big file), and
+    # the switch should not wait for that. drop jumps to a window that has the file, else edits it (in a split
+    # when the current buffer is modified).
+    [[ $best_ws == "$ws" ]] || hc workspace focus "$best_ws" >/dev/null
+    hc tab focus "$best_tab" >/dev/null
+    "$herdr" agent focus "$best_pane" >/dev/null 2>&1 || true # the pane inside the tab, when it is a registered agent (nvim is)
+    if "$nvim" --server "$best_sock" --remote-expr "$expr" >/dev/null 2>&1; then
+      exit 0
+    fi
+  fi
+  [[ -z $dry ]] || echo "edit: no nvim to reuse in workspace $ws: new tab in $edit_root"
+fi
 
 # --reuse: a command already running in this workspace is jumped to, not started a second time. Matched on
 # the whole command line of a pane's foreground process (`nvim .` and `nvim file` are different). Both sides

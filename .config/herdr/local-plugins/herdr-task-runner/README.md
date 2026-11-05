@@ -40,6 +40,37 @@ Quotes and the program's directory are ignored when comparing, so `nvim .`
 matches `nvim .` but not `nvim file`. It applies to the default and `--tab`
 modes. Without it, every call opens a new tab (such as claude).
 
+## Transparent panes (sidebars)
+
+A pane with the pane token `transparent=1` (a sidebar plugin sets it on its
+panes) is not where you work. When it has the focus, `herdr-run` acts
+as if the pane next to it (to its right, else to its left) had it and focuses
+that pane, so a sidebar never
+makes its tab busy: an idle shell next to it is reused instead of opening a new
+tab. Without a usable pane next to it (none, or itself transparent) nothing
+changes. Set it with
+`herdr pane report-metadata PANE --source NAME --token transparent=1`.
+
+## Opening a file in neovim (`--edit`)
+
+`herdr-run --edit FILE [--line N]` is for file managers and pickers: it
+opens the file in an nvim and jumps to that pane (`:drop`, so an unsaved
+buffer is not in the way). An nvim whose directory contains the file is used
+in any workspace, so the file opens in the project's own workspace; failing
+that, any nvim of the focused workspace. Without one it opens a new tab
+running `nvim [+N] FILE` in the file's git root (the file's directory outside
+a repo). Between equals the focused workspace wins, then your own tab (a file
+manager's own tab, when opened from there). It takes no command and conflicts
+with `--cwd` and the other options that pick where to run. `$HERDR_RUN_NVIM`
+replaces the `nvim` program.
+
+The nvim to reuse is found by name, not by looking at processes: nvim's config
+(`nvim/lua/config/herdr_server.lua`) makes it listen on
+`$XDG_RUNTIME_DIR/herdr-nvim-<pane id>.sock` (`$TMPDIR` or `/tmp` without
+`XDG_RUNTIME_DIR`), with every character of the pane id that is not a letter
+or digit replaced by `_`. An nvim started before that file existed, or outside
+herdr, is not found and a new one opens. Keep the name in both places in step.
+
 ## Done and failed marks
 
 With `--keep` or `--linger`, a command that finishes while you are looking
@@ -99,8 +130,8 @@ plugin actions):
   reconciles after bursts of them (plugin event hooks can't see `pane.updated`).
   If herdr refuses the subscription it logs that and retries after
   `watch.retry_delay`; it does not poll.
-- `reconcile` is one idempotent pass. It registers nvim panes as agent `nvim`
-  from their terminal title, tags slow commands as `kind=job`, and sets the
+- `reconcile` is one idempotent pass. It tags slow commands as `kind=job`
+  (nvim panes tag themselves as `kind=nvim`, see below) and sets the
   workspace tokens `$title`, `$app`, `$tabs`, `$tasks`, `$cmd`, `$branch` and
   `$uncommitted`. `$tasks` is the number of tasks running in all tabs of the
   workspace, shown from `tasks.min_count` (default 2). Finished jobs still
@@ -108,6 +139,10 @@ plugin actions):
   (`tasks.count_finished`); interactive apps such as nvim or lazygit
   (`jobs.ignore`), coding agents and shells don't count.
   The `git` calls for all workspaces run in parallel.
+- nvim registers itself: `nvim/lua/config/integrations/herdr/herdr_claude.lua`
+  reports agent `nvim` with the state of the claude running in its terminal
+  and the token `kind=nvim`, and releases both when claude or nvim ends.
+  `reconcile` skips panes with that token. No terminal title is involved.
 - `apply` installs the agents panel order: jobs, nvim, then real agents.
 - `restart` replaces the running watcher, for after editing `sidebar.py`.
 - `config` prints the effective settings.
@@ -180,9 +215,16 @@ override the settings for one shell: `HERDR_TASK_RUNNER_THRESHOLD`,
 
 `jobs.ignore` lists interactive programs that are never jobs (and never counted
 in `$tasks`); `jobs.ignore_bare` lists REPLs that are ignored only without
-arguments. The shells read the settings when they start, so a change reaches
-the shells opened after it. herdr-ohmyzsh's `hsplit`/`htab`/`hagent`/
-`hworktree`/`hreload` helpers and its `herdr` completions are not included.
+arguments. To ignore one particular command line rather than a program, add
+it to `jobs.ignore_match` (empty by default): regular expressions matched
+anywhere in the line, using only what Python and zsh share (a plain space, no
+`\s`). A match is never shown, timed, counted in `$tasks` or used for the
+`$app`/`$cmd` tokens. Nothing that runs in a pane that marks itself
+transparent (see above) is shown, timed or counted either: the shell hook asks
+for the token once, after the threshold. The shells read the settings when they
+start, so a change reaches the shells opened after it. herdr-ohmyzsh's
+`hsplit`/`htab`/`hagent`/`hworktree`/`hreload` helpers and its `herdr`
+completions are not included.
 
 ### Logs
 

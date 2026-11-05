@@ -30,7 +30,8 @@ typeset -g _tr_bin="${HERDR_BIN_PATH:-herdr}"
 typeset -g _tr_source=task-runner _tr_terminal_threshold=10 _tr_run_threshold=10
 typeset -g _tr_report=true _tr_label_style=program _tr_timer_interval=5
 typeset -g _tr_elapsed_timer=true _tr_countdown_timer=true
-typeset -g _tr_ignore='nvim vim vi emacs nano less more man ssh mosh tmux screen zellij htop top btop lazygit tig fzf herdr'
+typeset -g _tr_ignore='nvim vim vi emacs nano less more man ssh mosh tmux screen zellij htop top btop lazygit lazydocker tig fzf yazi ranger broot k9s herdr' # as config.default.toml, until shell.env is read
+typeset -g _tr_ignore_match= # newline separated regexes from [jobs] ignore_match, set by shell.env
 typeset -g _tr_agents='claude nvim' # [agents] known: coding agents herdr tracks itself, no timer for them
 typeset -g _tr_ignore_bare='python python3 irb pry node psql mysql sqlite3'
 typeset -g _tr_wrappers='sudo doas command builtin exec nohup time nice env caffeinate'
@@ -41,6 +42,7 @@ typeset -g _tr_wrappers='sudo doas command builtin exec nohup time nice env caff
 [[ -z ${HERDR_TASK_RUNNER_THRESHOLD:-} ]] || _tr_terminal_threshold=$HERDR_TASK_RUNNER_THRESHOLD
 [[ -z ${HERDR_TASK_RUNNER_RUN_THRESHOLD:-} ]] || _tr_run_threshold=$HERDR_TASK_RUNNER_RUN_THRESHOLD
 [[ -z ${HERDR_TASK_RUNNER_REPORT:-} ]] || _tr_report=$HERDR_TASK_RUNNER_REPORT
+typeset -ga _tr_ignore_match_a=("${(@f)_tr_ignore_match}")
 typeset -ga _tr_ignore_a _tr_ignore_bare_a _tr_wrappers_a _tr_agents_a
 _tr_agents_a=(${=_tr_agents})
 _tr_ignore_a=(${=_tr_ignore}) _tr_ignore_bare_a=(${=_tr_ignore_bare}) _tr_wrappers_a=(${=_tr_wrappers})
@@ -152,7 +154,8 @@ _tr_preexec() {
   _tr_release # the previous command's mark goes once you move on
   _tr_cmd= _tr_start=0 _tr_managed=0 _tr_marked=0 _tr_timing=0
   _tr_program "$cmd" || return 0
-  local prog=$REPLY
+  local prog=$REPLY re
+  for re in "${_tr_ignore_match_a[@]}"; do [[ -n $re && $cmd =~ $re ]] && return 0; done # [jobs] ignore_match
   (( ${_tr_ignore_a[(Ie)$prog]} )) && return 0
   (( _tr_args == 0 && ${_tr_ignore_bare_a[(Ie)$prog]} )) && return 0 # a REPL, not a job
 
@@ -178,38 +181,42 @@ _tr_preexec() {
   local -i shell_pid=$$ timing=$_tr_timing
   (
     zmodload zsh/zselect 2>/dev/null && (( cs > 0 )) && zselect -t $cs
-    "$_tr_bin" pane report-agent "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
-      --state working --message "$cmd" --seq $seq
-    # herdr only takes metadata for an entry it has confirmed (the process named like the label is the
-    # foreground one), so sent straight after the report it is dropped and the entry shows the terminal title
-    zselect -t 100
-    "$_tr_bin" pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
-      --display-agent "$name" --token "cmd=${cmd[1,80]}" --seq $(( seq + 1 ))
-    # then the time since the command started, in the `timer` token, at every multiple of [jobs] timer_interval
-    # seconds (a herdr call per second would be too many). The first one is due now: the threshold, rounded to
-    # the second. Off: this ends here, nothing keeps running (no `exit`: that would run the zshexit hook).
-    if (( timing )); then
-      local -F e
-      local -i n w
-      local text
-      # a shell that dies without running zshexit (SIGKILL) can't stop this loop: it ends with the shell
-      while kill -0 $shell_pid 2>/dev/null; do
-        e=$(( EPOCHREALTIME - _tr_start ))
-        n=$(( e + 0.5 ))
-        text="🕐${n}s"
-        (( n < 60 )) || text="🕐$(( n / 60 ))m $(printf '%02d' $(( n % 60 )))s"
-        (( n < 3600 )) || text="🕐$(( n / 3600 ))h $(printf '%02d' $(( n % 3600 / 60 )))m"
-        _tr_seq
-        "$_tr_bin" pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
-          --display-agent "$name" --token "timer=$text" --seq $REPLY
-        # sleep to the next multiple of the interval (not a whole interval: the calls would add up and the values drift), plus a
-        # hair so the wake-up lands after it
-        e=$(( EPOCHREALTIME - _tr_start ))
-        w=$(( ((n / _tr_timer_interval + 1) * _tr_timer_interval - e) * 100 + 3 )) # an integer variable truncates
-        (( w > 0 )) || w=1
-        zselect -t $w
-        (( $? == 1 )) || sleep $_tr_timer_interval # zselect returns 1 when the time is up; anything else (missing module): don't spin
-      done
+    # a transparent pane (pane token transparent=1: a sidebar) is never shown, timed or counted. Asked here, after the
+    # threshold, so commands that end sooner cost nothing and the others one call.
+    if [[ $("$_tr_bin" pane get "$HERDR_PANE_ID" 2>/dev/null) != *'"transparent":"1"'* ]]; then
+      "$_tr_bin" pane report-agent "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
+        --state working --message "$cmd" --seq $seq
+      # herdr only takes metadata for an entry it has confirmed (the process named like the label is the
+      # foreground one), so sent straight after the report it is dropped and the entry shows the terminal title
+      zselect -t 100
+      "$_tr_bin" pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
+        --display-agent "$name" --token "cmd=${cmd[1,80]}" --seq $(( seq + 1 ))
+      # then the time since the command started, in the `timer` token, at every multiple of [jobs] timer_interval
+      # seconds (a herdr call per second would be too many). The first one is due now: the threshold, rounded to
+      # the second. Off: this ends here, nothing keeps running (no `exit`: that would run the zshexit hook).
+      if (( timing )); then
+        local -F e
+        local -i n w
+        local text
+        # a shell that dies without running zshexit (SIGKILL) can't stop this loop: it ends with the shell
+        while kill -0 $shell_pid 2>/dev/null; do
+          e=$(( EPOCHREALTIME - _tr_start ))
+          n=$(( e + 0.5 ))
+          text="🕐${n}s"
+          (( n < 60 )) || text="🕐$(( n / 60 ))m $(printf '%02d' $(( n % 60 )))s"
+          (( n < 3600 )) || text="🕐$(( n / 3600 ))h $(printf '%02d' $(( n % 3600 / 60 )))m"
+          _tr_seq
+          "$_tr_bin" pane report-metadata "$HERDR_PANE_ID" --source $_tr_source --agent "$_tr_label" \
+            --display-agent "$name" --token "timer=$text" --seq $REPLY
+          # sleep to the next multiple of the interval (not a whole interval: the calls would add up and the values drift), plus a
+          # hair so the wake-up lands after it
+          e=$(( EPOCHREALTIME - _tr_start ))
+          w=$(( ((n / _tr_timer_interval + 1) * _tr_timer_interval - e) * 100 + 3 )) # an integer variable truncates
+          (( w > 0 )) || w=1
+          zselect -t $w
+          (( $? == 1 )) || sleep $_tr_timer_interval # zselect returns 1 when the time is up; anything else (missing module): don't spin
+        done
+      fi
     fi
   ) >/dev/null 2>&1 &!
   _tr_marked=1 # the name is on the entry once it is reported: clear it with the entry

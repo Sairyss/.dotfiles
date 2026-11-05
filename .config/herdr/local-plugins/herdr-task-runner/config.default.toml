@@ -100,9 +100,16 @@ ignore = [
   "fzf",
   "yazi",
   "ranger",
+  "broot",
   "k9s",
   "herdr",
 ]
+# Ignore by command line instead of by program: extended regular expressions (only what Python's re and zsh's =~ share:
+# a plain space, not `\s` or `[[:space:]]`) matched anywhere in the whole line you typed or herdr-run started,
+# and in what a pane reports as its command. A match is never shown, timed or counted in $tasks. Example:
+# ignore_match = ['^watch ', 'tail -f']
+# Panes that mark themselves transparent (pane token transparent=1, see the README) are ignored too, whatever runs in them.
+ignore_match = []
 # REPLs: ignored only when run without arguments (`python script.py` is a job, `python` is not).
 ignore_bare = [
   "python",
@@ -146,16 +153,6 @@ known = [
   "maki",
   "nvim",
 ]
-
-[nvim]
-# Register panes whose terminal title matches as agent `name` (see nvim/lua/config/title.lua).
-enabled = true
-name = "nvim"
-title = ' - Nvim$'
-# Older nvim config: the title was "nvim" or began with "nvim ".
-legacy_titles = ["nvim"]
-# Regex whose group 1 is the state of the claude running inside nvim: idle, working or blocked.
-claude_state = ' claude:(idle|working|blocked)\) - Nvim$'
 
 [command]
 # How the arguments of the running command are found for the $cmd token.
