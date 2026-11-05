@@ -1,0 +1,28 @@
+[metadata]
+name = "project-files"
+description = "Open a file of the top zoxide projects (ctrl-s: only the current git project) in the nvim of its herdr workspace"
+requirements = ["fd", "bat", "zoxide", "herdr"]
+
+[source]
+# Output format: absolute path<TAB>label (prefixed with its project when several projects are listed)
+# Two sources, ctrl-s (cycle_sources) switches: all top zoxide projects, then the current project only
+command = [
+  "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-files list global",
+  "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-files list project",
+]
+display = "{split:\\t:1}"
+
+[preview]
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-files preview '{split:\\t:0}'"
+
+[ui.preview_panel]
+# tv's status bar can't list a channel's own keys, so they are shown here
+footer = "enter: open in nvim  ^s: all projects / current project"
+
+[keybindings]
+enter = "actions:edit"
+
+[actions.edit]
+description = "Open the selected file in neovim through herdr-run --edit: in the nvim whose directory contains it (any workspace, you are taken there), else in an nvim of this workspace, else in a new tab running nvim in the file's git root"
+command = "${TELEVISION_CONFIG:-${XDG_CONFIG_HOME:-$HOME/.config}/television}/scripts/project-files open '{split:\\t:0}'"
+mode = "execute"

@@ -19,8 +19,8 @@ I work in [herdr](https://herdr.dev): a workspace per project, tabs per task. Ev
 `alt+j/k` switches workspaces, `ctrl+1..9` tabs, `alt+h/l` moves between panes
 and nvim splits, `alt+u/i` jumps between agents.
 Apps (yazi, nvim, lazygit, Claude) start with `prefix+f/n/l/i`,
-and `prefix+t` opens a [television](https://github.com/alexpasmantier/television) fuzzy finder popup which lets me jump to
-tabs and sessions, run apps/jobs/tests putting them into correct tab/workspace automatically from anywhere.
+and `prefix+t` opens a [television](https://github.com/alexpasmantier/television) fuzzy finder popup which lets me jump to tabs,
+sessions, files, run apps/jobs/tests, automatically switching to correct tab/workspace/editor from anywhere.
 `herdr-run` decides where each command goes ([readme](./.config/herdr/local-plugins/herdr-task-runner/README.md)).
 Every task/job executing in the terminal is tracked in the agents sidebar, with notifications on finish.
 
