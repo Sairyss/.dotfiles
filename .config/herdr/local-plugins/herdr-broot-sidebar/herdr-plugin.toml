@@ -1,0 +1,42 @@
+id = "herdr-broot-sidebar"
+name = "Broot Sidebar"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "A global broot file-tree sidebar: one pane beside every tab, toggled on and off for all workspaces at once, following the directory of the focused pane (sidebar.py, needs python 3.11+ and broot)"
+platforms = ["linux", "macos"]
+
+# The watcher keeps one sidebar per workspace in step with tab/workspace focus. It is detached
+# because it is long-lived; it only does something while the sidebar is switched on.
+[[startup]]
+command = ["setsid", "-f", "python3", "-I", "sidebar.py", "watch"]
+
+# The sidebar itself. herdr starts broot directly, with no shell around it: nothing is typed into a pane, there is no
+# shell to start up, the terminal title stays broot's own, and no shell hook ever sees it.
+# sidebar.py opens it with `plugin pane open` and passes the directory (--cwd), HBS_SOCK (the name broot listens on,
+# see nvim/lua/plugins/herdr/broot.lua) and HBS_BROOT (the broot command) in the environment.
+[[panes]]
+id = "sidebar"
+title = "Sidebar"
+placement = "split"
+command = ["sh", "-c", "exec \"$HBS_BROOT\" --listen \"$HBS_SOCK\" \"$PWD\""]
+
+[[actions]]
+id = "toggle"
+title = "Broot sidebar: toggle"
+description = "Show or hide the broot sidebar in all workspaces"
+contexts = ["global"]
+command = ["python3", "-I", "sidebar.py", "toggle"]
+
+[[actions]]
+id = "sync"
+title = "Broot sidebar: update now"
+description = "Create, move or close sidebar panes so each workspace has one in its active tab"
+contexts = ["global"]
+command = ["python3", "-I", "sidebar.py", "sync"]
+
+[[actions]]
+id = "focus"
+title = "Broot sidebar: focus"
+description = "Focus the sidebar of the current tab; from the sidebar, go back to the pane next to it"
+contexts = ["global"]
+command = ["python3", "-I", "sidebar.py", "focus"]

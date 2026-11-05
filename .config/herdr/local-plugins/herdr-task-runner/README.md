@@ -65,7 +65,7 @@ with `--cwd` and the other options that pick where to run. `$HERDR_RUN_NVIM`
 replaces the `nvim` program.
 
 The nvim to reuse is found by name, not by looking at processes: nvim's config
-(`nvim/lua/config/herdr_server.lua`) makes it listen on
+(`nvim/lua/plugins/herdr/server.lua`) makes it listen on
 `$XDG_RUNTIME_DIR/herdr-nvim-<pane id>.sock` (`$TMPDIR` or `/tmp` without
 `XDG_RUNTIME_DIR`), with every character of the pane id that is not a letter
 or digit replaced by `_`. An nvim started before that file existed, or outside
@@ -139,7 +139,7 @@ plugin actions):
   (`tasks.count_finished`); interactive apps such as nvim or lazygit
   (`jobs.ignore`), coding agents and shells don't count.
   The `git` calls for all workspaces run in parallel.
-- nvim registers itself: `nvim/lua/config/integrations/herdr/herdr_claude.lua`
+- nvim registers itself: `nvim/lua/plugins/herdr/claude.lua`
   reports agent `nvim` with the state of the claude running in its terminal
   and the token `kind=nvim`, and releases both when claude or nvim ends.
   `reconcile` skips panes with that token. No terminal title is involved.

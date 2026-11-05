@@ -32,15 +32,19 @@ verbs: [
         # herdr-run (herdr-task-runner plugin): in an nvim of this herdr workspace, else in a new tab in the file's
         # git root. It must be on PATH: the plugin's shell.sh adds it for shells, and the herdr server (which starts
         # the sidebar's broot without a shell) inherits that PATH from the shell it was started in. broot would take
-        # `{...}` in a command for its own placeholders, so there is no room for a ${HERDR_RUN:-...} fallback here.
-        external: "herdr-run --edit {file} --line {line}"
+        # `{...}` in a command for its own placeholders, so there is no room for a ${HERDR_RUN:-...} fallback here
+        # (nor for ${VAR:-x} forms below: only plain $VAR).
+        # Then the search is cleared, through the sidebar's own socket as the herdr-broot-sidebar plugin does for
+        # :focus. $HBS_SOCK and $HBS_BROOT are set by the plugin (herdr-plugin.toml); without them (broot run by hand)
+        # only the file is opened. Only files get here (apply_to): entering a directory is broot's own.
+        shell_command: "herdr-run --edit {file} --line {line}; if [ -n \"$HBS_SOCK\" ]; then \"$HBS_BROOT\" --send \"$HBS_SOCK\" -c ':input_clear'; fi"
         leave_broot: false
         # broot keeps the terminal: without this it switches to the main screen to run the command, which shows
         # the line that started broot ("exec broot ...") for a moment
         switch_terminal: false
     }
 
-    # Used by the herdr broot sidebar (nvim/lua/config/herdr_broot.lua): makes <out> a symlink to the selected
+    # Used by the herdr broot sidebar (nvim/lua/plugins/herdr/broot.lua): makes <out> a symlink to the selected
     # path, so nvim can check that :select found the file (broot has no way to say what it selected)
     {
         invocation: "hbs_report {out}"

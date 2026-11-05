@@ -28,7 +28,7 @@
 #
 #   --edit FILE  open FILE in neovim, e.g. from a file manager. In an nvim whose directory contains the file, in any
 #              workspace, else in an nvim of the focused workspace if there is one (it jumps to that pane and opens
-#              the file there; needs nvim/lua/config/herdr_server.lua, which makes every nvim listen on a socket
+#              the file there; needs nvim/lua/plugins/herdr/server.lua, which makes every nvim listen on a socket
 #              named after its pane), else in a new tab running
 #              `nvim [+LINE] FILE` in the file's git root (the file's directory outside a repo). Between equals the
 #              workspace you are in wins, then the tab you are in (a sidebar's own tab, when opened from it). Takes
@@ -388,7 +388,7 @@ fi
 [[ -n $cmd || $mode != auto ]] || exit 0 # no command and already in the directory
 
 # --edit: an nvim gets the file, and you are taken to it. Each nvim listens on a socket named after its pane
-# (nvim/lua/config/herdr_server.lua), so the panes are the candidates, no process matching needed.
+# (nvim/lua/plugins/herdr/server.lua), so the panes are the candidates, no process matching needed.
 # One whose directory contains the file wins, in any workspace; an nvim elsewhere only counts in this workspace.
 # A socket that doesn't answer (nvim crashed) is skipped.
 if [[ -n $edit_file ]]; then

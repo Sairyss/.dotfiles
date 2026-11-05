@@ -10,7 +10,7 @@ Usage: sidebar.py reconcile | watch | apply | restart | config
   config     print the effective settings as JSON
 
 reconcile:
-- nvim panes register themselves: nvim/lua/config/integrations/herdr/herdr_claude.lua reports agent `nvim` with
+- nvim panes register themselves: nvim/lua/plugins/herdr/claude.lua reports agent `nvim` with
   the pane token kind=nvim and the state of the claude running inside (idle, working, blocked), and releases it
   when claude or nvim ends. Reconcile leaves such panes alone; it no longer looks at terminal titles for them.
 - slow-command entries reported by hooks.zsh and herdr-run-hold are tagged kind=job. A job is any reported agent that

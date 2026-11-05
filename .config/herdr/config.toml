@@ -14,7 +14,7 @@ pane_outer_borders = false
 pane_gaps = false
 
 # agents panel: one line per agent (name · job arguments · workspace · machine); nvim instances
-# (registered by local-plugins/herdr-task-runner/sidebar.py from the nvim terminal title) get a bold purple name, claude is orange, others light
+# (reported by nvim/lua/plugins/herdr/claude.lua) get a bold purple name, claude is orange, others light
 [ui.sidebar.agents]
 rows = [
   [
@@ -65,6 +65,7 @@ previous_workspace = "alt+k"
 next_workspace = "alt+j"
 split_vertical = "prefix+|"
 settings = "prefix+shift+s"
+edit_scrollback = "prefix+shift+e"    # default prefix+e
 open_notification_target = "prefix+o" # jump to the agent that finished / needs attention
 next_agent = "alt+u"
 previous_agent = "alt+i"
@@ -85,6 +86,20 @@ key = "prefix+d"
 type = "plugin_action"
 command = "chmarax.herdr-nvim.toggle"
 description = "nvim sidebar"
+
+# broot sidebar in every workspace (local-plugins/herdr-broot-sidebar); in a tab with nvim it toggles nvim's neo-tree
+[[keys.command]]
+key = "prefix+B"
+type = "plugin_action"
+command = "herdr-broot-sidebar.toggle"
+description = "broot sidebar"
+
+# focus the sidebar of the tab (and back); alt+h/l skip it; in a tab with nvim: neo-tree
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "herdr-broot-sidebar.focus"
+description = "focus broot sidebar"
 
 [[keys.command]]
 key = "prefix+p"
