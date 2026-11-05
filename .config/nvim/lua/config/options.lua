@@ -67,6 +67,8 @@ vim.g.matchparen_insert_timeout = 2
 
 ----- end performance improvements -----
 
--- terminal title (read by herdr): replaced by herdr_claude, kept in case it is wanted back
-require("config.integrations.herdr.herdr_claude")
-require("config.integrations.herdr.herdr_server")
+-- herdr integrations (nvim/lua/plugins/herdr): not even loaded outside herdr
+if (vim.env.HERDR_PANE_ID or "") ~= "" then
+  require("plugins.herdr.claude")
+  require("plugins.herdr.server")
+end

@@ -1,6 +1,6 @@
 -- Inside herdr, report the state of the claude running in claudecode.nvim's terminal to herdr, which can't see
 -- inside an nvim terminal buffer: the pane is registered as agent `nvim` and claude's state (idle, working,
--- blocked) is its agent state. Nothing here uses the terminal title (that was integrations/herdr/title.lua).
+-- blocked) is its agent state. Nothing here uses the terminal title.
 -- The source and the token (kind=nvim, which the agents panel sorts by) are those of the herdr-task-runner plugin
 -- (settings herdr.source and kinds.* in its config.default.toml); sidebar.py leaves a pane with that token alone.
 -- herdr is $HERDR_BIN_PATH, else herdr from PATH. Outside herdr nothing happens.

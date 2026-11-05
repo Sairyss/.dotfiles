@@ -14,7 +14,17 @@
 local function nav(wincmd, dir)
   local prev = vim.api.nvim_get_current_win()
   vim.cmd("wincmd " .. wincmd)
-  if vim.api.nvim_get_current_win() ~= prev then
+  local cur = vim.api.nvim_get_current_win()
+  local function is_tree(win)
+    return vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree"
+  end
+  local in_herdr = (vim.env.HERDR_PANE_ID or "") ~= ""
+  if in_herdr and cur ~= prev and is_tree(cur) and not is_tree(prev) then
+    -- inside herdr neo-tree is the sidebar of this nvim (like broot's sidebar in other tabs, which herdr navigation
+    -- steps over): moving into it is not navigation, so this is an edge. <leader>e (or herdr's prefix+e) focuses it.
+    -- Elsewhere it is a normal window.
+    vim.api.nvim_set_current_win(prev)
+  elseif cur ~= prev then
     return -- moved within Neovim
   end
   -- At a split edge: cross into the surrounding multiplexer.

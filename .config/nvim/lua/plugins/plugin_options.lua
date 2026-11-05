@@ -79,12 +79,13 @@ return {
       window = {
         width = 35,
         mappings = {
-          ["<leader>ai"] = {
+          -- only inside herdr, like the rest of plugins/herdr
+          ["<leader>ai"] = (vim.env.HERDR_PANE_ID or "") ~= "" and {
             function(state)
               require("plugins.herdr.neotree_ref").send(state)
             end,
             desc = "Send file path to agent (herdr)",
-          },
+          } or nil,
           ["<C-y>"] = {
             function(state)
               local node = state.tree:get_node()
