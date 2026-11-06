@@ -11,6 +11,11 @@
 -- or source it from your config after plugins load:
 --   dofile("/path/to/vim-herdr-navigation/editor/nvim.lua")
 
+-- Inside herdr, treat neo-tree as the sidebar of this nvim (like broot's sidebar in other tabs, which herdr navigation
+-- steps over): moving into it is then not navigation but an edge. <leader>e (or herdr's prefix+e) focuses it.
+-- false: neo-tree is a normal window.
+local skip_neotree = false
+
 local function nav(wincmd, dir)
   local prev = vim.api.nvim_get_current_win()
   vim.cmd("wincmd " .. wincmd)
@@ -19,10 +24,7 @@ local function nav(wincmd, dir)
     return vim.bo[vim.api.nvim_win_get_buf(win)].filetype == "neo-tree"
   end
   local in_herdr = (vim.env.HERDR_PANE_ID or "") ~= ""
-  if in_herdr and cur ~= prev and is_tree(cur) and not is_tree(prev) then
-    -- inside herdr neo-tree is the sidebar of this nvim (like broot's sidebar in other tabs, which herdr navigation
-    -- steps over): moving into it is not navigation, so this is an edge. <leader>e (or herdr's prefix+e) focuses it.
-    -- Elsewhere it is a normal window.
+  if skip_neotree and in_herdr and cur ~= prev and is_tree(cur) and not is_tree(prev) then
     vim.api.nvim_set_current_win(prev)
   elseif cur ~= prev then
     return -- moved within Neovim
