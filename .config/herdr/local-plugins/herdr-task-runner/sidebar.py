@@ -211,12 +211,19 @@ def lock_file(name, block):
 
 # ---- command / app detection -------------------------------------------------------------------------------
 
+# nvim's default title is "<buffer> (<dir>) - Nvim", whatever the buffer is ("neo-tree filesystem [1] - ... - Nvim")
+NVIM_TITLE_RE = re.compile(r" - n?vim$", re.I)
+
+
 def cmd_of(p):
     """Command running in a pane without an agent, from the terminal title (zsh's title is the command while
-    one runs, and TUIs like yazi set their own, "Yazi: dir"), so it shows before the [jobs] threshold."""
+    one runs, and TUIs like yazi set their own, "Yazi: dir"), so it shows before the [jobs] threshold.
+    An nvim title is the program, not its first word (the buffer's name)."""
     t = (p.get("terminal_title_stripped") or "").strip()
     if not t or C.command.prompt_re.match(t):
         return ""
+    if NVIM_TITLE_RE.search(t):
+        return "nvim"
     return t.split()[0].rstrip(":").lower()
 
 
@@ -229,7 +236,7 @@ def detail_of(p):
     # mark is held and the terminal title is the prompt again
     shown = p.get("display_agent") if p.get("agent") and p.get("agent") not in C.agents.known_set else ""
     text = (p.get("tokens") or {}).get("cmd") or shown or (p.get("terminal_title_stripped") or "").strip()
-    if not text or C.command.prompt_re.match(text):
+    if not text or C.command.prompt_re.match(text) or NVIM_TITLE_RE.search(text):
         return ""
     text = text.split("; rc=$?")[0]  # herdr-run types "<cmd>; rc=$?; herdr-run-hold <label> $rc" around the command
     try:
