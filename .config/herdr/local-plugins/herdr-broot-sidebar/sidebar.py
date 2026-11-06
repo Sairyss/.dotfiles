@@ -89,6 +89,11 @@ EVENTS = ["tab.focused", "tab.created", "tab.closed", "workspace.created", "work
 # go now), and a new tab or workspace should get its sidebar at once, not after the quiet period
 URGENT_EVENTS = (b"tab.focused", b"tab_focused", b"pane.closed", b"pane_closed", b"pane.exited", b"pane_exited",
                  b"tab.created", b"tab_created", b"workspace.created", b"workspace_created")
+# Pacing of the non-urgent events (a program starting in a pane only shows as a pane.updated): wait for QUIET seconds
+# without events (bursts count as one), but not more often than every MIN_GAP seconds. A pass costs ~50 ms, so these
+# keep the sidebar's reaction to btop/nvim starting well under half a second at a few percent of one core at most.
+QUIET = float(os.environ.get("HERDR_BROOT_SIDEBAR_QUIET", "0.1"))
+MIN_GAP = float(os.environ.get("HERDR_BROOT_SIDEBAR_MIN_GAP", "0.25"))
 OFF = os.path.join(RUN_DIR, "off")  # the switch: on by default, off only while this exists (after an explicit `off`)
 PANES = os.path.join(RUN_DIR, "panes.json")  # pane id -> socket name of the sidebar in its tab (read by nvim)
 ACTIVE = os.path.join(RUN_DIR, "active-tab")  # the tab that was in view at the last pass
@@ -496,13 +501,13 @@ def watch():
             # A pane that closes may have been the last real one of its tab (the sidebar left alone has to go now) and a
             # new tab wants its sidebar now: no debounce and no pause for these.
             urgent = any(e in data for e in URGENT_EVENTS)
-            while not urgent and select.select([s], [], [], 0.4)[0]:  # debounce bursts...
+            while not urgent and select.select([s], [], [], QUIET)[0]:  # debounce bursts...
                 more = recv(s)
                 if not more:
                     break
                 urgent = any(e in more for e in URGENT_EVENTS)  # ...unless one of these turns up in the middle of one
             if not urgent:
-                time.sleep(max(0.0, last_run + 1.0 - time.monotonic()))
+                time.sleep(max(0.0, last_run + MIN_GAP - time.monotonic()))
             try:
                 if is_on():
                     sync()

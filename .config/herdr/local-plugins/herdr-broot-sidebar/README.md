@@ -80,8 +80,10 @@ the directory of the pane you are working in.
 - **Nothing is written to disk**: the switch, locks, `panes.json` and the last
   directories live in `$XDG_RUNTIME_DIR/herdr-broot-sidebar` (memory; without
   it `$TMPDIR` or `/tmp` with a per-user directory), and files are only
-  rewritten when their content changes. A sync takes about 50 ms and runs
-  at most once a second; a pane title change also triggers one.
+  rewritten when their content changes. A sync takes about 50 ms; it runs
+  after 0.1 s without events and at most every 0.25 s
+  (`HERDR_BROOT_SIDEBAR_QUIET` and `HERDR_BROOT_SIDEBAR_MIN_GAP`, in seconds); a
+  pane title change also triggers one.
 - A sidebar you exit by hand comes back on the next event; use the toggle.
 - One failing step (a tab, a `--send` to broot) is logged and skipped; the
   other tabs and the saved state are still updated.
