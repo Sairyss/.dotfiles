@@ -1,80 +1,80 @@
 -- Code automation like snippets, hotkeys, toggling, etc.
 
 return {
-  {
-    "L3MON4D3/LuaSnip",
-    -- follow latest release.
-    version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
-    -- install jsregexp (optional!).
-    build = "make install_jsregexp",
-    opts = {
-      -- update_events = "TextChanged,TextChangedI",
-      -- enable_autosnippets = true,
-      history = true,
-    },
-    -- config = function(_, opts)
-    --   local luasnip = require("luasnip")
-    --   luasnip.setup(opts)
-    --   require("luasnip.loaders.from_lua").load({ paths = { "~/.config/nvim/lua/config/snippets" } })
-    -- end,
-    keys = {
-      {
-        "<C-l>",
-        function()
-          local luasnip = require("luasnip")
-          if luasnip.jumpable(1) then
-            luasnip.jump(1)
-          else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-l>", true, false, true), "n", true)
-          end
-        end,
-        mode = { "i", "s" },
-        silent = true,
-      },
-      {
-        "<C-h>",
-        function()
-          local luasnip = require("luasnip")
-          if luasnip.jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-h>", true, false, true), "n", true)
-          end
-        end,
-        mode = { "i", "s" },
-        silent = true,
-      },
-      {
-        mode = { "i", "s" },
-        "<C-j>",
-        "<Plug>luasnip-next-choice",
-        function()
-          local luasnip = require("luasnip")
-          if luasnip.choice_active() then
-            luasnip.change_choice(1)
-          else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-j>", true, false, true), "n", true)
-          end
-        end,
-        desc = "Jump to the next choice in a snippet",
-        silent = true,
-      },
-      {
-        mode = { "i", "s" },
-        "<C-k>",
-        function()
-          local luasnip = require("luasnip")
-          if luasnip.choice_active() then
-            luasnip.change_choice(-1)
-          else
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-k>", true, false, true), "n", true)
-          end
-        end,
-        desc = "Jump to the next choice in a snippet",
-        silent = true,
-      },
-    },
-  },
+  -- {
+  --   "L3MON4D3/LuaSnip",
+  --   -- follow latest release.
+  --   version = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+  --   -- install jsregexp (optional!).
+  --   build = "make install_jsregexp",
+  --   opts = {
+  --     -- update_events = "TextChanged,TextChangedI",
+  --     -- enable_autosnippets = true,
+  --     history = true,
+  --   },
+  --   -- config = function(_, opts)
+  --   --   local luasnip = require("luasnip")
+  --   --   luasnip.setup(opts)
+  --   --   require("luasnip.loaders.from_lua").load({ paths = { "~/.config/nvim/lua/config/snippets" } })
+  --   -- end,
+  --   keys = {
+  --     {
+  --       "<C-l>",
+  --       function()
+  --         local luasnip = require("luasnip")
+  --         if luasnip.jumpable(1) then
+  --           luasnip.jump(1)
+  --         else
+  --           vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-l>", true, false, true), "n", true)
+  --         end
+  --       end,
+  --       mode = { "i", "s" },
+  --       silent = true,
+  --     },
+  --     {
+  --       "<C-h>",
+  --       function()
+  --         local luasnip = require("luasnip")
+  --         if luasnip.jumpable(-1) then
+  --           luasnip.jump(-1)
+  --         else
+  --           vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-h>", true, false, true), "n", true)
+  --         end
+  --       end,
+  --       mode = { "i", "s" },
+  --       silent = true,
+  --     },
+  --     {
+  --       mode = { "i", "s" },
+  --       "<C-j>",
+  --       "<Plug>luasnip-next-choice",
+  --       function()
+  --         local luasnip = require("luasnip")
+  --         if luasnip.choice_active() then
+  --           luasnip.change_choice(1)
+  --         else
+  --           vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-j>", true, false, true), "n", true)
+  --         end
+  --       end,
+  --       desc = "Jump to the next choice in a snippet",
+  --       silent = true,
+  --     },
+  --     {
+  --       mode = { "i", "s" },
+  --       "<C-k>",
+  --       function()
+  --         local luasnip = require("luasnip")
+  --         if luasnip.choice_active() then
+  --           luasnip.change_choice(-1)
+  --         else
+  --           vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-k>", true, false, true), "n", true)
+  --         end
+  --       end,
+  --       desc = "Jump to the next choice in a snippet",
+  --       silent = true,
+  --     },
+  --   },
+  -- },
   {
     -- ctrl + a/x to increment/decrement or cycle through values
     "monaqa/dial.nvim",
@@ -196,33 +196,33 @@ return {
 
             -- added custom
             augend.constant.new({ elements = { "private", "public", "protected" } }),
-            augend.constant.new({ elements = { "class", "export class", "export abstract class" } }),
-            augend.constant.new({
-              elements = { "() =>", "async () =>" },
-              word = false,
-              cyclic = true,
-            }),
-            augend.constant.new({
-              elements = { "(i) =>", "async (i) =>" },
-              word = false,
-              cyclic = true,
-            }),
-            augend.constant.new({
-              elements = { "function", "export function", "async function", "export async function" },
-            }),
-            augend.constant.new({
-              elements = { "any", "unknown", "void" },
-              word = false,
-              cyclic = true,
-            }),
+            -- augend.constant.new({ elements = { "class", "export class", "export abstract class" } }),
+            -- augend.constant.new({
+            --   elements = { "() =>", "async () =>" },
+            --   word = false,
+            --   cyclic = true,
+            -- }),
+            -- augend.constant.new({
+            --   elements = { "(i) =>", "async (i) =>" },
+            --   word = false,
+            --   cyclic = true,
+            -- }),
+            -- augend.constant.new({
+            --   elements = { "function", "export function", "async function", "export async function" },
+            -- }),
+            -- augend.constant.new({
+            --   elements = { "any", "unknown", "void" },
+            --   word = false,
+            --   cyclic = true,
+            -- }),
             augend.constant.new({ elements = { "===", "!==" }, word = false, cyclic = true }),
             augend.constant.new({ elements = { "==", "!=" }, word = false, cyclic = true }),
-            augend.constant.new({
-              elements = { ".", "?." },
-              word = false,
-              cyclic = true,
-              pattern_regexp = [[\v(\k)@<=\.|\?\.]], -- Matches '.' or '?.' following a word
-            }),
+            -- augend.constant.new({
+            --   elements = { ".", "?." },
+            --   word = false,
+            --   cyclic = true,
+            --   pattern_regexp = [[\v(\k)@<=\.|\?\.]], -- Matches '.' or '?.' following a word
+            -- }),
             -- augend.constant.new({
             --   elements = { ":", "?:" },
             --   word = false,
@@ -328,23 +328,23 @@ return {
       },
     },
   },
-  {
-    -- plugin for splitting/joining blocks of code like arrays, hashes, statements, objects, dictionaries, etc.
-    "Wansmer/treesj",
-    keys = {
-      {
-        "<M-t>",
-        function()
-          local t = require("treesj")
-          t.toggle()
-        end,
-      },
-    },
-    dependencies = { "nvim-treesitter/nvim-treesitter" }, -- if you install parsers with `nvim-treesitter`
-    config = function()
-      require("treesj").setup({
-        use_default_keymaps = false,
-      })
-    end,
-  },
+  -- {
+  --   -- plugin for splitting/joining blocks of code like arrays, hashes, statements, objects, dictionaries, etc.
+  --   "Wansmer/treesj",
+  --   keys = {
+  --     {
+  --       "<M-t>",
+  --       function()
+  --         local t = require("treesj")
+  --         t.toggle()
+  --       end,
+  --     },
+  --   },
+  --   dependencies = { "nvim-treesitter/nvim-treesitter" }, -- if you install parsers with `nvim-treesitter`
+  --   config = function()
+  --     require("treesj").setup({
+  --       use_default_keymaps = false,
+  --     })
+  --   end,
+  -- },
 }

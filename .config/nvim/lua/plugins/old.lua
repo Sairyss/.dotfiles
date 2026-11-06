@@ -1,0 +1,188 @@
+-- Old disabled plugins. kept for reverence
+
+return {
+  -- {
+  --   -- https://github.com/jake-stewart/multicursor.nvim
+  --   "jake-stewart/multicursor.nvim",
+  --   branch = "1.0",
+  --   keys = {
+  --     {
+  --       "<C-esc>",
+  --       mode = { "n" },
+  --       function()
+  --         local mc = require("multicursor-nvim")
+  --         if not mc.cursorsEnabled() then
+  --           mc.enableCursors()
+  --         elseif mc.hasCursors() then
+  --           mc.clearCursors()
+  --         else
+  --           -- pcall(function() -- clear flash.nvim highlights
+  --           --   require("flash.repeat").get_state("jump"):hide()
+  --           --   local c = require("flash.plugins.char")
+  --           --   c.jumping = false
+  --           --   if c.state then
+  --           --     c.state:hide()
+  --           --   end
+  --           --   c.state = nil
+  --           --   c.jump_labels = false
+  --           -- end)
+  --           --
+  --           -- vim.cmd("noh") -- Clear search highlight (hlsearch)
+  --           --
+  --           -- Default <esc> handler.
+  --         end
+  --       end,
+  --     },
+  --     -- add cursor by matching word/selection
+  --     {
+  --       "<C-n>",
+  --       mode = { "n", "x" },
+  --       function()
+  --         local mc = require("multicursor-nvim")
+  --         mc.matchAddCursor(1)
+  --       end,
+  --     },
+  --     -- add cursor above/below
+  --     {
+  --       "<C-M-k>",
+  --       function()
+  --         local mc = require("multicursor-nvim")
+  --         mc.lineAddCursor(-1)
+  --       end,
+  --     },
+  --     {
+  --       "<C-M-j>",
+  --       function()
+  --         local mc = require("multicursor-nvim")
+  --         mc.lineAddCursor(1)
+  --       end,
+  --     },
+  --     -- Add and remove cursors with left click.
+  --     {
+  --       "<C-M-leftmouse>",
+  --       function()
+  --         local mc = require("multicursor-nvim")
+  --         mc.handleMouse()
+  --       end,
+  --     },
+  --     -- Easy way to add and remove cursors using the main cursor.
+  --     {
+  --       "<c-q>",
+  --       mode = { "n", "x" },
+  --       function()
+  --         local mc = require("multicursor-nvim")
+  --         mc.toggleCursor()
+  --       end,
+  --     },
+  --   },
+  --   config = function()
+  --     require("multicursor-nvim").setup()
+  --
+  --     -- Customize how cursors look.
+  --     local hl = vim.api.nvim_set_hl
+  --     hl(0, "MultiCursorCursor", { link = "Cursor" })
+  --     hl(0, "MultiCursorVisual", { link = "Visual" })
+  --     hl(0, "MultiCursorSign", { link = "SignColumn" })
+  --     hl(0, "MultiCursorDisabledCursor", { link = "Visual" })
+  --     hl(0, "MultiCursorDisabledVisual", { link = "Visual" })
+  --     hl(0, "MultiCursorDisabledSign", { link = "SignColumn" })
+  --   end,
+  -- },
+  -- {
+  --   "smjonas/live-command.nvim",
+  --   -- live-command supports semantic versioning via Git tags
+  --   -- tag = "2.*",
+  --   config = function()
+  --     require("live-command").setup({
+  --       commands = {
+  --         Norm = { cmd = "norm" },
+  --       },
+  --     })
+  --   end,
+  -- },
+
+  -- {
+  --   "bngarren/checkmate.nvim",
+  --   ft = "markdown", -- Lazy loads for Markdown files matching patterns in 'files'
+  --   opts = {
+  --     -- your configuration here
+  --     -- or leave empty to use defaults
+  --
+  --     -- -- Regular markers to avoid conflicts with render-markdown.nvim
+  --     -- todo_markers = {
+  --     --   unchecked = "[ ]",
+  --     --   checked = "[x]",
+  --     -- },
+  --   },
+  --   keys = {
+  --     {
+  --       "<CR>",
+  --       desc = "Toggle todo item",
+  --       silent = true,
+  --       mode = { "n", "v" },
+  --       ft = { "markdown" },
+  --       function()
+  --         local checkmate = require("checkmate")
+  --         if checkmate.is_running() then
+  --           checkmate.toggle()
+  --         end
+  --       end,
+  --     },
+  --     {
+  --       "<C-CR>",
+  --       desc = "Create todo item",
+  --       silent = true,
+  --       mode = { "n", "v" },
+  --       ft = { "markdown" },
+  --       function()
+  --         local checkmate = require("checkmate")
+  --         if checkmate.is_running() then
+  --           checkmate.create()
+  --         end
+  --       end,
+  --     },
+  --   },
+  -- },
+  -- {
+  --   -- contextual information above functions
+  --   "oribarilan/lensline.nvim",
+  --   -- tag = "1.0.0", -- or: branch = 'release/1.x' for latest non-breaking updates
+  --   branch = "release/1.x",
+  --   event = "LspAttach",
+  --   config = function()
+  --     require("lensline").setup()
+  --   end,
+  -- },
+
+  -- {
+  --   "obsidian-nvim/obsidian.nvim",
+  --   version = "*", -- recommended, use latest release instead of latest commit
+  --   lazy = true,
+  --   ft = "markdown",
+  --   -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
+  --   -- event = {
+  --   --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+  --   --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/*.md"
+  --   --   -- refer to `:h file-pattern` for more examples
+  --   --   "BufReadPre path/to/my-vault/*.md",
+  --   --   "BufNewFile path/to/my-vault/*.md",
+  --   -- },
+  --   dependencies = {
+  --     -- Required.
+  --     "nvim-lua/plenary.nvim",
+  --   },
+  --   opts = {
+  --     workspaces = {
+  --       {
+  --         name = "cs-notes",
+  --         path = "/mnt/nvme0n1p3/Code/cs-notes/",
+  --       },
+  --     },
+  --     templates = {
+  --       folder = "/mnt/nvme0n1p3/Code/cs-notes/Templates/",
+  --       date_format = "%Y-%m-%d",
+  --       time_format = "%H:%M",
+  --     },
+  --   },
+  -- },
+}
