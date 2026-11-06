@@ -18,10 +18,10 @@ Unless HERDR_BROOT_SIDEBAR_NVIM_FOLLOW=1 none of that happens: no panes.json, no
 everywhere.
 
 The sidebar is a declarative plugin pane (see the manifest): herdr starts broot itself, with no shell. A restored
-session (plain shells with the label, no tokens) is healed on the next pass: see adopt() and sync().
+session (plain shells with the label, no tokens) is healed on the next pass: see sync().
 
 Everything it keeps (the on/off switch, locks, panes.json, last directories) is in $XDG_RUNTIME_DIR/herdr-broot-sidebar, i.e.
-memory: nothing is written to disk, and after a reboot the sidebar is off until toggled.
+memory: nothing is written to disk. The sidebar is on by default; only an explicit `off` (cleared by a reboot) switches it off.
 
 Settings (environment): HERDR_BROOT_SIDEBAR_RATIO (width of the sidebar, default 0.20), HERDR_BROOT_SIDEBAR_SIDE (right, the default, or left),
 HERDR_BROOT_SIDEBAR_HIDE_FOR (programs that take over the terminal, like yazi or btop: no sidebar in a tab while one
@@ -89,8 +89,7 @@ EVENTS = ["tab.focused", "tab.created", "tab.closed", "workspace.created", "work
 # go now), and a new tab or workspace should get its sidebar at once, not after the quiet period
 URGENT_EVENTS = (b"tab.focused", b"tab_focused", b"pane.closed", b"pane_closed", b"pane.exited", b"pane_exited",
                  b"tab.created", b"tab_created", b"workspace.created", b"workspace_created")
-ENABLED = os.path.join(RUN_DIR, "enabled")  # the switch: present = on
-OFF = os.path.join(RUN_DIR, "off")  # present after an explicit `off`: do not re-adopt restored panes
+OFF = os.path.join(RUN_DIR, "off")  # the switch: on by default, off only while this exists (after an explicit `off`)
 PANES = os.path.join(RUN_DIR, "panes.json")  # pane id -> socket name of the sidebar in its tab (read by nvim)
 ACTIVE = os.path.join(RUN_DIR, "active-tab")  # the tab that was in view at the last pass
 LAST = os.path.join(RUN_DIR, "last-dir.json")  # sidebar pane id -> directory broot was last pointed at
@@ -167,17 +166,9 @@ def runs_hidden_app(p):
     return any((q.get("name") or "").lstrip("-").lower() in names for q in procs)
 
 
-def adopt():
-    """After a herdr restart the session comes back with its sidebars as plain panes that still have the label:
-    that is the sign the sidebar was on, so switch it on again (the switch lives in memory and is gone after a
-    reboot, but herdr's own session file remembers the panes). Not after an explicit `off`, which closes the
-    panes and leaves a marker. A restore emits no events, so this runs on every pass, not just at start."""
-    if os.path.exists(ENABLED) or os.path.exists(OFF):
-        return
-    panes = (herdr("pane", "list", check=False) or {}).get("panes") or []
-    if any(p.get("label") == LABEL for p in panes):
-        run_dir()
-        open(ENABLED, "a").close()
+def is_on():
+    """The sidebar is on unless it was switched off (the marker lives in memory, so a reboot turns it on again)."""
+    return not os.path.exists(OFF)
 
 
 def run_dir():
@@ -282,7 +273,7 @@ def sync():
     panes = snap["panes"]
     last = load_last()  # sidebar pane id -> directory broot was last pointed at
     side = [p for p in panes if is_sidebar(p, last)]
-    if not os.path.exists(ENABLED):
+    if not is_on():
         for p in side:
             herdr("pane", "close", p["pane_id"], check=False)
         save_last({})
@@ -454,16 +445,13 @@ def toggle(force=None):
         pane = tab_nvim(herdr("api", "snapshot")["snapshot"])[0]
         if pane:
             return neotree(pane, "toggle()")
-    on = (not os.path.exists(ENABLED)) if force is None else force
+    on = (not is_on()) if force is None else force
     run_dir()
     if on:
-        open(ENABLED, "a").close()
         if os.path.exists(OFF):
             os.remove(OFF)
     else:
         open(OFF, "a").close()
-        if os.path.exists(ENABLED):
-            os.remove(ENABLED)
     sync()
 
 
@@ -497,8 +485,7 @@ def watch():
             continue
         # a first pass right away: herdr has just started (or this watcher has), and nothing may happen for a while
         try:
-            adopt()
-            if os.path.exists(ENABLED):
+            if is_on():
                 sync()
         except Exception as e:
             print("sync failed:", e, file=sys.stderr)
@@ -517,8 +504,7 @@ def watch():
             if not urgent:
                 time.sleep(max(0.0, last_run + 1.0 - time.monotonic()))
             try:
-                adopt()  # restored panes may appear whenever, and a restore emits no events of its own
-                if os.path.exists(ENABLED):
+                if is_on():
                     sync()
             except Exception as e:
                 print("sync failed:", e, file=sys.stderr)

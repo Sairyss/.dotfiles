@@ -74,16 +74,14 @@ the directory of the pane you are working in.
   wrote it (the identity of its socket) and is ignored for another one. A pane
   labelled `broot-sidebar` without the token is a dead leftover: it is closed
   and a fresh sidebar starts in its place (one that still runs broot only gets
-  marked). The label is put back if another plugin renames the pane. If the
-  on/off switch was lost (a reboot clears the runtime dir) but such panes
-  exist, the sidebar is switched on again; after an explicit `off` it stays
-  off.
+  marked). The label is put back if another plugin renames the pane.
+- **On by default**: the sidebar is on, also on a fresh machine with nothing
+  to set up; only an explicit `off` switches it off, until the next reboot.
 - **Nothing is written to disk**: the switch, locks, `panes.json` and the last
   directories live in `$XDG_RUNTIME_DIR/herdr-broot-sidebar` (memory; without
   it `$TMPDIR` or `/tmp` with a per-user directory), and files are only
-  rewritten when their content changes. After a reboot the sidebar is off until
-  you toggle it. A sync takes about 50 ms and runs at most once a second; a
-  pane title change also triggers one.
+  rewritten when their content changes. A sync takes about 50 ms and runs
+  at most once a second; a pane title change also triggers one.
 - A sidebar you exit by hand comes back on the next event; use the toggle.
 - One failing step (a tab, a `--send` to broot) is logged and skipped; the
   other tabs and the saved state are still updated.
