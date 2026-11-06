@@ -203,7 +203,7 @@ tasks = "tasks"             # number of tasks running in all tabs of the workspa
 # Formats, with {n} the number.
 title_format = "{workspace}·{app}"
 tabs_format = "⧉ {n}"
-uncommitted_format = "✚{n}"
+uncommitted_format = "±{n}"
 tasks_format = "▶ {n}"
 
 [tasks]
