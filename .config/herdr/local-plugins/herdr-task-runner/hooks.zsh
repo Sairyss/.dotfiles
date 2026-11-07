@@ -180,6 +180,8 @@ _tr_preexec() {
   [[ $_tr_label_style == command ]] || name=$_tr_label
   local -i shell_pid=$$ timing=$_tr_timing
   (
+    # the watcher inherits the parent's state: its exit must not release the entry (precmd and the hold do)
+    _tr_registered=0 _tr_marked=0 _tr_watcher=0
     zmodload zsh/zselect 2>/dev/null && (( cs > 0 )) && zselect -t $cs
     # a transparent pane (pane token transparent=1: a sidebar) is never shown, timed or counted. Asked here, after the
     # threshold, so commands that end sooner cost nothing and the others one call.
@@ -220,6 +222,7 @@ _tr_preexec() {
     fi
   ) >/dev/null 2>&1 &!
   _tr_marked=1 # the name is on the entry once it is reported: clear it with the entry
+  _tr_registered=1 # so the next preexec and zshexit release it if nothing else did (they were no-ops before)
   _tr_watcher=$!
 }
 
@@ -232,7 +235,8 @@ _tr_precmd() {
   threshold=$(( managed ? _tr_run_threshold : _tr_terminal_threshold ))
   _tr_cmd= _tr_start=0 _tr_managed=0
   _tr_kill_watcher $elapsed $threshold
-  (( elapsed >= threshold )) || return 0
+  # ended before the threshold: the watcher was killed before it reported anything, nothing to release
+  (( elapsed >= threshold )) || { _tr_registered=0 _tr_marked=0; return 0 }
 
   # herdr-run-hold marked it already; just drop what the "working" report left (it may have
   # been interrupted before it ran)
@@ -249,8 +253,12 @@ _tr_precmd() {
   if [[ $_tr_report == true ]]; then
     local name="$cmd"
     (( ${#name} > 80 )) && name="${name[1,79]}…"
-    _tr_registered=0 # the hold releases the entry itself
-    herdr-run-hold --typed ${start%.*} "$label" $code "$cmd" >/dev/null 2>&1 </dev/null
+    _tr_registered=0 # the hold releases the entry itself; checked again below
+    if herdr-run-hold --typed ${start%.*} "$label" $code "$cmd" >/dev/null 2>&1 </dev/null; then
+      _tr_marked=0
+    else
+      _tr_registered=1; _tr_release # a hold that was killed or failed to start leaves the entry and its tokens
+    fi
   fi
   return 0
 }

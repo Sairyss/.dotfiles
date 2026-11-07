@@ -226,6 +226,13 @@ start, so a change reaches the shells opened after it. herdr-ohmyzsh's
 `hsplit`/`htab`/`hagent`/`hworktree`/`hreload` helpers and its `herdr`
 completions are not included.
 
+The command tokens a pane carries (`cmd`, `start`, `args`, `timer`) belong to
+a running command. If a clear gets lost (shell killed, hold interrupted), the
+sidebar drops them: at once when the pane has no entry, and for herdr-run's
+(`start`) after a minute and only once the pane's shell is in front again. The
+arguments of a program in `jobs.ignore` or of a coding agent are never shown
+in `$cmd`.
+
 ### Logs
 
 `sidebar.log` in the plugin's state dir

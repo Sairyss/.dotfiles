@@ -15,6 +15,8 @@ reconcile:
   when claude or nvim ends. Reconcile leaves such panes alone; it no longer looks at terminal titles for them.
 - slow-command entries reported by hooks.zsh and herdr-run-hold are tagged kind=job. A job is any reported agent that
   herdr doesn't know as a coding agent and that isn't nvim.
+- command tokens (cmd, start, args, timer) on a pane with no entry are stale (a writer's clear was lost) and are
+  cleared; herdr-run's (with `start`) only after STALE_TOKEN_GRACE and once the pane's shell is in front again.
 - the [jobs] settings are written to shell.env in the state dir, for hooks.zsh and herdr-run-hold.
 - workspace row tokens: title, app, tabs, tasks, cmd, branch, uncommitted.
 
@@ -235,7 +237,12 @@ def detail_of(p):
     # the command of a job (display name set by hooks.zsh/herdr-run) also survives its end, while the done/failed
     # mark is held and the terminal title is the prompt again
     shown = p.get("display_agent") if p.get("agent") and p.get("agent") not in C.agents.known_set else ""
-    text = (p.get("tokens") or {}).get("cmd") or shown or (p.get("terminal_title_stripped") or "").strip()
+    title = (p.get("terminal_title_stripped") or "").strip()
+    # an nvim title wins over a `cmd` token: the token can outlive its command (a pane that ran `claude --resume x`
+    # and now runs nvim), and the arguments of something else must not show next to nvim
+    if NVIM_TITLE_RE.search(title):
+        return ""
+    text = (p.get("tokens") or {}).get("cmd") or shown or title
     if not text or C.command.prompt_re.match(text) or NVIM_TITLE_RE.search(text):
         return ""
     text = text.split("; rc=$?")[0]  # herdr-run types "<cmd>; rc=$?; herdr-run-hold <label> $rc" around the command
@@ -248,6 +255,8 @@ def detail_of(p):
     if not words or words[0].endswith(":"):  # a TUI title like "Yazi: dir", not a command line
         return ""
     prog = words.pop(0).rsplit("/", 1)[-1].lower()
+    if prog in C.jobs.ignore_set or prog in C.agents.known_set:  # ignored programs and agents show no arguments
+        return ""
     if prog in C.command.runner_set and words[:1] == ["run"]:
         words.pop(0)
     out = " ".join(words)
@@ -350,6 +359,9 @@ def git_branch(cwd):
 
 # ---- reconcile ---------------------------------------------------------------------------------------------
 
+STALE_TOKEN_GRACE = 60  # seconds a herdr-run `start` token may precede its entry
+
+
 def sync_panes(panes):
     """Job tags, per pane (nvim panes tag themselves, see the top of the file)."""
     src, kind = C.herdr.source, C.kinds.token
@@ -359,6 +371,20 @@ def sync_panes(panes):
         tokens = p.get("tokens") or {}
         if tokens.get(kind) == C.kinds.nvim:
             continue
+
+        # The command tokens (cmd, start, args, timer) belong to a running command. hooks.zsh and herdr-run-hold clear
+        # them when it ends, but a clear can be lost (shell killed, hold interrupted), so drop what describes nothing
+        # instead of trusting every writer. Without an entry (hooks.zsh registers one while a command runs) they are
+        # stale. A `start` token is herdr-run's: it may never get an entry (ignored program, threshold not reached),
+        # and herdr-run-hold reads it back, so it goes only when the grace period is over and the shell is in front.
+        stale = [t for t in ("cmd", "start", C.kinds.args, "timer") if tokens.get(t)]
+        started = tokens.get("start") or ""
+        if stale and not agent and (not started or (
+                time.time() - (int(started) if started.isdigit() else 0) > STALE_TOKEN_GRACE and not fg_cmd(p))):
+            log.info("pane %s: clearing stale tokens %s (no entry, cmd=%r)", pid, stale, tokens.get("cmd"))
+            run("pane", "report-metadata", pid, "--source", src, *[a for t in stale for a in ("--clear-token", t)])
+            # the workspace rows below read the same list: they must not see what was just cleared
+            tokens = p["tokens"] = {k: v for k, v in tokens.items() if k not in stale}
 
         is_job = bool(agent) and agent not in C.agents.known_set
         if is_job and tokens.get(kind) != C.kinds.job:
