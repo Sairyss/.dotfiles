@@ -36,6 +36,8 @@ keymap("n", "<M-m>", "[h", { desc = "Prev Hunk" })
 keymap("n", "<M-o>", "]f", { desc = "Next function" })
 keymap("n", "<M-y>", "[f", { desc = "Prev function" })
 
+keymap("n", "<C-q>", ":qa<CR>", { desc = "Prev function", silent = true })
+
 ---------- Extensions ----------
 
 if not vim.g.vscode then

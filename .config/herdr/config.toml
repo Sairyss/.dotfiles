@@ -196,7 +196,7 @@ description = "television"
 [[keys.command]]
 key = "prefix+l"
 type = "popup"
-command = "lazygit"
+command = "env LAZYGIT_POPUP=1 lazygit" # lets lazygit's edit command close the popup
 width = "90%"
 height = "90%"
 description = "lazygit (popup)"

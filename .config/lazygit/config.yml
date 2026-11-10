@@ -1,3 +1,16 @@
+os:
+  # Open files through herdr-run so they land in the right nvim/pane/tab instead of inside
+  # lazygit's popup. Lazygit runs in the repo root, which herdr-run uses to resolve the
+  # relative filename.
+  # herdr-run returns at once: run it in the background instead of suspending lazygit, which
+  # flashes the command on screen.
+  editInTerminal: false
+  # In herdr's lazygit popup ($LAZYGIT_POPUP, set in herdr's config.toml) quit lazygit afterwards:
+  # a popup only closes when its process exits. $PPID is lazygit, the parent of this shell.
+  edit: 'herdr-run --edit {{filename}} && { [ -z "$LAZYGIT_POPUP" ] || kill $PPID; }'
+  editAtLine: 'herdr-run --edit {{filename}} --line {{line}} && { [ -z "$LAZYGIT_POPUP" ] || kill $PPID; }'
+# herdr-run returns right away; don't wait for enter after the editor command
+promptToReturnFromSubprocess: false
 git:
   diffRenderers:
     # word-level diff highlighting (requires `git-delta`)
