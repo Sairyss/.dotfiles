@@ -15,6 +15,7 @@ pane_gaps = false
 
 # agents panel: one line per agent (name · job arguments · workspace · machine); nvim instances
 # (reported by nvim/lua/plugins/herdr/claude.lua) get a bold purple name, claude is orange, others light
+status_indicators = "symbols"
 [ui.sidebar.agents]
 rows = [
   [
@@ -56,8 +57,8 @@ rows = [
 
 [theme.custom]
 # border colors of lazygit/neovim (tokyonight moon): active, inactive
-accent = "#04d1f9"
-# overlay0 = "#04d1f9"
+# accent = "#04d1f9"
+# overlay0 = "#00FF9F"
 
 [keys]
 prefix = "ctrl+g"
@@ -66,8 +67,8 @@ previous_workspace = "alt+k"
 next_workspace = "alt+j"
 split_vertical = "prefix+|"
 settings = "prefix+shift+s"
-edit_scrollback = "prefix+shift+e"    # default prefix+e
-open_notification_target = "prefix+o" # jump to the agent that finished / needs attention
+edit_scrollback = "prefix+shift+e" # default prefix+e
+# open_notification_target = "prefix+o" # jump to the agent that finished / needs attention
 next_agent = "alt+u"
 previous_agent = "alt+i"
 
@@ -101,12 +102,6 @@ key = "prefix+e"
 type = "plugin_action"
 command = "herdr-broot-sidebar.focus"
 description = "focus broot sidebar"
-
-[[keys.command]]
-key = "prefix+p"
-type = "plugin_action"
-command = "chmarax.herdr-nvim.pick-file"
-description = "open file from agent output"
 
 # vim-herdr-navigation (local, alt-based)
 [[keys.command]]
@@ -161,16 +156,10 @@ description = "btop"
 # like prefix+o (open_notification_target), but not limited to the time the toast is visible: focuses the
 # job/agent that has been done or failed the longest (see herdr-jump-done)
 [[keys.command]]
-key = "prefix+O"
+key = "prefix+o"
 type = "shell"
 command = "$HOME/.config/herdr/local-plugins/herdr-task-runner/bin/herdr-jump-done"
 description = "jump to the oldest finished/failed job"
-
-[[keys.command]]
-key = "prefix+L"
-type = "shell"
-command = "lazygit"
-description = "lazygit"
 
 [[keys.command]]
 key = "prefix+t"
