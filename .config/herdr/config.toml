@@ -55,8 +55,9 @@ rows = [
 ]
 
 [theme.custom]
-# overlay0 = "#181926"
-# accent = "#2fc77f"
+# border colors of lazygit/neovim (tokyonight moon): active, inactive
+accent = "#04d1f9"
+# overlay0 = "#04d1f9"
 
 [keys]
 prefix = "ctrl+g"

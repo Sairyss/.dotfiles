@@ -16,31 +16,27 @@ git:
     # word-level diff highlighting (requires `git-delta`)
     - command: delta --dark --paging=never --line-numbers --hunk-header-style=omit
 gui:
-  # tokyo-night
+  # same colors as lazygit inside neovim: snacks.nvim generates them from the neovim theme (tokyonight)
+  # into ~/.cache/nvim/lazygit-theme.yml, copied here so lazygit outside neovim matches
   theme:
     activeBorderColor:
-      - "#7aa2f7"
+      - "#ff966c"
       - bold
     inactiveBorderColor:
-      - "#565f89"
+      - "#04d1f9"
     searchingActiveBorderColor:
-      - "#e0af68"
+      - "#ff966c"
       - bold
     optionsTextColor:
-      - "#7aa2f7"
+      - "#82aaff"
     selectedLineBgColor:
-      - "#283457"
-    inactiveViewSelectedLineBgColor:
-      - "#1f2335"
+      - "#2d3f76"
     cherryPickedCommitFgColor:
-      - "#7aa2f7"
+      - "#82aaff"
     cherryPickedCommitBgColor:
-      - "#bb9af7"
-    markedBaseCommitFgColor:
-      - "#7aa2f7"
-    markedBaseCommitBgColor:
-      - "#e0af68"
+      - "#c099ff"
     unstagedChangesColor:
-      - "#f7768e"
+      - "#c53b53"
     defaultFgColor:
-      - "#c0caf5"
+      - "#c8d3f5"
+  nerdFontsVersion: "3"

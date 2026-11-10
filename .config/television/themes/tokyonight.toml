@@ -2,7 +2,7 @@
 # folke/tokyonight.nvim with bg = #1e2030 and border_highlight = #04d1f9
 # general
 background = '#1e2030'
-border_fg = '#7AA2F7'
+border_fg = '#04d1f9'
 text_fg = '#c8d3f5'
 dimmed_text_fg = '#828bb8'
 # input
@@ -13,7 +13,7 @@ result_name_fg = '#cdd6f4'
 result_line_number_fg = '#ffc777'
 result_value_fg = '#828bb8'
 selection_fg = '#c3e88d'
-selection_bg = '#2f334d'
+selection_bg = '#2d3f76'
 match_fg = '#ff757f'
 # preview
 preview_title_fg = '#c099ff'
