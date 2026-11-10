@@ -17,6 +17,8 @@ reconcile:
   herdr doesn't know as a coding agent and that isn't nvim.
 - command tokens (cmd, start, args, timer) on a pane with no entry are stale (a writer's clear was lost) and are
   cleared; herdr-run's (with `start`) only after STALE_TOKEN_GRACE and once the pane's shell is in front again.
+- a known coding agent that herdr still reports after it exited (idle, shell prompt as title, only the shell in front)
+  is ignored by the sidebar.
 - the [jobs] settings are written to shell.env in the state dir, for hooks.zsh and herdr-run-hold.
 - workspace row tokens: title, app, tabs, tasks, cmd, branch, uncommitted.
 
@@ -468,6 +470,19 @@ def sync_workspaces(panes):
             report(ws, "uncommitted", None if n_uncommitted is None else names.uncommitted_format.format(n=n_uncommitted) if n_uncommitted else "")
 
 
+def drop_dead_agents(panes):
+    """herdr can keep a coding agent on a pane after it exited (a missed release), and the sidebar would show it as
+    the workspace's app for good. An agent that is not working, whose terminal title is a shell prompt again and
+    whose pane has no foreground program but the shell: forget it here (herdr's own state is not touched).
+    The title check keeps the cost to the few suspicious panes: one process-info call each."""
+    for p in panes:
+        if p.get("agent") and p.get("agent_status") != "working" \
+                and C.command.prompt_re.match((p.get("terminal_title_stripped") or "").strip()) and not fg_cmd(p):
+            log.info("pane %s: agent %r is gone (shell in front), ignoring it", p["pane_id"], p["agent"])
+            for k in ("agent", "agent_status", "display_agent"):
+                p.pop(k, None)
+
+
 def reconcile():
     lock = lock_file("reconcile.lock", block=True)  # a manual action and the watcher can overlap
     try:
@@ -475,6 +490,7 @@ def reconcile():
         write_shell_env()
         started = time.monotonic()
         panes = json.loads(run("pane", "list"))["result"]["panes"]
+        drop_dead_agents(panes)
         sync_panes(panes)
         sync_workspaces(panes)
         log.debug("reconciled %d panes in %.2fs", len(panes), time.monotonic() - started)

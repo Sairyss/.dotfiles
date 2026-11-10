@@ -233,6 +233,11 @@ sidebar drops them: at once when the pane has no entry, and for herdr-run's
 arguments of a program in `jobs.ignore` or of a coding agent are never shown
 in `$cmd`.
 
+herdr can also keep a coding agent on a pane after it exited. The sidebar
+ignores such an agent (it is not working, the terminal title is a shell prompt
+and only the shell is in front), so the workspace row does not keep showing it
+as the app.
+
 ### Logs
 
 `sidebar.log` in the plugin's state dir
