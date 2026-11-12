@@ -141,7 +141,8 @@ plugin actions):
   The `git` calls for all workspaces run in parallel.
 - nvim registers itself: `nvim/lua/plugins/herdr/claude.lua`
   reports agent `nvim` with the state of the claude running in its terminal
-  and the token `kind=nvim`, and releases both when claude or nvim ends.
+  (idle when there is none) and the token `kind=nvim`, and releases both when
+  nvim ends.
   `reconcile` skips panes with that token. No terminal title is involved.
 - `apply` installs the agents panel order: jobs, nvim, then real agents.
 - `restart` replaces the running watcher, for after editing `sidebar.py`.

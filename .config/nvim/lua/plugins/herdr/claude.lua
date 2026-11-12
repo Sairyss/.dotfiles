@@ -1,6 +1,6 @@
 -- Inside herdr, report the state of the claude running in claudecode.nvim's terminal to herdr, which can't see
--- inside an nvim terminal buffer: the pane is registered as agent `nvim` and claude's state (idle, working,
--- blocked) is its agent state. Nothing here uses the terminal title.
+-- inside an nvim terminal buffer: every nvim pane is registered as agent `nvim`; its state is claude's (idle,
+-- working, blocked) when claude's terminal is alive, else idle. Nothing here uses the terminal title.
 -- The source and the token (kind=nvim, which the agents panel sorts by) are those of the herdr-task-runner plugin
 -- (settings herdr.source and kinds.* in its config.default.toml); sidebar.py leaves a pane with that token alone.
 -- herdr is $HERDR_BIN_PATH, else herdr from PATH. Outside herdr nothing happens.
@@ -71,16 +71,14 @@ local function claude_state()
   return "idle"
 end
 
--- Registered only while claude's terminal is alive, so a plain nvim shows as a normal pane.
+-- Registered for as long as nvim runs (released on exit), claude or not: without claude the state is idle.
 local timer = vim.uv.new_timer()
 timer:start(
   1000,
   1000,
   vim.schedule_wrap(function()
-    local state = claude_state()
-    if state == nil then
-      release()
-    elseif state ~= last then
+    local state = claude_state() or "idle"
+    if state ~= last then
       report(state)
     end
   end)

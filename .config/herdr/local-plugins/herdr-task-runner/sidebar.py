@@ -11,8 +11,8 @@ Usage: sidebar.py reconcile | watch | apply | restart | config
 
 reconcile:
 - nvim panes register themselves: nvim/lua/plugins/herdr/claude.lua reports agent `nvim` with
-  the pane token kind=nvim and the state of the claude running inside (idle, working, blocked), and releases it
-  when claude or nvim ends. Reconcile leaves such panes alone; it no longer looks at terminal titles for them.
+  the pane token kind=nvim and the state of the claude running inside (idle, working, blocked; idle without
+  claude), and releases it when nvim ends. Reconcile leaves such panes alone; it no longer looks at terminal titles for them.
 - slow-command entries reported by hooks.zsh and herdr-run-hold are tagged kind=job. A job is any reported agent that
   herdr doesn't know as a coding agent and that isn't nvim.
 - command tokens (cmd, start, args, timer) on a pane with no entry are stale (a writer's clear was lost) and are

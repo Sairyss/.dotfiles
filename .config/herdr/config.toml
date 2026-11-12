@@ -15,7 +15,6 @@ pane_gaps = false
 
 # agents panel: one line per agent (name · job arguments · workspace · machine); nvim instances
 # (reported by nvim/lua/plugins/herdr/claude.lua) get a bold purple name, claude is orange, others light
-status_indicators = "symbols"
 [ui.sidebar.agents]
 rows = [
   [
