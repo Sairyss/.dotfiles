@@ -5,10 +5,13 @@ os:
   # herdr-run returns at once: run it in the background instead of suspending lazygit, which
   # flashes the command on screen.
   editInTerminal: false
+  # The full path (override: $HERDR_RUN) instead of the bare name: a popup inherits the PATH of the shell
+  # that started the herdr server, which lacks the plugin's bin/ e.g. in a container where the server
+  # is started without a login shell.
   # In herdr's lazygit popup ($LAZYGIT_POPUP, set in herdr's config.toml) quit lazygit afterwards:
   # a popup only closes when its process exits. $PPID is lazygit, the parent of this shell.
-  edit: 'herdr-run --edit {{filename}} && { [ -z "$LAZYGIT_POPUP" ] || kill $PPID; }'
-  editAtLine: 'herdr-run --edit {{filename}} --line {{line}} && { [ -z "$LAZYGIT_POPUP" ] || kill $PPID; }'
+  edit: '${HERDR_RUN:-${XDG_CONFIG_HOME:-$HOME/.config}/herdr/local-plugins/herdr-task-runner/bin/herdr-run} --edit {{filename}} && { [ -z "$LAZYGIT_POPUP" ] || kill $PPID; }'
+  editAtLine: '${HERDR_RUN:-${XDG_CONFIG_HOME:-$HOME/.config}/herdr/local-plugins/herdr-task-runner/bin/herdr-run} --edit {{filename}} --line {{line}} && { [ -z "$LAZYGIT_POPUP" ] || kill $PPID; }'
 # herdr-run returns right away; don't wait for enter after the editor command
 promptToReturnFromSubprocess: false
 git:
