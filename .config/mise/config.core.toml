@@ -1,0 +1,20 @@
+# Packages that always come from the distro's package manager (on immutable
+# Fedora: layered with rpm-ostree), never from nix or Homebrew. They are the
+# tools those need to be installed or used, plus the login shell.
+#
+# install-mise.sh runs this env in its own pass with the default
+# `system_packages.prefer` from config.toml (native managers first, brew last
+# for macOS). The other envs use the order it builds from what is installed.
+#
+# Dry run: `mise -E core bootstrap --dry-run`
+# Apply:   `mise -E core bootstrap --update`
+
+[bootstrap.packages]
+git = "latest"
+curl = "latest"
+zsh = "latest"
+gcc = { os = "linux" }
+# macOS ships make with the Xcode CLT; the brew formula installs GNU make as `gmake`
+make = { os = "linux" }
+"brew:make" = { os = "macos" }
+openssh = { names = { pacman = "openssh", dnf = "openssh-clients", apt = "openssh-client" }, os = "linux" }

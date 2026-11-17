@@ -1,60 +1,43 @@
 # Optional packages, installed on a host or in a container/VM (e.g. toolbx).
 #
-# Tools are listed per package source: `env = "native"` (the distro's package
-# manager) and `env = "brew"` (Homebrew). They apply only with that env;
-# install-mise.sh picks one. A tool may have an entry for just one source.
-# Packages Homebrew itself depends on are always installed natively.
+# Each tool is declared once, by its bare name. The package manager is picked
+# by `system_packages.prefer`, which install-mise.sh sets from what is
+# installed (nix, then brew, then the distro's manager; container: distro only).
+# Use `names = { manager = "pkg" }` only where a package is named differently.
+# Packages that must always be native are in config.core.toml.
 #
 # Dry run: `mise -E base bootstrap --dry-run`
 # Apply:   `mise -E base bootstrap --update`
 
 [bootstrap.packages]
-# Homebrew dependencies: always installed natively
-git = "latest"
-curl = "latest"
-gcc = { os = "linux" }
-# macOS ships make with the Xcode CLT; the brew formula installs GNU make as `gmake`
-make = { os = "linux" }
-"brew:make" = { os = "macos" }
+# Editor
+neovim = "latest"
 
 # Git
-lazygit = { env = "native" }
-"brew:lazygit" = { env = "brew" }
-git-delta = { env = "native" }
-"brew:git-delta" = { env = "brew" }
+lazygit = "latest"
+git-delta = "latest"
 
 # Search and navigation
-ripgrep = { env = "native" }
-"brew:ripgrep" = { env = "brew" }
-fd = { names = { pacman = "fd", dnf = "fd-find", apt = "fd-find" }, env = "native" }
-"brew:fd" = { env = "brew" }
+ripgrep = "latest"
+fd = { names = { dnf = "fd-find", apt = "fd-find" } }
 
 # Build dependencies
-cmake = { env = "native" }
-"brew:cmake" = { env = "brew" }
+cmake = "latest"
 
 # Terminal shell
-starship = { env = "native" }
-"brew:starship" = { env = "brew" }
-zoxide = { env = "native" }
-"brew:zoxide" = { env = "brew" }
-atuin = { env = "native" }
-"brew:atuin" = { env = "brew" }
-bat = { env = "native" }
-"brew:bat" = { env = "brew" }
-eza = { env = "native" }
-"brew:eza" = { env = "brew" }
+starship = "latest"
+zoxide = "latest"
+atuin = "latest"
+bat = "latest"
+eza = "latest"
 
 # Utilities
-jq = { env = "native" }
-"brew:jq" = { env = "brew" }
-"aur:herdr" = { os = "linux", env = "native" } # not in the Arch repos
-"brew:herdr" = { env = "brew" }
-btop = { env = "native" }
-"brew:btop" = { env = "brew" }
-television = { env = "native" }
-"brew:television" = { env = "brew" }
-yazi = { env = "native" }
-"brew:yazi" = { env = "brew" }
-stow = { env = "native" }
-"brew:stow" = { env = "brew" }
+jq = "latest"
+btop = "latest"
+television = "latest"
+yazi = "latest"
+stow = "latest"
+unzip = "latest"
+
+"aur:herdr" = { os = "linux" }
+"brew:herdr" = { os = "macos" }

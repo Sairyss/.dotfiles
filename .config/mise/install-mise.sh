@@ -5,10 +5,13 @@
 # containers/VMs; --host uses only the host-only config (-E host), so run both
 # on a host machine (config.toml is always included). Run
 # install.sh first so the mise config is in ~/.config/mise.
-# Both also pick where the tools come from: Homebrew (e.g. -E base,brew) when
-# it is available, else the distro's package manager (-E base,native); inside a
-# toolbx/podman container it is always the latter. Override with
-# TOOLS_SOURCE=brew|native. --base with `native` also adds the runtimes env.
+# --base also picks where the tools come from, in this order: nix, Homebrew,
+# the distro's package manager (whichever are installed); inside a toolbx/podman
+# container it is always the distro's. Override with
+# TOOLS_SOURCE=auto|nix|brew|native. --host is always native. Packages in the
+# core env (git, gcc, ...) are always native (rpm-ostree layering on immutable
+# Fedora) and are previewed in a separate pass. --base with a native source
+# also adds the runtimes env.
 # Installed with the system package manager: pacman (Arch), dnf (Fedora, via
 # the upstream rpm repo), brew (macOS and immutable/ostree Fedora, where brew
 # must already be installed). Other distros use the upstream installer;
@@ -32,23 +35,36 @@ for b in /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
 done
 
 # Desktop apps use Flatpak/casks, so they don't need the tools source.
-if [[ "$envs" != "apps" ]]; then
+# Only --base gets nix/brew: --host packages (services, kernel-adjacent tools)
+# have to be native.
+src_env=()
+prefer=""
+if [[ "$envs" == "base" ]]; then
   if [[ -z "${TOOLS_SOURCE:-}" ]]; then
     if [[ -e /run/.toolboxenv || -e /run/.containerenv ]]; then
-      # Toolbx/distrobox share $HOME and PATH, so the host's brew can be visible.
+      # Toolbx/distrobox share $HOME and PATH, so the host's nix/brew can be visible.
       TOOLS_SOURCE=native
-    elif have brew; then TOOLS_SOURCE=brew
-    else TOOLS_SOURCE=native
+    else TOOLS_SOURCE=auto
     fi
   fi
   case "$TOOLS_SOURCE" in
-    brew|native) envs="$envs,$TOOLS_SOURCE" ;;
-    *) echo "TOOLS_SOURCE must be brew or native." >&2; exit 2 ;;
+    auto)
+      # nix, then brew, then the distro's manager (mise skips ones it can't use)
+      order=()
+      have nix && order+=(nix)
+      have brew && order+=(brew)
+      order+=(dnf pacman apt)
+      ;;
+    nix) order=(nix) ;;
+    brew) order=(brew) ;;
+    native) order=(dnf pacman apt) ;;
+    *) echo "TOOLS_SOURCE must be auto, nix, brew or native." >&2; exit 2 ;;
   esac
+  prefer="$(IFS=,; echo "${order[*]}")"
   # Runtimes only come from the distro's package manager, and only in containers/VMs.
-  [[ "$envs" == "base,native" ]] && envs="$envs,runtimes"
+  [[ "${order[0]}" == dnf ]] && src_env+=(runtimes)
 fi
-env_args=(-E "$envs")
+envs="$(IFS=,; echo "$envs${src_env[*]:+,${src_env[*]}}")"
 
 # The fallback installer puts mise in ~/.local/bin, which may not be on PATH yet.
 export PATH="$HOME/.local/bin:$PATH"
@@ -88,7 +104,18 @@ fi
 conf="${MISE_CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/mise}/config.toml"
 [[ -e "$conf" ]] || echo "Warning: $conf not found; run install.sh first." >&2
 
-echo "Bootstrap dry run (${env_args[*]}):"
-mise "${env_args[@]}" bootstrap --dry-run
+# Pinned-native packages go first, in their own pass, with the default order
+# from config.toml; the rest use the order built above.
+echo "Bootstrap dry run (core):"
+mise -E core bootstrap --dry-run
 echo
-echo "Looks right? Apply with: mise ${env_args[*]} bootstrap --update"
+echo "Bootstrap dry run (${envs}${prefer:+, prefer $prefer}):"
+if [[ -n "$prefer" ]]; then
+  MISE_SYSTEM_PACKAGES_PREFER="$prefer" mise -E "$envs" bootstrap --dry-run
+else
+  mise -E "$envs" bootstrap --dry-run
+fi
+echo
+echo "Looks right? Apply with:"
+echo "  mise -E core bootstrap --update"
+echo "  ${prefer:+MISE_SYSTEM_PACKAGES_PREFER=$prefer }mise -E $envs bootstrap --update"

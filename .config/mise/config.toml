@@ -4,22 +4,11 @@
 # Apply:   `mise bootstrap --update`
 
 [settings]
-system_packages.prefer = ["dnf", "pacman", "apt", "brew"]
+# Default order, used by the core env and the host env. install-mise.sh
+# overrides it for the base env (MISE_SYSTEM_PACKAGES_PREFER).
+system_packages.prefer = ["nix", "brew", "dnf", "pacman", "apt"]
 system_packages.ostree = "layer"
 
-# zsh as the login shell on every machine; the package has to come with it.
+# zsh as the login shell on every machine; the package is in config.core.toml.
 [bootstrap.user]
 login_shell = "zsh"
-
-[bootstrap.packages]
-# Shell
-zsh = "latest"
-
-# Editor: package source is picked by the `brew` or `native` env
-neovim = { env = "native" }
-"brew:neovim" = { env = "brew" }
-
-openssh = { names = { pacman = "openssh", dnf = "openssh-clients", apt = "openssh-client" }, os = "linux" }
-
-unzip = { env = "native" }
-"brew:unzip" = { env = "brew" }
