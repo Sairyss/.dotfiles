@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Usage: curl -fsSL https://raw.githubusercontent.com/Sairyss/.dotfiles/master/install.sh | bash
+# One-command setup: installs git and stow if missing, clones the dotfiles
+# into ~/.dotfiles (or updates an existing clone) and stows them into $HOME.
+# Overrides: DOTFILES_REPO (clone URL), DOTFILES_DIR (clone location).
+# Supports Fedora, Arch, Debian/Ubuntu and macOS. Needs sudo (or root) on Linux.
+set -euo pipefail
+
+REPO="${DOTFILES_REPO:-https://github.com/Sairyss/.dotfiles.git}"
+DEST="${DOTFILES_DIR:-$HOME/.dotfiles}"
+
+as_root() { if [[ $EUID -eq 0 ]]; then "$@"; else sudo "$@"; fi; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+install_packages() {
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    # git comes with the Xcode CLT; it needs a GUI install we can't wait for.
+    if ! have git; then
+      xcode-select --install || true
+      echo "Finish the Xcode Command Line Tools install, then re-run this script." >&2
+      exit 1
+    fi
+    have brew || { echo "Homebrew is required to install: $*" >&2; exit 1; }
+    brew install "$@"
+  elif have dnf; then as_root dnf install -y "$@"
+  elif have pacman; then as_root pacman -S --noconfirm --needed "$@"
+  elif have apt-get; then as_root apt-get update && as_root apt-get install -y "$@"
+  else echo "No supported package manager found." >&2; exit 1
+  fi
+}
+
+missing=()
+have git || missing+=(git)
+have stow || missing+=(stow)
+if ((${#missing[@]})); then
+  echo "Installing: ${missing[*]}"
+  install_packages "${missing[@]}"
+fi
+
+if [[ -d "$DEST/.git" ]]; then
+  echo "$DEST already exists; skipping clone."
+else
+  # Submodules (e.g. shell plugins) are part of the configs.
+  git clone --recurse-submodules "$REPO" "$DEST"
+fi
+
+# The repo is a single stow package named after its directory. Stow refuses to
+# overwrite existing real files and reports them as conflicts.
+stow --no-folding --dir="$(dirname "$DEST")" --target="$HOME" "$(basename "$DEST")"
+echo "Dotfiles stowed into $HOME."

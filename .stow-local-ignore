@@ -5,3 +5,5 @@ screenshot.png
 .stowrc
 AGENTS.md
 ^/scripts$
+^/install\.sh$
+^/install-mise\.sh$

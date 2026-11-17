@@ -185,7 +185,14 @@ To backup and restore configs, store your configs in github and use Stow to crea
 
 ### Sync apps
 
-To automatically install apps use Aconfmgr <https://github.com/CyberShadow/aconfmgr> (Arch Linux only).
+#### Cross platform
+
+To automatically install all apps on new machines use Mise <https://mise.jdx.dev/>
+
+#### Arch Linux
+
+To automatically install apps and sync configs outside of `.config` directory
+use Aconfmgr <https://github.com/CyberShadow/aconfmgr> (Arch Linux only).
 
 - `aconfmgr save`
 - `aconfmgr apply`
