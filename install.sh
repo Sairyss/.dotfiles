@@ -3,7 +3,8 @@
 # One-command setup: installs git and stow if missing, clones the dotfiles
 # into ~/.dotfiles (or updates an existing clone) and stows them into $HOME.
 # Overrides: DOTFILES_REPO (clone URL), DOTFILES_DIR (clone location).
-# Supports Fedora, Arch, Debian/Ubuntu and macOS. Needs sudo (or root) on Linux.
+# Supports Fedora (incl. immutable, via brew), Arch, Debian/Ubuntu and macOS.
+# Needs sudo (or root) on Linux, except where brew is used.
 set -euo pipefail
 
 REPO="${DOTFILES_REPO:-https://github.com/Sairyss/.dotfiles.git}"
@@ -11,6 +12,12 @@ DEST="${DOTFILES_DIR:-$HOME/.dotfiles}"
 
 as_root() { if [[ $EUID -eq 0 ]]; then "$@"; else sudo "$@"; fi; }
 have() { command -v "$1" >/dev/null 2>&1; }
+
+# Linuxbrew is preinstalled on some immutable distros but is often not on PATH
+# in a non-login shell (e.g. under curl | bash).
+for b in /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+  if ! have brew && [[ -x "$b" ]]; then eval "$("$b" shellenv)"; fi
+done
 
 install_packages() {
   if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -20,6 +27,10 @@ install_packages() {
       echo "Finish the Xcode Command Line Tools install, then re-run this script." >&2
       exit 1
     fi
+    have brew || { echo "Homebrew is required to install: $*" >&2; exit 1; }
+    brew install "$@"
+  elif [[ -e /run/ostree-booted ]]; then
+    # Immutable distro: brew avoids rpm-ostree layering and its reboot.
     have brew || { echo "Homebrew is required to install: $*" >&2; exit 1; }
     brew install "$@"
   elif have dnf; then as_root dnf install -y "$@"

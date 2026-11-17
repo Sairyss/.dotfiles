@@ -19,6 +19,12 @@ case "${1:-}" in
   *) echo "Usage: ${0##*/} [--host]" >&2; exit 2 ;;
 esac
 
+# Linuxbrew is preinstalled on some immutable distros but is often not on PATH
+# in a non-login shell (e.g. under curl | bash).
+for b in /home/linuxbrew/.linuxbrew/bin/brew "$HOME/.linuxbrew/bin/brew"; do
+  if ! have brew && [[ -x "$b" ]]; then eval "$("$b" shellenv)"; fi
+done
+
 # The fallback installer puts mise in ~/.local/bin, which may not be on PATH yet.
 export PATH="$HOME/.local/bin:$PATH"
 
