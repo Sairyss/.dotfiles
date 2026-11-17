@@ -1,71 +1,31 @@
-# Utilities and services that are installed only on a host machine,
-# not on containers/VMs.
+# Host-only packages and services; not for containers/VMs.
 #
 # Dry run: `mise -E host bootstrap --dry-run`
-# Execute: `mise -E host bootstrap --update`
-# Status:  `mise -E host bootstrap status`
-
-[bootstrap.hooks]
-# Installs flatpak if missing and adds the Flathub remote, before the packages below
-pre-packages = "mise run setup-flatpak"
+# Apply:   `mise -E host bootstrap --update`
 
 [bootstrap.packages]
+# SSH server: Arch's openssh package already includes it
+"dnf:openssh-server" = "latest"
+"apt:openssh-server" = "latest"
+
 kitty = { os = "linux" }
 "brew-cask:kitty" = { os = "macos" }
-
-# Containers/VMs
-incus = { os = "linux" }
 
 # Utilities
 wl-clipboard = { os = "linux" }
 opensnitch = { os = "linux" }
 
-# Fonts
-jetbrains-mono = { names = { pacman = "ttf-jetbrains-mono", dnf = "jetbrains-mono-fonts", apt = "fonts-jetbrains-mono" }, os = "linux" }
-"brew-cask:font-jetbrains-mono" = { os = "macos" }
+# Containers/VMs
+incus = { os = "linux" }
 
 # Remote access
 tailscale = "latest"
 netbird = { os = "linux" }
 
-# GUI apps
-#
-# Browsers
-"flatpak:org.mozilla.firefox" = { os = "linux" }
-"brew-cask:firefox" = { os = "macos" }
-
-"flatpak:com.google.Chrome" = { os = "linux" }
-"brew-cask:google-chrome" = { os = "macos" }
-
-# Screenshots
-"flatpak:org.flameshot.Flameshot" = { os = "linux" }
-
-# Torrents
-"flatpak:org.qbittorrent.qBittorrent" = { os = "linux" }
-"brew-cask:qbittorrent" = { os = "macos" }
-
-# Password manager
-"flatpak:org.keepassxc.KeePassXC" = { os = "linux" }
-"brew-cask:keepassxc" = { os = "macos" }
-
-# Screen recording
-"flatpak:io.github.seadve.Kooha" = { os = "linux" }
-
-# Email
-"flatpak:org.mozilla.Thunderbird" = { os = "linux" }
-"brew-cask:thunderbird" = { os = "macos" }
-
-# Local AI
-"flatpak:ai.lmstudio.lm-studio" = { os = "linux" }
-"brew-cask:lm-studio" = { os = "macos" }
-
-# Flatpak permissions manager
-"flatpak:com.github.tchx84.Flatseal" = { os = "linux" }
-
-# Media player
-"flatpak:org.videolan.VLC" = { os = "linux" }
-"brew-cask:vlc" = { os = "macos" }
-
 [bootstrap.services.netbird]
+state = "running"
+enabled = true
+
+[bootstrap.services.sshd]
 state = "running"
 enabled = true

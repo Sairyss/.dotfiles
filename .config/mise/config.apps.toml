@@ -1,0 +1,50 @@
+# Desktop apps: Flatpak on Linux, Homebrew casks on macOS. Optional; run it
+# separately from the host packages.
+#
+# Dry run: `mise -E apps bootstrap --dry-run`
+# Apply:   `mise -E apps bootstrap --update`
+
+[bootstrap.hooks]
+# Installs flatpak if missing and adds the Flathub remote, before the packages below
+pre-packages = "mise run setup-flatpak"
+
+[bootstrap.packages]
+# Browsers
+"flatpak:org.mozilla.firefox" = { os = "linux" }
+"brew-cask:firefox" = { os = "macos" }
+
+"flatpak:com.google.Chrome" = { os = "linux" }
+"brew-cask:google-chrome" = { os = "macos" }
+
+# Screenshots
+"flatpak:org.flameshot.Flameshot" = { os = "linux" }
+
+# Torrents
+"flatpak:org.qbittorrent.qBittorrent" = { os = "linux" }
+"brew-cask:qbittorrent" = { os = "macos" }
+
+# Password manager
+"flatpak:org.keepassxc.KeePassXC" = { os = "linux" }
+"brew-cask:keepassxc" = { os = "macos" }
+
+# Screen recording
+"flatpak:io.github.seadve.Kooha" = { os = "linux" }
+
+# Email
+"flatpak:org.mozilla.Thunderbird" = { os = "linux" }
+"brew-cask:thunderbird" = { os = "macos" }
+
+# Local AI
+"flatpak:ai.lmstudio.lm-studio" = { os = "linux" }
+"brew-cask:lm-studio" = { os = "macos" }
+
+# Flatpak permissions manager
+"flatpak:com.github.tchx84.Flatseal" = { os = "linux" }
+
+# Media player
+"flatpak:org.videolan.VLC" = { os = "linux" }
+"brew-cask:vlc" = { os = "macos" }
+
+# Fonts
+jetbrains-mono = { names = { pacman = "ttf-jetbrains-mono", dnf = "jetbrains-mono-fonts", apt = "fonts-jetbrains-mono" }, os = "linux" }
+"brew-cask:font-jetbrains-mono" = { os = "macos" }

@@ -3,7 +3,8 @@
 # One-command setup: installs git and stow if missing, clones the dotfiles
 # into ~/.dotfiles (or updates an existing clone) and stows them into $HOME.
 # Overrides: DOTFILES_REPO (clone URL), DOTFILES_DIR (clone location).
-# Supports Fedora (incl. immutable, via brew), Arch, Debian/Ubuntu and macOS.
+# Supports Fedora, Arch, Debian/Ubuntu and macOS. On immutable (ostree) systems
+# git and Homebrew must already be installed; stow is then installed with brew.
 # Needs sudo (or root) on Linux, except where brew is used.
 set -euo pipefail
 
@@ -30,8 +31,16 @@ install_packages() {
     have brew || { echo "Homebrew is required to install: $*" >&2; exit 1; }
     brew install "$@"
   elif [[ -e /run/ostree-booted ]]; then
-    # Immutable distro: brew avoids rpm-ostree layering and its reboot.
-    have brew || { echo "Homebrew is required to install: $*" >&2; exit 1; }
+    # Immutable distro: layering needs a reboot and Homebrew itself needs git,
+    # so git and Homebrew have to be installed by hand first.
+    local errs=()
+    case " $* " in
+      *" git "*) errs+=("git is missing: layer it first (e.g. rpm-ostree install git), reboot, then re-run.") ;;
+    esac
+    case " $* " in
+      *" stow "*) have brew || errs+=("Homebrew is missing: install it first; it is used to install stow.") ;;
+    esac
+    if ((${#errs[@]})); then printf '%s\n' "${errs[@]}" >&2; exit 1; fi
     brew install "$@"
   elif have dnf; then as_root dnf install -y "$@"
   elif have pacman; then as_root pacman -S --noconfirm --needed "$@"

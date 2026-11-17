@@ -1,0 +1,12 @@
+# Development runtimes, installed with the distro's package manager. Optional;
+# install-mise.sh adds this env with `--base` when the source is `native`.
+#
+# Dry run: `mise -E runtimes bootstrap --dry-run`
+
+[bootstrap.packages]
+nodejs = { names = { pacman = "nodejs", dnf = "nodejs", apt = "nodejs", brew = "node" } }
+python = { names = { pacman = "python", dnf = "python3", apt = "python3" } }
+rust = { names = { apt = "rustc" } }
+"apt:cargo" = "latest"
+go = { names = { pacman = "go", dnf = "golang", apt = "golang-go" } }
+lua = { names = { pacman = "lua", dnf = "lua", apt = "lua5.4" } }

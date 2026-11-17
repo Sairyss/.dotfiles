@@ -6,4 +6,3 @@ screenshot.png
 AGENTS.md
 ^/scripts$
 ^/install\.sh$
-^/install-mise\.sh$
