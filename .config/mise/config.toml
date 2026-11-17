@@ -1,0 +1,68 @@
+# Generic utilities to install for host as well as container/VM machines.
+#
+# Dry run: `mise bootstrap --dry-run`
+# Execute: `mise bootstrap --update`
+# Status:  `mise bootstrap status`
+
+[settings]
+system_packages.prefer = ["dnf", "pacman", "apt", "brew"]
+system_packages.ostree = "layer"
+
+# Services
+[bootstrap.services.sshd]
+state = "running"
+enabled = true
+
+[bootstrap.user]
+login_shell = "zsh"
+
+[bootstrap.packages]
+# Editor
+neovim = "latest"
+
+# Git
+git = "latest"
+lazygit = "latest"
+git-delta = "latest"
+
+# Search and navigation
+ripgrep = "latest"
+fd = { names = { pacman = "fd", dnf = "fd-find", apt = "fd-find" } }
+
+# Build dependencies
+gcc = { os = "linux" }
+# macOS ships make with the Xcode CLT; the brew formula installs GNU make as `gmake`
+make = { os = "linux" }
+"brew:make" = { os = "macos" }
+cmake = "latest"
+
+# Development runtimes managed by the OS
+nodejs = { names = { pacman = "nodejs", dnf = "nodejs", apt = "nodejs", brew = "node" } }
+python = { names = { pacman = "python", dnf = "python3", apt = "python3" } }
+rust = { names = { apt = "rustc" } }
+"apt:cargo" = "latest"
+go = { names = { pacman = "go", dnf = "golang", apt = "golang-go" } }
+lua = { names = { pacman = "lua", dnf = "lua", apt = "lua5.4" } }
+
+# Terminal shell
+zsh = "latest"
+starship = "latest"
+zoxide = "latest"
+atuin = "latest"
+bat = "latest"
+eza = "latest"
+
+# Utilities
+curl = "latest"
+jq = "latest"
+herdr = "latest"
+btop = "latest"
+television = "latest"
+yazi = "latest"
+stow = "latest"
+
+# ssh
+openssh = { names = { pacman = "openssh", dnf = "openssh-clients", apt = "openssh-client" }, os = "linux" }
+# SSH server: Arch's openssh package already includes it
+"dnf:openssh-server" = "latest"
+"apt:openssh-server" = "latest"
