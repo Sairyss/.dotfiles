@@ -17,9 +17,11 @@ command = ["bash", "-c", "exec bash -c \"$HERDR_TASK_RUNNER_CMD\""]
 [[startup]]
 command = ["python3", "-I", "sidebar.py", "apply"]
 
-# detached watcher: subscribes to pane events and reconciles after bursts of them
+# detached watcher: subscribes to pane events and reconciles after bursts of them. `restart` rather
+# than `watch`: after `herdr server stop` + start a stale watcher can still hold the lock, and `watch`
+# then exits silently, leaving the sidebar tokens (branch, ...) unset
 [[startup]]
-command = ["setsid", "-f", "python3", "-I", "sidebar.py", "watch"]
+command = ["python3", "-I", "sidebar.py", "restart"]
 
 [[actions]]
 id = "reconcile"

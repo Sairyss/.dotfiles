@@ -126,10 +126,11 @@ The same plugin keeps herdr's sidebar in step with the panes. `sidebar.py` has
 these subcommands, started from `herdr-plugin.toml` (the last three are also
 plugin actions):
 
-- `watch` runs detached from the startup hook, subscribes to herdr's events and
-  reconciles after bursts of them (plugin event hooks can't see `pane.updated`).
-  If herdr refuses the subscription it logs that and retries after
-  `watch.retry_delay`; it does not poll.
+- `watch` subscribes to herdr's events and reconciles after bursts of them
+  (plugin event hooks can't see `pane.updated`). If herdr refuses the
+  subscription it logs that and retries after `watch.retry_delay`; it does not
+  poll. The startup hook runs `restart` (not `watch`), so every server start
+  gets a fresh watcher even if a stale one still holds the lock.
 - `reconcile` is one idempotent pass. It tags slow commands as `kind=job`
   (nvim panes tag themselves as `kind=nvim`, see below) and sets the
   workspace tokens `$title`, `$app`, `$tabs`, `$tasks`, `$cmd`, `$branch` and
