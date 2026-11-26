@@ -16,7 +16,7 @@
   },
   "DefaultAction": "deny",
   "DefaultDuration": "once",
-  "InterceptUnknown": false,
+  "InterceptUnknown": true,
   "ProcMonitorMethod": "ebpf",
   "LogLevel": 2,
   "LogUTC": true,
