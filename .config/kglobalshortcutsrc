@@ -2,6 +2,7 @@
 _k_friendly_name=Activity Manager
 switch-to-activity-71b9d5ee-2e82-44d4-aad0-06464bd940af=none,none,Switch to activity "Default"
 switch-to-activity-c8b7aca0-9ead-4aa4-ad20-badd95cf0f28=none,none,Switch to activity "0"
+switch-to-activity-f0e1e6f4-0467-4d9c-b4e0-de495c18a664=none,none,Switch to activity "Default"
 switch-to-activity-f18c74ed-14f6-4cda-90e6-e52e3daddd27=none,none,Switch to activity "Default"
 
 [KDE Keyboard Layout Switcher]
@@ -14,6 +15,7 @@ Switch to Next Keyboard Layout=Meta+Alt+K,Meta+Alt+K,Switch to Next Keyboard Lay
 _k_friendly_name=Keyboard Layout Switcher
 
 [com.anthropic.Claude]
+B7F662D957DA194F21EE66F203F85743-Ctrl+Alt+Space=none,Ctrl+Alt+Space,Claude shortcut: Ctrl+Alt+Space
 EE0879DA5A7839C038B54EA6F083A884-Ctrl+Alt+Space=none,Ctrl+Alt+Space,Claude shortcut: Ctrl+Alt+Space
 _k_friendly_name=Claude
 
@@ -50,9 +52,9 @@ Cycle Overview=none,none,Cycle through Overview and Grid View
 Cycle Overview Opposite=none,none,Cycle through Grid View and Overview
 Decrease Opacity=none,none,Decrease Opacity of Active Window by 5%
 Edit Tiles=Meta+T,Meta+T,Toggle Tiles Editor
-Expose=Ctrl+F9,Ctrl+F9\tMeta+F9,Toggle Present Windows (Current desktop)
-ExposeAll=Launch (C)\tCtrl+F10,Launch (C)\tCtrl+F10\tMeta+F10,Toggle Present Windows (All desktops)
-ExposeClass=Ctrl+F7,Ctrl+F7\tMeta+F7,Toggle Present Windows (Window class)
+Expose=Ctrl+F9\tMeta+F9,Ctrl+F9\tMeta+F9,Toggle Present Windows (Current desktop)
+ExposeAll=Launch (C)\tCtrl+F10\tMeta+F10,Launch (C)\tCtrl+F10\tMeta+F10,Toggle Present Windows (All desktops)
+ExposeClass=Ctrl+F7\tMeta+F7,Ctrl+F7\tMeta+F7,Toggle Present Windows (Window class)
 ExposeClassCurrentDesktop=none,none,Toggle Present Windows (Window class on current desktop)
 Grid View=Meta+G,Meta+G,Toggle Grid View
 Increase Opacity=none,none,Increase Opacity of Active Window by 5%
@@ -219,31 +221,34 @@ view_zoom_in=Meta++\tMeta+=,Meta++\tMeta+=,Zoom In
 view_zoom_out=Meta+-,Meta+-,Zoom Out
 
 [kwin][$InverseAction]
-Cycle Overview=Cycle Overview Opposite
+Cycle Overview Opposite=Cycle Overview
 Decrease Opacity=Increase Opacity
-Switch One Desktop Up=Switch One Desktop Down
+MoveZoomDown=MoveZoomUp
+MoveZoomLeft=MoveZoomRight
+Switch One Desktop Down=Switch One Desktop Up
 Switch One Desktop to the Left=Switch One Desktop to the Right
-Switch Window Left=Switch Window Right
+Switch Window Right=Switch Window Left
 Switch Window Up=Switch Window Down
 Switch to Next Screen=Switch to Previous Screen
 Switch to Previous Desktop=Switch to Next Desktop
-Switch to Screen Above=Switch to Screen Below
-Switch to Screen to the Right=Switch to Screen to the Left
+Switch to Screen Below=Switch to Screen Above
+Switch to Screen to the Left=Switch to Screen to the Right
 Walk Through Windows (Reverse)=Walk Through Windows
-Walk Through Windows Alternative=Walk Through Windows Alternative (Reverse)
-Walk Through Windows of Current Application (Reverse)=Walk Through Windows of Current Application
-Walk Through Windows of Current Application Alternative=Walk Through Windows of Current Application Alternative (Reverse)
-Window Grow Horizontal=Window Shrink Horizontal
-Window Grow Vertical=Window Shrink Vertical
+Walk Through Windows Alternative (Reverse)=Walk Through Windows Alternative
+Walk Through Windows of Current Application=Walk Through Windows of Current Application (Reverse)
+Walk Through Windows of Current Application Alternative (Reverse)=Walk Through Windows of Current Application Alternative
 Window One Desktop Up=Window One Desktop Down
 Window One Desktop to the Right=Window One Desktop to the Left
 Window One Screen Up=Window One Screen Down
-Window One Screen to the Left=Window One Screen to the Right
+Window One Screen to the Right=Window One Screen to the Left
 Window Pack Right=Window Pack Left
 Window Pack Up=Window Pack Down
 Window Raise=Window Lower
+Window Shrink Horizontal=Window Grow Horizontal
+Window Shrink Vertical=Window Grow Vertical
+Window to Next Screen=Window to Previous Screen
 Window to Previous Desktop=Window to Next Desktop
-Window to Previous Screen=Window to Next Screen
+view_zoom_in=view_zoom_out
 
 [mediacontrol]
 _k_friendly_name=Media Controller
@@ -296,6 +301,8 @@ activate task manager entry 6=Meta+W,Meta+6,Activate Task Manager Entry 6
 activate task manager entry 7=Meta+E,Meta+7,Activate Task Manager Entry 7
 activate task manager entry 8=Meta+R,Meta+8,Activate Task Manager Entry 8
 activate task manager entry 9=Meta+X,Meta+9,Activate Task Manager Entry 9
+activate widget 2=none,none,Activate Panel Widget
+activate widget 3=Alt+F1,none,Activate Application Launcher Widget
 activate widget 31=none,none,Activate Application Launcher Widget
 activate widget 88=none,none,Activate Application Launcher Widget
 clear history=none,none,Clear Notification History
