@@ -7,7 +7,7 @@ alias rm='rm -vr'
 alias mv='mv -v'
 alias path='echo -e ${PATH//:/\\n}'
 alias ftoday='find . -type f -daystart -mtime -1' # find today files
-alias cat='bat'
+alias cat='bat --paging=never --style=plain'
 alias open='xdg-open'
 alias dev=$HOME/.dotfiles/.config/.zsh/scripts/dev.sh
 alias zr='zellij run --floating --width 90% --height 95% --x 5% --y 5%'
